@@ -1,0 +1,10 @@
+# Visual Studio specific files
+*.suo
+*.user
+
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# NuGet Packages Directory
+packages/
