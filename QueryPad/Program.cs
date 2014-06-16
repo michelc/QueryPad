@@ -10,7 +10,7 @@ namespace QueryPad
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MdiForm());
+            Application.Run(new MainForm());
         }
     }
 }

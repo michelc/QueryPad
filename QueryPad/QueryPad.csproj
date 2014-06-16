@@ -44,19 +44,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CnxParameter.cs" />
-    <Compile Include="Connexion.cs" />
     <Compile Include="CnxForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="CnxForm.Designer.cs">
       <DependentUpon>CnxForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MdiForm.cs">
+    <Compile Include="CnxParameter.cs" />
+    <Compile Include="Connexion.cs" />
+    <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MdiForm.Designer.cs">
-      <DependentUpon>MdiForm.cs</DependentUpon>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -70,8 +70,8 @@
     <EmbeddedResource Include="CnxForm.resx">
       <DependentUpon>CnxForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MdiForm.resx">
-      <DependentUpon>MdiForm.cs</DependentUpon>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

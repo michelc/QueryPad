@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace QueryPad
@@ -10,29 +11,26 @@ namespace QueryPad
         public CnxForm()
         {
             InitializeComponent();
-
-            List.Top = 10;
-            List.Left = 10;
-            List.Width = this.ClientSize.Width - 20;
-            List.Height = this.ClientSize.Height - 20;
+            CnxParameters = CnxParameter.GetList();
+            List.DataSource = CnxParameters;
         }
 
-        private void CnxForm_Activated(object sender, System.EventArgs e)
+        private void CnxForm_Load(object sender, EventArgs e)
         {
-            // Reload connections parameters
+            // Load connections parameters
 
             CnxParameters = CnxParameter.GetList();
             List.DataSource = CnxParameters;
         }
 
-        private void SelectConnection(object sender, DataGridViewCellEventArgs e)
+        private void List_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             // Double-click on a connection
-            // => open this connection (via MdiForm)
+            // => open this connection (via MainForm)
 
             var CnxParameter = CnxParameters[e.RowIndex];
-            var Mdi = (MdiForm)this.MdiParent;
-            Mdi.OpenConnection(CnxParameter);
+            var Main = (MainForm)this.Parent.FindForm();
+            Main.OpenConnection(CnxParameter);
         }
     }
 }

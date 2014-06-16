@@ -1,16 +1,16 @@
 ﻿namespace QueryPad
 {
-    partial class MdiForm
+    partial class MainForm
     {
         /// <summary>
-        /// Variable nécessaire au concepteur.
+        /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
-        /// Nettoyage des ressources utilisées.
+        /// Clean up any resources being used.
         /// </summary>
-        /// <param name="disposing">true si les ressources managées doivent être supprimées ; sinon, false.</param>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,11 +20,11 @@
             base.Dispose(disposing);
         }
 
-        #region Code généré par le Concepteur Windows Form
+        #region Windows Form Designer generated code
 
         /// <summary>
-        /// Méthode requise pour la prise en charge du concepteur - ne modifiez pas
-        /// le contenu de cette méthode avec l'éditeur de code.
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
         {
@@ -38,35 +38,34 @@
             this.TabConnections.Location = new System.Drawing.Point(4, 30);
             this.TabConnections.Name = "TabConnections";
             this.TabConnections.Padding = new System.Windows.Forms.Padding(3);
-            this.TabConnections.Size = new System.Drawing.Size(811, 66);
+            this.TabConnections.Size = new System.Drawing.Size(801, 428);
             this.TabConnections.TabIndex = 0;
             this.TabConnections.Text = "Connections";
             this.TabConnections.UseVisualStyleBackColor = true;
-            this.TabConnections.Enter += new System.EventHandler(this.ListConnections);
+            this.TabConnections.Enter += new System.EventHandler(this.TabConnections_Enter);
             // 
             // Tabs
             // 
             this.Tabs.Controls.Add(this.TabConnections);
-            this.Tabs.Dock = System.Windows.Forms.DockStyle.Top;
+            this.Tabs.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Tabs.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Tabs.Location = new System.Drawing.Point(0, 0);
+            this.Tabs.Margin = new System.Windows.Forms.Padding(0);
             this.Tabs.Name = "Tabs";
+            this.Tabs.Padding = new System.Drawing.Point(0, 0);
             this.Tabs.SelectedIndex = 0;
-            this.Tabs.Size = new System.Drawing.Size(819, 100);
-            this.Tabs.TabIndex = 3;
+            this.Tabs.Size = new System.Drawing.Size(809, 462);
+            this.Tabs.TabIndex = 0;
+            this.Tabs.SelectedIndexChanged += new System.EventHandler(this.Tabs_SelectedIndexChanged);
             // 
-            // MdiForm
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(819, 487);
+            this.ClientSize = new System.Drawing.Size(809, 462);
             this.Controls.Add(this.Tabs);
-            this.IsMdiContainer = true;
-            this.Name = "MdiForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "QueryPad";
-            this.Resize += new System.EventHandler(this.MdiForm_Resize);
+            this.Name = "MainForm";
+            this.Text = "MainForm";
             this.Tabs.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -76,5 +75,6 @@
 
         private System.Windows.Forms.TabPage TabConnections;
         private System.Windows.Forms.TabControl Tabs;
+
     }
 }

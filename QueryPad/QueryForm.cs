@@ -86,6 +86,7 @@ namespace QueryPad
         {
             // Force informations display
             Informations.Text = message;
+            Informations.Left = Toolbar.ClientSize.Width - Informations.Width;
             this.Refresh();
         }
 
