@@ -17,6 +17,11 @@ namespace QueryPad
             this.CnxParameter = CnxParameter;
         }
 
+        ~Connexion()
+        {
+            this.Close();
+        }
+
         public void Open()
         {
             // Open the connexion
