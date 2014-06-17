@@ -18,13 +18,13 @@ namespace QueryPad
             switch (CnxParameter.Environment)
             {
                 case "Debug":
-                    BackColor = Color.LightGray;
+                    BackColor = Color.FromArgb(0xDD, 0xDD, 0xDD); // Silver
                     break;
                 case "Test":
-                    BackColor = Color.Gold;
+                    BackColor = Color.FromArgb(0xFF, 0x85, 0x1B); // Orange
                     break;
                 case "Release":
-                    BackColor = Color.Red;
+                    BackColor = Color.FromArgb(0xFF, 0x41, 0x36); // Red
                     break;
             }
 
