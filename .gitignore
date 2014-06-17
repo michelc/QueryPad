@@ -8,3 +8,6 @@
 
 # NuGet Packages Directory
 packages/
+
+# Personal informations
+*.secret

@@ -1,44 +1,53 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+using System.Text;
 
 namespace QueryPad
 {
+    [DataContract]
     public class CnxParameter
     {
+        [DataMember]
         public string Name { get; set; }
+
+        [DataMember]
         public string Environment { get; set; }
+
+        [DataMember]
         public string Provider { get; set; }
+
+        [DataMember]
         public string CnxString { get; set; }
 
-        public static List<CnxParameter> GetList()
+        public static List<CnxParameter> Load()
         {
-            var list = new List<CnxParameter>();
-
-            list.Add(new CnxParameter
+            // Load connections parameters from a JSON file
+            using (var stream = File.OpenRead(App.ConfigFile))
             {
-                Name = "@Sdf.Department",
-                Environment = "Debug",
-                Provider = "System.Data.SqlServerCe.4.0",
-                CnxString = @"Data Source=C:\MVC\Pif\Pif\App_Data\Department.sdf"
-            });
+                var serializer = new DataContractJsonSerializer(typeof(List<CnxParameter>));
+                return serializer.ReadObject(stream) as List<CnxParameter>;
+            }
+        }
 
-            list.Add(new CnxParameter
+        public static void Save(List<CnxParameter> CnxParameters)
+        {
+            // Save connections parameters as a JSON file
+            using (var stream = new MemoryStream())
             {
-                Name = "@Sdf.Production",
-                Environment = "Release",
-                Provider = "System.Data.SqlServerCe.4.0",
-                CnxString = @"Data Source=C:\MVC\Pif\Pif\App_Data\Department.sdf"
-            });
-
-            list.Add(new CnxParameter
-            {
-                Name = "@Sdf.Tests",
-                Environment = "Test",
-                Provider = "System.Data.SqlServerCe.4.0",
-                CnxString = @"Data Source=C:\MVC\Pif\Pif\App_Data\Department.sdf"
-            });
-
-            return list.OrderBy(c => c.Name).ThenBy(c => c.Environment).ToList();
+                var serializer = new DataContractJsonSerializer(typeof(List<CnxParameter>));
+                serializer.WriteObject(stream, CnxParameters);
+                string json = Encoding.UTF8.GetString(stream.ToArray());
+                // Prettify JSON
+                json = json.Replace("{\"", "\n  {\n    \"");
+                json = json.Replace("\"}", "\"\n  }");
+                json = json.Replace("\":\"", "\": \"");
+                json = json.Replace("\",\"", "\"\n  , \"");
+                json = json.Replace("}]", "}\n]\n");
+                File.WriteAllText(App.ConfigFile, json);
+            }
         }
     }
 }

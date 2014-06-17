@@ -11,15 +11,13 @@ namespace QueryPad
         public CnxForm()
         {
             InitializeComponent();
-            CnxParameters = CnxParameter.GetList();
-            List.DataSource = CnxParameters;
         }
 
         private void CnxForm_Load(object sender, EventArgs e)
         {
             // Load connections parameters
 
-            CnxParameters = CnxParameter.GetList();
+            CnxParameters = CnxParameter.Load();
             List.DataSource = CnxParameters;
         }
 
