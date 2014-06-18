@@ -9,7 +9,6 @@ Quick & dirty query tool with just what I need (maybe less).
 * Test with Sql Server
 * Close connections !!!
 * Use Dapper NuGet
-* Check connection error (sure)
 * Add Sqlite support (yes?)
 * Add OleDb support for Access (no?)
 * Display results as Grid or Text (maybe)

@@ -32,7 +32,18 @@ namespace QueryPad
             ShowInformations("");
 
             Cnx = new Connexion(CnxParameter);
-            Cnx.Open();
+            try
+            {
+                Cnx.Open();
+            }
+            catch (Exception ex)
+            {
+                var caption = "Error " + ex.HResult.ToString("x");
+                var text = string.Format("{0}\n\n({1})", ex.Message, ex.Source);
+                MessageBox.Show(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowInformations("Connexion error");
+            }
+
             Tables.DataSource = Cnx.GetTables();
         }
 
