@@ -17,11 +17,6 @@ namespace QueryPad
             this.CnxParameter = CnxParameter;
         }
 
-        ~Connexion()
-        {
-            this.Close();
-        }
-
         public void Open()
         {
             // Open the connexion
@@ -34,10 +29,7 @@ namespace QueryPad
         public void Close()
         {
             // Close current connexion
-            if (db.State == ConnectionState.Open)
-            {
-                db.Close();
-            }
+            db.Close();
         }
 
         public string[] GetTables()
