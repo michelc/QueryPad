@@ -32,7 +32,7 @@ following informations:
   , "Provider": "System.Data.SqlServerCe.4.0"
   },
   {
-    "CnxString": "Data Source=.\SQLEXPRESS;Integrated Security=SSPI;AttachDBFilename=C:\\DB\\\Department_Express.mdf;User Instance=true;Database=Department_Express"
+    "CnxString": "Data Source=.\\SQLEXPRESS;Integrated Security=SSPI;AttachDBFilename=C:\\DB\\Department_Express.mdf;User Instance=true;Database=Department_Express"
   , "Environment": "Test"
   , "Name": "@Mdf.Department"
   , "Provider": "System.Data.SqlClient"

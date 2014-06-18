@@ -17,7 +17,16 @@ namespace QueryPad
         {
             // Load connections parameters
 
-            CnxParameters = CnxParameter.Load();
+            try
+            {
+                CnxParameters = CnxParameter.Load();
+            }
+            catch (Exception ex)
+            {
+                var caption = "Error " + ex.HResult.ToString("x");
+                var text = string.Format("{0}\n\n({1})", ex.Message, ex.Source);
+                MessageBox.Show(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
             List.DataSource = CnxParameters;
         }
 
