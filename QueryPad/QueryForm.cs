@@ -72,6 +72,7 @@ namespace QueryPad
             {
                 var start = DateTime.Now;
                 Grid.DataSource = Cnx.ExecuteDataSet(sql).Tables[0];
+                Grid.AutoResizeColumns();
                 duration = DateTime.Now.Subtract(start);
             }
             catch (Exception ex)
