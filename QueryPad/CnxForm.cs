@@ -35,6 +35,7 @@ namespace QueryPad
             // Double-click on a connection
             // => open this connection (via MainForm)
 
+            Cursor = Cursors.WaitCursor;
             var CnxParameter = CnxParameters[e.RowIndex];
             var Main = (MainForm)this.Parent.FindForm();
             Main.OpenConnection(CnxParameter);
