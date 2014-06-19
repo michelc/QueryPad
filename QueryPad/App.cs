@@ -8,6 +8,11 @@ namespace QueryPad
     public static class App
     {
         /// <summary>
+        /// Application's title
+        /// </summary>
+        public const string Title = "QueryPad";
+
+        /// <summary>
         /// Application's path
         /// </summary>
         public static string CurrentDirectory

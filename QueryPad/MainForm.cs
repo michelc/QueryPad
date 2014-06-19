@@ -5,8 +5,6 @@ namespace QueryPad
 {
     public partial class MainForm : Form
     {
-        private string AppTitle = "QueryPad";
-
         public MainForm()
         {
             InitializeComponent();
@@ -20,7 +18,7 @@ namespace QueryPad
             {
                 var Cnx = new CnxForm();
                 AddFormToTab(Cnx, TabConnections);
-                this.Text = AppTitle + " // " + Tabs.SelectedTab.Text;
+                this.Text = App.Title + " // " + Tabs.SelectedTab.Text;
             }
         }
 
@@ -67,7 +65,7 @@ namespace QueryPad
             // A tab has been selected
             // => update title bar
 
-            this.Text = AppTitle + " // " + Tabs.SelectedTab.Text;
+            this.Text = App.Title + " // " + Tabs.SelectedTab.Text;
         }
     }
 }
