@@ -37,9 +37,6 @@ namespace QueryPad
             // Return cached list
             if (tables != null) return tables;
 
-            // Return null list when connection failed
-            if (db.State == ConnectionState.Closed) return tables;
-
             // Get all tables for current connection
             tables = db.Query<string>(this.SqlTables()).ToArray();
 

@@ -44,6 +44,15 @@ namespace QueryPad
             // Associate a new QueryForm to the tab
             var query = new QueryForm(CnxParameter);
             AddFormToTab(query, tab);
+
+            // Remove the tab when connexion failed
+            if (query.Text == "")
+            {
+                Tabs.TabPages.Remove(tab);
+                return;
+            }
+
+            // Or activate the tab
             Tabs.SelectedTab = tab;
         }
 
