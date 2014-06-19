@@ -33,6 +33,7 @@ namespace QueryPad
                 AddFormToTab(Cnx, TabConnections);
                 this.Text = App.Title + " // " + Tabs.SelectedTab.Text;
             }
+            TabConnections.Controls[0].Select();
         }
 
         public void OpenConnection(CnxParameter CnxParameter)

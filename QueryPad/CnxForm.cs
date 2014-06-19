@@ -13,9 +13,9 @@ namespace QueryPad
             InitializeComponent();
         }
 
-        private void CnxForm_Load(object sender, EventArgs e)
+        protected override void OnEnter(EventArgs e)
         {
-            // Load connections parameters
+            // Reload connections parameters
 
             try
             {
@@ -28,6 +28,8 @@ namespace QueryPad
                 MessageBox.Show(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             List.DataSource = CnxParameters;
+
+            base.OnEnter(e);
         }
 
         private void List_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
