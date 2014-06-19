@@ -57,6 +57,7 @@
             this.Tabs.Size = new System.Drawing.Size(809, 462);
             this.Tabs.TabIndex = 0;
             this.Tabs.SelectedIndexChanged += new System.EventHandler(this.Tabs_SelectedIndexChanged);
+            this.Tabs.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Tabs_MouseUp);
             // 
             // MainForm
             // 

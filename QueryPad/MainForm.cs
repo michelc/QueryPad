@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace QueryPad
@@ -79,6 +80,7 @@ namespace QueryPad
             form.MdiParent = null;
             form.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             form.Dock = DockStyle.Fill;
+            if (tab != TabConnections) tab.Text += "   x ";
             tab.Controls.Add(form);
             form.Show();
         }
@@ -88,7 +90,30 @@ namespace QueryPad
             // A tab has been selected
             // => update title bar
 
-            this.Text = App.Title + " // " + Tabs.SelectedTab.Text;
+            this.Text = App.Title + " // " + Tabs.SelectedTab.Text.Replace("   x ", "");
+        }
+
+        private void Tabs_MouseUp(object sender, MouseEventArgs e)
+        {
+            // A tab has been clicked
+            // => check if tab should be closed
+
+            // Connections tab has no close button
+            if (Tabs.SelectedIndex == 0) return;
+
+            // Check if click was over the "close" button
+            var r = Tabs.GetTabRect(Tabs.SelectedIndex);
+            var btn = new Rectangle(r.Right - 20, r.Top + 2, 18, 18);
+            if (btn.Contains(e.Location))
+            {
+                // Yes => close the form
+                var form = (Form)Tabs.SelectedTab.Controls[0];
+                form.Close();
+                // And remove the tab
+                var index = Tabs.SelectedIndex;
+                Tabs.TabPages.Remove(Tabs.SelectedTab);
+                Tabs.SelectedIndex = (index < Tabs.TabPages.Count) ? index : index - 1;
+            }
         }
     }
 }

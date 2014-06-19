@@ -6,7 +6,6 @@ Quick & dirty query tool with just what I need (maybe less).
 ## TODO
 
 * Test with Sql Server
-* Add a way to close a tab
 * Use Dapper NuGet
 * Add Sqlite support (yes?)
 * Add OleDb support for Access (no?)
