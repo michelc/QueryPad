@@ -5,7 +5,6 @@ Quick & dirty query tool with just what I need (maybe less).
 
 ## TODO
 
-* Work on query others than "SELECT ..." !!!
 * Test with Sql Server
 * Add a way to close a tab
 * Use Dapper NuGet

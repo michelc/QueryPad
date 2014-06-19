@@ -64,7 +64,8 @@ namespace QueryPad
 
             // Get query to execute
             var sql = Query.SelectedText.Length == 0 ? Query.Text : Query.SelectedText;
-            if (sql.Trim() == "")
+            sql = sql.Trim();
+            if (sql == "")
             {
                 ShowInformations("No query !");
                 return;
@@ -76,11 +77,20 @@ namespace QueryPad
 
             // Run query
             TimeSpan duration;
+            int count = -1;
             try
             {
                 var start = DateTime.Now;
-                Grid.DataSource = Cnx.ExecuteDataSet(sql).Tables[0];
-                Grid.AutoResizeColumns();
+                if (sql.StartsWith("SELECT"))
+                {
+                    Grid.DataSource = Cnx.ExecuteDataSet(sql).Tables[0];
+                    Grid.AutoResizeColumns();
+                    count = Grid.RowCount;
+                }
+                else
+                {
+                    count = Cnx.ExecuteNonQuery(sql);
+                }
                 duration = DateTime.Now.Subtract(start);
             }
             catch (Exception ex)
@@ -98,9 +108,9 @@ namespace QueryPad
 
             // Display statistics
             var message = string.Format("{0} rows ({1:00}:{2:00}.{3:000})"
-                                        , Grid.RowCount
+                                        , count
                                         , duration.Minutes, duration.Seconds, duration.Milliseconds);
-            if (Grid.RowCount < 2) message = message.Replace(" rows ", " row ");
+            if (count < 2) message = message.Replace(" rows ", " row ");
             ShowInformations(message);
         }
 

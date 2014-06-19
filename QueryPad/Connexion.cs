@@ -91,5 +91,19 @@ namespace QueryPad
 
             return ds;
         }
+
+        public int ExecuteNonQuery(string sql)
+        {
+            int count = -1;
+            var command = db.CreateCommand();
+            command.CommandText = sql;
+            try
+            {
+                count = command.ExecuteNonQuery();
+            }
+            catch { throw; }
+
+            return count;
+        }
     }
 }
