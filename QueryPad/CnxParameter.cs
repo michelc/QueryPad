@@ -28,7 +28,7 @@ namespace QueryPad
             using (var stream = File.OpenRead(App.ConfigFile))
             {
                 var serializer = new DataContractJsonSerializer(typeof(List<CnxParameter>));
-                return serializer.ReadObject(stream) as List<CnxParameter>;
+                return (serializer.ReadObject(stream) as List<CnxParameter>).OrderBy(c => c.Name).ToList();
             }
         }
 
