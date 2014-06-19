@@ -48,6 +48,14 @@ namespace QueryPad
             Tables.DataSource = Cnx.GetTables();
         }
 
+        protected override void OnClosed(EventArgs e)
+        {
+            // Close connection when form is closed
+
+            Cnx.Close();
+            base.OnClosed(e);
+        }
+
         private void ExecuteSql(object sender, EventArgs e)
         {
             // Clear results

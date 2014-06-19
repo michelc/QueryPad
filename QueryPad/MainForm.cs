@@ -10,6 +10,19 @@ namespace QueryPad
             InitializeComponent();
         }
 
+        protected override void OnClosed(EventArgs e)
+        {
+            // Main form is closed
+            // => explicitly close each "tab" form 
+
+            foreach (TabPage tab in Tabs.TabPages)
+            {
+                var form = (Form)tab.Controls[0];
+                form.Close();
+            }
+            base.OnClosed(e);
+        }
+
         private void TabConnections_Enter(object sender, EventArgs e)
         {
             // Click on the [Connections] tab
