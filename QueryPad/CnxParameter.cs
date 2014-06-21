@@ -22,13 +22,19 @@ namespace QueryPad
         [DataMember]
         public string CnxString { get; set; }
 
+        [DataMember]
+        public string LastUse { get; set; }
+
         public static List<CnxParameter> Load()
         {
             // Load connections parameters from a JSON file
             using (var stream = File.OpenRead(App.ConfigFile))
             {
                 var serializer = new DataContractJsonSerializer(typeof(List<CnxParameter>));
-                return (serializer.ReadObject(stream) as List<CnxParameter>).OrderBy(c => c.Name).ToList();
+                return (serializer.ReadObject(stream) as List<CnxParameter>)
+                        .OrderByDescending(c => c.LastUse)
+                        .ThenBy(c => c.Name)
+                        .ToList();
             }
         }
 
@@ -46,6 +52,7 @@ namespace QueryPad
                 json = json.Replace("\":\"", "\": \"");
                 json = json.Replace("\",\"", "\"\n  , \"");
                 json = json.Replace("}]", "}\n]\n");
+                json = json.Replace("\"LastUse\":null,", "");
                 File.WriteAllText(App.ConfigFile, json);
             }
         }

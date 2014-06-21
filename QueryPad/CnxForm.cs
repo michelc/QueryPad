@@ -39,6 +39,8 @@ namespace QueryPad
 
             Cursor = Cursors.WaitCursor;
             var CnxParameter = CnxParameters[e.RowIndex];
+            CnxParameter.LastUse = DateTime.Now.ToString("s");
+            CnxParameter.Save(CnxParameters);
             var Main = (MainForm)this.Parent.FindForm();
             Main.OpenConnection(CnxParameter);
         }
