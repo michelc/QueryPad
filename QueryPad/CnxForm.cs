@@ -28,6 +28,7 @@ namespace QueryPad
                 MessageBox.Show(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             List.DataSource = CnxParameters;
+            Cursor = Cursors.Default;
 
             base.OnEnter(e);
         }
