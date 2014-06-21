@@ -141,13 +141,8 @@ namespace QueryPad
             // Double-click a table name
             // => generate select query to display its content
 
-            if (Query.Text.Length > 0)
-            {
-                Query.Text += Environment.NewLine + Environment.NewLine;
-            }
-
             var list = (ListControl)sender;
-            Query.Text += "SELECT * FROM " + list.SelectedValue;
+            NewQuery("SELECT * FROM " + list.SelectedValue);
         }
 
         private void Grid_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -160,15 +155,30 @@ namespace QueryPad
             if (!name.EndsWith("_ID")) return;
 
             // Yes => generate select query to display related data
+            var sql = string.Format("SELECT * FROM {0} WHERE {1} = {2}"
+                                    , name.Replace("_ID", "s")
+                                    , name
+                                    , cell.Value);
+            NewQuery(sql);
+        }
+
+        private void NewQuery(string sql)
+        {
+            // Add query to the editor area
             if (Query.Text.Length > 0)
             {
                 Query.Text += Environment.NewLine + Environment.NewLine;
             }
+            var start = Query.Text.Length;
+            Query.Text += sql;
 
-            Query.Text += string.Format("SELECT * FROM {0} WHERE {1} = {2}"
-                                       , name.Replace("_ID", "s")
-                                       , name
-                                       , cell.Value);
+            // Auto-select new query
+            Query.SelectionStart = start;
+            Query.SelectionLength = sql.Length;
+            Query.Focus();
+
+            // Auto-run new query
+            ExecuteSql(null, null);
         }
     }
 }
