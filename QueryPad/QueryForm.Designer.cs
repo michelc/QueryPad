@@ -212,6 +212,7 @@
             this.Grid.RowHeadersWidth = 20;
             this.Grid.Size = new System.Drawing.Size(523, 244);
             this.Grid.TabIndex = 0;
+            this.Grid.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Grid_CellClick);
             this.Grid.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Grid_CellDoubleClick);
             // 
             // QueryForm

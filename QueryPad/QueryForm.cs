@@ -7,6 +7,7 @@ namespace QueryPad
     public partial class QueryForm : Form
     {
         private Connexion Cnx { get; set; }
+        private DataGridViewCellEventArgs PreviousCellClick;
 
         public QueryForm(CnxParameter CnxParameter)
         {
@@ -60,6 +61,8 @@ namespace QueryPad
         {
             // Clear results
             Grid.DataSource = null;
+            Grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            PreviousCellClick = null;
             ShowInformations("");
 
             // Get query to execute (selected text by default)
@@ -179,6 +182,31 @@ namespace QueryPad
                                     , name
                                     , cell.Value);
             NewQuery(sql);
+        }
+
+        private void Grid_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // A cell has been clicked
+
+            // Select the cell after 2 clicks
+            if (PreviousCellClick != null)
+            {
+                if (e.RowIndex == PreviousCellClick.RowIndex)
+                {
+                    if (e.ColumnIndex == PreviousCellClick.ColumnIndex)
+                    {
+                        Grid.SelectionMode = DataGridViewSelectionMode.CellSelect;
+                        var cell = Grid[e.ColumnIndex, e.RowIndex];
+                        cell.Selected = true;
+                        return;
+                    }
+                }
+            }
+
+            // Select the full row otherwise
+            PreviousCellClick = e;
+            Grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            Grid.Rows[e.RowIndex].Selected = true;
         }
 
         private void NewQuery(string sql)
