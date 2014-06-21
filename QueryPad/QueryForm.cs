@@ -99,18 +99,25 @@ namespace QueryPad
 
             // Run query
             TimeSpan duration;
-            int count = -1;
+            var count = -1;
+            var read = true;
             try
             {
                 var start = DateTime.Now;
                 if (sql.StartsWith("SELECT"))
                 {
+                    // Limit select
+                    sql = sql.Substring(6).Trim();
+                    if (!sql.StartsWith("TOP")) sql = "TOP 10000 " + sql;
+                    sql = "SELECT " + sql;
+                    // Execute query
                     Grid.DataSource = Cnx.ExecuteDataSet(sql).Tables[0];
                     Grid.AutoResizeColumns();
                     count = Grid.RowCount;
                 }
                 else
                 {
+                    read = false;
                     count = Cnx.ExecuteNonQuery(sql);
                 }
                 duration = DateTime.Now.Subtract(start);
@@ -133,6 +140,7 @@ namespace QueryPad
                                         , count
                                         , duration.Minutes, duration.Seconds, duration.Milliseconds);
             if (count < 2) message = message.Replace(" rows ", " row ");
+            if (read) message = message.Replace("10000 ", "top 10000 ");
             ShowInformations(message);
         }
 
