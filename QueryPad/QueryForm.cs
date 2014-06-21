@@ -62,8 +62,27 @@ namespace QueryPad
             Grid.DataSource = null;
             ShowInformations("");
 
-            // Get query to execute
-            var sql = Query.SelectedText.Length == 0 ? Query.Text : Query.SelectedText;
+            // Get query to execute (selected text by default)
+            var sql = Query.SelectedText;
+            if (sql.Length == 0)
+            {
+                // Or, auto-select text according to cursor position
+                var nl = Environment.NewLine + Environment.NewLine;
+                // Find query start
+                var start = Query.Text.LastIndexOf(nl, Query.SelectionStart);
+                if (start == -1) start = 0;
+                // Find query end
+                var end = Query.Text.IndexOf(nl, Query.SelectionStart);
+                if (end == -1) end = Query.Text.Length;
+                // Select text
+                Query.SelectionStart = start;
+                Query.SelectionLength = end - start;
+                Query.Focus();
+                // Get query to execute
+                sql = Query.SelectedText;
+            }
+
+            // Check if query is empty
             sql = sql.Trim();
             if (sql == "")
             {
