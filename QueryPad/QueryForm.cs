@@ -149,5 +149,26 @@ namespace QueryPad
             var list = (ListControl)sender;
             Query.Text += "SELECT * FROM " + list.SelectedValue;
         }
+
+        private void Grid_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // Double-click a cell
+
+            // Checks if it's an ID column
+            var cell = Grid[e.ColumnIndex, e.RowIndex];
+            var name = cell.OwningColumn.HeaderText;
+            if (!name.EndsWith("_ID")) return;
+
+            // Yes => generate select query to display related data
+            if (Query.Text.Length > 0)
+            {
+                Query.Text += Environment.NewLine + Environment.NewLine;
+            }
+
+            Query.Text += string.Format("SELECT * FROM {0} WHERE {1} = {2}"
+                                       , name.Replace("_ID", "s")
+                                       , name
+                                       , cell.Value);
+        }
     }
 }
