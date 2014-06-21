@@ -196,6 +196,9 @@ namespace QueryPad
             Query.SelectionLength = sql.Length;
             Query.Focus();
 
+            // Scroll to display new query
+            Query.ScrollToCaret();
+
             // Auto-run new query
             ExecuteSql(null, null);
         }
