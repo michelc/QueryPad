@@ -201,6 +201,7 @@
             this.Grid.AllowUserToDeleteRows = false;
             this.Grid.BackgroundColor = System.Drawing.Color.White;
             this.Grid.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.Grid.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
             this.Grid.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.Grid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.Grid.Dock = System.Windows.Forms.DockStyle.Fill;
