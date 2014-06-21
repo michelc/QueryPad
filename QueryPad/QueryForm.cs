@@ -179,6 +179,9 @@ namespace QueryPad
         {
             // Double-click a cell
 
+            // Don't track column header
+            if (e.RowIndex < 0) return;
+
             // Checks if it's an ID column
             var cell = Grid[e.ColumnIndex, e.RowIndex];
             var name = cell.OwningColumn.HeaderText;
@@ -195,6 +198,9 @@ namespace QueryPad
         private void Grid_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             // A cell has been clicked
+
+            // Don't track column header
+            if (e.RowIndex < 0) return;
 
             // Select the cell after 2 clicks
             if (PreviousCellClick != null)
