@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -22,6 +23,7 @@ namespace QueryPad
         [DataMember]
         public string CnxString { get; set; }
 
+        [Browsable(false)]
         [DataMember]
         public string LastUse { get; set; }
 
