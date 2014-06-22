@@ -9,7 +9,6 @@ Quick & dirty query tool with just what I need (maybe less).
 * Use Dapper NuGet
 * Add OleDb support for Access (no?)
 * Display results as Grid or Text (maybe)
-* Replace TextBox with RichTextBox for query input (yes?)
 * Handle SQL transactions (maybe)
 * Etc...
 

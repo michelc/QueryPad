@@ -33,7 +33,7 @@
             this.Title = new System.Windows.Forms.Panel();
             this.ConnexionName = new System.Windows.Forms.Label();
             this.SplitHorizontal = new System.Windows.Forms.SplitContainer();
-            this.Query = new System.Windows.Forms.TextBox();
+            this.Query = new System.Windows.Forms.RichTextBox();
             this.Toolbar = new System.Windows.Forms.Panel();
             this.Informations = new System.Windows.Forms.Label();
             this.Run = new System.Windows.Forms.Button();
@@ -137,11 +137,11 @@
             this.Query.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Query.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Query.Location = new System.Drawing.Point(0, 0);
-            this.Query.Multiline = true;
             this.Query.Name = "Query";
-            this.Query.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.Query.Size = new System.Drawing.Size(523, 98);
             this.Query.TabIndex = 0;
+            this.Query.Text = "";
+            this.Query.WordWrap = false;
             // 
             // Toolbar
             // 
@@ -232,7 +232,6 @@
             this.Title.ResumeLayout(false);
             this.Title.PerformLayout();
             this.SplitHorizontal.Panel1.ResumeLayout(false);
-            this.SplitHorizontal.Panel1.PerformLayout();
             this.SplitHorizontal.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.SplitHorizontal)).EndInit();
             this.SplitHorizontal.ResumeLayout(false);
@@ -248,7 +247,7 @@
         private System.Windows.Forms.SplitContainer SplitVertical;
         private System.Windows.Forms.Panel Title;
         private System.Windows.Forms.SplitContainer SplitHorizontal;
-        private System.Windows.Forms.TextBox Query;
+        private System.Windows.Forms.RichTextBox Query;
         private System.Windows.Forms.Panel Toolbar;
         private System.Windows.Forms.DataGridView Grid;
         private System.Windows.Forms.ListBox Tables;
