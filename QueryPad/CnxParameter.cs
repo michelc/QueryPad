@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace QueryPad
 {
@@ -20,12 +21,30 @@ namespace QueryPad
         [DataMember]
         public string Provider { get; set; }
 
+        [Browsable(false)]
         [DataMember]
         public string CnxString { get; set; }
 
         [Browsable(false)]
         [DataMember]
         public string LastUse { get; set; }
+
+        public string ConnectionString
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(CnxString)) return CnxString;
+
+                // Hide password in connection string
+                var safe = Regex.Replace(CnxString, "(password|pwd)=(.*?);", "Password=*****;", RegexOptions.IgnoreCase);
+                if (safe == CnxString)
+                {
+                    safe = Regex.Replace(CnxString, "(password|pwd)=(.*?)$", "Password=*****", RegexOptions.IgnoreCase);
+                }
+
+                return safe;
+            }
+        }
 
         public static List<CnxParameter> Load()
         {
