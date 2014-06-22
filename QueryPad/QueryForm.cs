@@ -238,12 +238,13 @@ namespace QueryPad
         private void NewQuery(string sql)
         {
             // Add query to the editor area
+            var start = Query.Text.Length;
             if (Query.Text.Length > 0)
             {
-                Query.Text += Environment.NewLine + Environment.NewLine;
+                sql = "\n\n" + sql;
+                start += 2;
             }
-            var start = Query.Text.Length;
-            Query.Text += sql;
+            Query.AppendText(sql);
 
             // Auto-select new query
             Query.SelectionStart = start;
