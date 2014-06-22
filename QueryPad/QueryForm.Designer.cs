@@ -132,6 +132,7 @@
             // 
             // Query
             // 
+            this.Query.AcceptsTab = true;
             this.Query.BackColor = System.Drawing.Color.White;
             this.Query.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Query.Dock = System.Windows.Forms.DockStyle.Fill;
