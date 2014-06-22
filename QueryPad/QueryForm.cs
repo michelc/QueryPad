@@ -104,7 +104,7 @@ namespace QueryPad
             try
             {
                 var start = DateTime.Now;
-                if (sql.StartsWith("SELECT"))
+                if (sql.ToUpper().StartsWith("SELECT"))
                 {
                     sql = Cnx.SelectTop(sql);
                     Grid.DataSource = Cnx.ExecuteDataSet(sql).Tables[0];
