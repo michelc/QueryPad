@@ -180,15 +180,78 @@ namespace QueryPad
 
             // Checks if it's an ID column
             var cell = Grid[e.ColumnIndex, e.RowIndex];
-            var name = cell.OwningColumn.HeaderText;
-            if (!name.EndsWith("_ID")) return;
+            var data = QuickNavigation(cell.OwningColumn.HeaderText);
+            if (data == null) return;
 
             // Yes => generate select query to display related data
             var sql = string.Format("SELECT * FROM {0} WHERE {1} = {2}"
-                                    , name.Replace("_ID", "s")
-                                    , name
+                                    , data[0]
+                                    , data[1]
                                     , cell.Value);
             NewQuery(sql);
+        }
+
+        private string[] QuickNavigation(string foreign_col)
+        {
+            // Guess foreign table name (from foreign column name)
+            var column_name = foreign_col.ToUpper();
+            var table_name = "";
+            if (column_name.EndsWith("_ID"))
+            {
+                // Foreign key = Table_ID
+                table_name = foreign_col.Substring(0, foreign_col.Length - 3);
+            }
+            else if (column_name.EndsWith("ID"))
+            {
+                // Foreign key = TableID
+                table_name = foreign_col.Substring(0, foreign_col.Length - 2);
+            }
+            else if (column_name.StartsWith("ID_"))
+            {
+                // Foreign key = ID_Table
+                table_name = foreign_col.Substring(3);
+            }
+            else if (column_name.StartsWith("ID"))
+            {
+                // Foreign key = IDTable
+                table_name = foreign_col.Substring(2);
+            }
+            else
+            {
+                return null;
+            }
+
+            // Check if foreign table exists
+            for (var i = 0; i < Tables.Items.Count; i++)
+            {
+                if (string.Compare(Tables.Items[i].ToString(), table_name, true) == 0)
+                {
+                    table_name = Tables.Items[i].ToString();
+                    break;
+                }
+                else if (string.Compare(Tables.Items[i].ToString(), table_name + "s", true) == 0)
+                {
+                    table_name = Tables.Items[i].ToString();
+                    break;
+                }
+                else if (string.Compare(Tables.Items[i].ToString() + "s", table_name, true) == 0)
+                {
+                    table_name = Tables.Items[i].ToString();
+                    break;
+                }
+            }
+            if (table_name == "") return null;
+
+            // Get table first column name (should be the primary key)
+            try
+            {
+                var test = Cnx.ExecuteDataSet("SELECT * FROM " + table_name + " WHERE 1 = 2");
+                column_name = test.Tables[0].Columns[0].ColumnName;
+            }
+            catch { return null; }
+
+            // Return table name and pk name
+            return new[] { table_name, column_name };
         }
 
         private void Grid_CellClick(object sender, DataGridViewCellEventArgs e)
