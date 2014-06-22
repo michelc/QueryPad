@@ -200,6 +200,7 @@
             // 
             this.Grid.AllowUserToAddRows = false;
             this.Grid.AllowUserToDeleteRows = false;
+            this.Grid.AllowUserToOrderColumns = true;
             this.Grid.BackgroundColor = System.Drawing.Color.White;
             this.Grid.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Grid.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
