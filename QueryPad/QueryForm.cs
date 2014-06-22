@@ -70,7 +70,7 @@ namespace QueryPad
             if (sql.Length == 0)
             {
                 // Or, auto-select text according to cursor position
-                var nl = "\n";
+                var nl = "\n\n";
                 // Find query start
                 var start = Query.Text.LastIndexOf(nl, Query.SelectionStart);
                 if (start == -1) start = 0;
