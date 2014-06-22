@@ -73,13 +73,13 @@ namespace QueryPad
                 var nl = "\n\n";
                 // Find query start
                 var start = Query.Text.LastIndexOf(nl, Query.SelectionStart);
-                if (start == -1) start = 0;
+                start = (start == -1) ? 0 : start + nl.Length;
                 // Find query end
-                var end = Query.Text.IndexOf(nl, start + nl.Length);
+                var end = Query.Text.IndexOf(nl, start);
                 if (end == -1) end = Query.Text.Length;
                 // Select text
-                Query.SelectionStart = start + nl.Length;
-                Query.SelectionLength = end - start - nl.Length;
+                Query.SelectionStart = start;
+                Query.SelectionLength = end - start;
                 Query.Focus();
                 // Get query to execute
                 sql = Query.SelectedText;
