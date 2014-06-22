@@ -92,6 +92,19 @@ namespace QueryPad
                     if (!sql.StartsWith("TOP")) sql = "TOP 10000 " + sql;
                     sql = "SELECT " + sql;
                     break;
+                case "System.Data.SQLite":
+                    if (!sql.ToUpper().Contains("LIMIT"))
+                    {
+                        var limit = false;
+                        var end = sql.LastIndexOf(" ");
+                        if (end != -1)
+                        {
+                            var start = sql.LastIndexOf(" ", end - 1);
+                            limit = (sql.Substring(start, end - start).Trim().ToUpper() == "LIMIT");
+                        }
+                        if (!limit) sql += " LIMIT 10000";
+                    }
+                    break;
             }
 
             return sql;
