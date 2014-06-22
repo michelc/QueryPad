@@ -75,7 +75,7 @@ namespace QueryPad
                 var start = Query.Text.LastIndexOf(nl, Query.SelectionStart);
                 if (start == -1) start = 0;
                 // Find query end
-                var end = Query.Text.IndexOf(nl, Query.SelectionStart);
+                var end = Query.Text.IndexOf(nl, start + nl.Length);
                 if (end == -1) end = Query.Text.Length;
                 // Select text
                 Query.SelectionStart = start + nl.Length;
