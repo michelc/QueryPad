@@ -219,6 +219,22 @@ namespace QueryPad
             Grid.Rows[e.RowIndex].Selected = true;
         }
 
+        private void Grid_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            // Don't track data errors for binary columns
+
+            if (Grid.Columns[e.ColumnIndex].ValueType == typeof(Byte[]))
+            {
+                e.Cancel = true;
+                e.ThrowException = false;
+            }
+            else
+            {
+                e.Cancel = false;
+                e.ThrowException = true;
+            }
+        }
+
         private void NewQuery(string sql)
         {
             // Add query to the editor area
