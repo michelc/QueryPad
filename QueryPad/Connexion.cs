@@ -67,6 +67,31 @@ namespace QueryPad
                             AND    (Table_Name <> '__MigrationHistory')
                             ORDER BY Table_Name";
                     break;
+                case "System.Data.SQLite":
+                    sql = @"SELECT name AS [Table]
+                            FROM   sqlite_master
+                            WHERE  (type = 'table')
+                            AND    (name NOT LIKE 'sqlite_%')
+                            ORDER BY name";
+                    break;
+            }
+
+            return sql;
+        }
+
+        public string SelectTop(string sql)
+        {
+            // Limit select row count to 10000
+            // depending on provider
+
+            switch (CnxParameter.Provider)
+            {
+                case "System.Data.SqlClient":
+                case "System.Data.SqlServerCe.4.0":
+                    sql = sql.Substring(6).Trim();
+                    if (!sql.StartsWith("TOP")) sql = "TOP 10000 " + sql;
+                    sql = "SELECT " + sql;
+                    break;
             }
 
             return sql;

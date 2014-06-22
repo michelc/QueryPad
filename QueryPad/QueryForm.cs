@@ -106,11 +106,7 @@ namespace QueryPad
                 var start = DateTime.Now;
                 if (sql.StartsWith("SELECT"))
                 {
-                    // Limit select
-                    sql = sql.Substring(6).Trim();
-                    if (!sql.StartsWith("TOP")) sql = "TOP 10000 " + sql;
-                    sql = "SELECT " + sql;
-                    // Execute query
+                    sql = Cnx.SelectTop(sql);
                     Grid.DataSource = Cnx.ExecuteDataSet(sql).Tables[0];
                     Grid.AutoResizeColumns();
                     count = Grid.RowCount;

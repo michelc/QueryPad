@@ -7,7 +7,6 @@ Quick & dirty query tool with just what I need (maybe less).
 
 * Test with Sql Server
 * Use Dapper NuGet
-* Add Sqlite support (yes?)
 * Add OleDb support for Access (no?)
 * Display results as Grid or Text (maybe)
 * Replace TextBox with RichTextBox for query input (yes?)
