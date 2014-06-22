@@ -61,6 +61,11 @@ namespace QueryPad
 
         public static void Save(List<CnxParameter> CnxParameters)
         {
+            // Sort connections parameters by recent use
+            CnxParameters = CnxParameters.OrderByDescending(c => c.LastUse)
+                                         .ThenBy(c => c.Name)
+                                         .ToList();
+
             // Save connections parameters as a JSON file
             using (var stream = new MemoryStream())
             {
