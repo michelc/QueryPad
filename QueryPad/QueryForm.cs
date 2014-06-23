@@ -72,7 +72,9 @@ namespace QueryPad
                 // Or, auto-select text according to cursor position
                 var nl = "\n\n";
                 // Find query start
-                var start = Query.Text.LastIndexOf(nl, Query.SelectionStart);
+                var start = Query.SelectionStart;
+                if (start > 0) start--;
+                start = Query.Text.LastIndexOf(nl, start);
                 start = (start == -1) ? 0 : start + nl.Length;
                 // Find query end
                 var end = Query.Text.IndexOf(nl, start);
