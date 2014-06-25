@@ -74,8 +74,12 @@ namespace QueryPad
                             AND    (name NOT LIKE 'sqlite_%')
                             ORDER BY name";
                     break;
+                case "System.Data.OracleClient":
+                    sql = @"SELECT INITCAP(Table_Name)
+                            FROM   User_Tables
+                            ORDER BY 1";
+                    break;
             }
-
             return sql;
         }
 
@@ -103,6 +107,12 @@ namespace QueryPad
                             limit = (sql.Substring(start, end - start).Trim().ToUpper() == "LIMIT");
                         }
                         if (!limit) sql += " LIMIT 10000";
+                    }
+                    break;
+                case "System.Data.OracleClient":
+                    if (!sql.ToUpper().Contains("ROWNUM"))
+                    {
+                        sql = "SELECT * FROM (" + sql + ") WHERE ROWNUM <= 500";
                     }
                     break;
             }
