@@ -65,6 +65,18 @@ namespace QueryPad
             PreviousCellClick = null;
             ShowInformations("");
 
+            // Remove all formatting
+            {
+                var text = Query.Text;
+                var start = Query.SelectionStart;
+                var length = Query.SelectionLength;
+                Query.Rtf = "";
+                Query.Text = text;
+                Query.SelectionStart = start;
+                Query.SelectionLength = length;
+                Query.Focus();
+            }
+
             // Get query to execute (selected text by default)
             var sql = Query.SelectedText;
             if (sql.Length == 0)
