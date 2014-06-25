@@ -93,25 +93,24 @@ namespace QueryPad
                 case "System.Data.SqlClient":
                 case "System.Data.SqlServerCe.4.0":
                     sql = sql.Substring(6).Trim();
-                    if (!sql.StartsWith("TOP")) sql = "TOP 10000 " + sql;
+                    if (!sql.ToUpper().StartsWith("TOP")) sql = "TOP 10000 " + sql;
                     sql = "SELECT " + sql;
                     break;
                 case "System.Data.SQLite":
-                    if (!sql.ToUpper().Contains("LIMIT"))
-                    {
-                        var limit = false;
-                        var end = sql.LastIndexOf(" ");
-                        if (end != -1)
-                        {
-                            var start = sql.LastIndexOf(" ", end - 1);
-                            limit = (sql.Substring(start, end - start).Trim().ToUpper() == "LIMIT");
-                        }
-                        if (!limit) sql += " LIMIT 10000";
-                    }
+                    if (!sql.ToUpper().Contains("LIMIT")) sql += " LIMIT 10000";
                     break;
                 case "System.Data.OracleClient":
-                    if (!sql.ToUpper().Contains("ROWNUM"))
+                    var upper = sql.ToUpper();
+                    if (!upper.Contains("ROWNUM"))
                     {
+                        if (!upper.Contains("ORDER"))
+                        {
+                            if (!upper.Contains("WHERE"))
+                            {
+                                sql += " WHERE ROWNUM <= 500";
+                                break;
+                            }
+                        }
                         sql = "SELECT * FROM (" + sql + ") WHERE ROWNUM <= 500";
                     }
                     break;
