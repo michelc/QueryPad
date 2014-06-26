@@ -137,6 +137,7 @@
             this.Query.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Query.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Query.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Query.HideSelection = false;
             this.Query.Location = new System.Drawing.Point(0, 0);
             this.Query.Name = "Query";
             this.Query.Size = new System.Drawing.Size(523, 98);

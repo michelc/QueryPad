@@ -58,6 +58,7 @@
     </Compile>
     <Compile Include="CnxParameter.cs" />
     <Compile Include="Connexion.cs" />
+    <Compile Include="EditorHelpers.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

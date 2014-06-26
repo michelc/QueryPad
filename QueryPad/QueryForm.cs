@@ -66,41 +66,12 @@ namespace QueryPad
             ShowInformations("");
 
             // Remove all formatting
-            {
-                var text = Query.Text;
-                var start = Query.SelectionStart;
-                var length = Query.SelectionLength;
-                Query.Rtf = "";
-                Query.Text = text;
-                Query.SelectionStart = start;
-                Query.SelectionLength = length;
-                Query.Focus();
-            }
+            Query.RemoveFormatting();
 
-            // Get query to execute (selected text by default)
-            var sql = Query.SelectedText;
-            if (sql.Length == 0)
-            {
-                // Or, auto-select text according to cursor position
-                var nl = "\n\n";
-                // Find query start
-                var start = Query.SelectionStart;
-                if (start > 0) start--;
-                start = Query.Text.LastIndexOf(nl, start);
-                start = (start == -1) ? 0 : start + nl.Length;
-                // Find query end
-                var end = Query.Text.IndexOf(nl, start);
-                if (end == -1) end = Query.Text.Length;
-                // Select text
-                Query.SelectionStart = start;
-                Query.SelectionLength = end - start;
-                Query.Focus();
-                // Get query to execute
-                sql = Query.SelectedText;
-            }
+            // Get current query to execute
+            var sql = Query.CurrentQuery();
 
             // Check if query is empty
-            sql = sql.Trim();
             if (sql == "")
             {
                 ShowInformations("No query !");
@@ -179,10 +150,11 @@ namespace QueryPad
         private void Tables_DoubleClick(object sender, EventArgs e)
         {
             // Double-click a table name
-            // => generate select query to display its content
+            // => generate & run select query to display its content
 
             var list = (ListControl)sender;
-            NewQuery("SELECT * FROM " + list.SelectedValue);
+            Query.AppendQuery("SELECT * FROM " + list.SelectedValue);
+            ExecuteSql(null, null);
         }
 
         private void Grid_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -197,12 +169,13 @@ namespace QueryPad
             var data = QuickNavigation(cell.OwningColumn.HeaderText);
             if (data == null) return;
 
-            // Yes => generate select query to display related data
+            // Yes => generate & run select query to display related data
             var sql = string.Format("SELECT * FROM {0} WHERE {1} = {2}"
                                     , data[0]
                                     , data[1]
                                     , cell.Value);
-            NewQuery(sql);
+            Query.AppendQuery(sql);
+            ExecuteSql(null, null);
         }
 
         private string[] QuickNavigation(string foreign_col)
@@ -310,26 +283,6 @@ namespace QueryPad
                 e.Cancel = false;
                 e.ThrowException = true;
             }
-        }
-
-        private void NewQuery(string sql)
-        {
-            // Add query to the editor area
-            var start = Query.Text.Length;
-            if (Query.Text.Length > 0)
-            {
-                sql = "\n\n" + sql;
-                start += 2;
-            }
-            Query.AppendText(sql);
-
-            // Auto-select new query
-            Query.SelectionStart = start;
-            Query.SelectionLength = sql.Length;
-            Query.Focus();
-
-            // Auto-run new query
-            ExecuteSql(null, null);
         }
     }
 }
