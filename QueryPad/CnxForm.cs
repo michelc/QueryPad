@@ -27,7 +27,7 @@ namespace QueryPad
                 var text = string.Format("{0}\n\n({1})", ex.Message, ex.Source);
                 MessageBox.Show(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            List.DataSource = CnxParameters;
+            List.DataSource = new SortableBindingList<CnxParameter>(CnxParameters);
             Cursor = Cursors.Default;
 
             base.OnEnter(e);

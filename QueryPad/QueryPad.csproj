@@ -73,6 +73,7 @@
     <Compile Include="QueryForm.Designer.cs">
       <DependentUpon>QueryForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="SortableBindingList.cs" />
     <Compile Include="SqlMapper.cs" />
     <EmbeddedResource Include="CnxForm.resx">
       <DependentUpon>CnxForm.cs</DependentUpon>
