@@ -38,6 +38,9 @@ namespace QueryPad
             // Double-click on a connection
             // => open this connection (via MainForm)
 
+            // Don't track column header
+            if (e.RowIndex < 0) return;
+
             Cursor = Cursors.WaitCursor;
             var CnxParameter = CnxParameters[e.RowIndex];
             CnxParameter.LastUse = DateTime.Now.ToString("s");
