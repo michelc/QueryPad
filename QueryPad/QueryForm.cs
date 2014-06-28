@@ -47,6 +47,7 @@ namespace QueryPad
             }
 
             Tables.DataSource = Cnx.GetTables();
+            Query.ConfigureTabs();
         }
 
         protected override void OnClosed(EventArgs e)

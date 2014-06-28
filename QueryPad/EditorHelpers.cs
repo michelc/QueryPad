@@ -63,5 +63,28 @@ namespace QueryPad
 
             if (editor.Rtf != rtf) editor.ScrollToCaret();
         }
+
+        // Set tabs every 4 characters
+        public static void ConfigureTabs(this RichTextBox editor)
+        {
+            // Get outer size for 4 characters
+            var size1 = TextRenderer.MeasureText("1234", editor.Font, editor.Size, TextFormatFlags.NoClipping);
+            double width1 = size1.Width;
+
+            // Get outer size for 8 characters
+            var size2 = TextRenderer.MeasureText("12345678", editor.Font, editor.Size, TextFormatFlags.NoClipping);
+            double width2 = size2.Width;
+
+            // Get inner size for 4 characters
+            double width = width2 - width1;
+
+            // Define all tabs
+            var tabs = new int[32];
+            for (int i = 1; i < tabs.Length; i++)
+            {
+                tabs[i - 1] = (int)(width * i);
+            }
+            editor.SelectionTabs = tabs;
+        }
     }
 }
