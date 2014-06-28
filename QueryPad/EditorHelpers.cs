@@ -46,7 +46,7 @@ namespace QueryPad
                 sql = editor.SelectedText;
             }
 
-            return sql.Trim();
+            return sql.Trim(" \t\n\r;".ToCharArray());
         }
 
         // Remove all formatting (in case of copy/paste)
