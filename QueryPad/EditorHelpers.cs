@@ -30,15 +30,18 @@ namespace QueryPad
             // Or, auto-select text according to cursor position
             if (sql.Length == 0)
             {
-                var nl = "\n\n";
+                var nlnl = "\n\n";  // newline + newline
+                var scnl = ";\n";   // semicolon + newline
+                var text = editor.Text.Replace(scnl, nlnl);
                 // Find query start
                 var start = editor.SelectionStart;
                 if (start > 0) start--;
-                start = editor.Text.LastIndexOf(nl, start);
-                start = (start == -1) ? 0 : start + nl.Length;
+                start = text.LastIndexOf(nlnl, start);
+                start = (start == -1) ? 0 : start + nlnl.Length;
                 // Find query end
-                var end = editor.Text.IndexOf(nl, start);
-                if (end == -1) end = editor.Text.Length;
+                var end = text.IndexOf(nlnl, start);
+                if (end == -1) end = text.Length;
+                if ((end < text.Length) && (editor.Text[end] == ';')) end++;
                 // Select text
                 editor.SelectionStart = start;
                 editor.SelectionLength = end - start;
