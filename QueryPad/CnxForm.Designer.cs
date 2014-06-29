@@ -36,6 +36,8 @@
             // 
             // List
             // 
+            this.List.AllowUserToAddRows = false;
+            this.List.AllowUserToDeleteRows = false;
             this.List.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.List.BackgroundColor = System.Drawing.Color.White;
             this.List.BorderStyle = System.Windows.Forms.BorderStyle.None;
