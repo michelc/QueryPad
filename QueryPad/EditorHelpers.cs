@@ -34,8 +34,14 @@ namespace QueryPad
                 var scnl = ";\n";   // semicolon + newline
                 var text = editor.Text.Replace(scnl, nlnl);
                 // Find query start
-                var start = editor.SelectionStart;
-                if (start > 0) start--;
+                var start = editor.GetFirstCharIndexOfCurrentLine();
+                var line = editor.GetLineFromCharIndex(start);
+                while (editor.Lines[line].Trim() == "")
+                {
+                    if (line == 0) break;
+                    line--;
+                }
+                start = editor.GetFirstCharIndexFromLine(line);
                 start = text.LastIndexOf(nlnl, start);
                 start = (start == -1) ? 0 : start + nlnl.Length;
                 // Find query end
