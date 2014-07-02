@@ -53,12 +53,13 @@ namespace QueryPad
             switch (CnxParameter.Provider)
             {
                 case "System.Data.SqlClient":
-                    sql = @"SELECT Table_Name AS [Table]
+                    sql = @"SELECT CASE WHEN Table_Schema = 'dbo' THEN '' ELSE Table_Schema + '.' END
+                                   + Table_Name AS [Table]
                             FROM   Information_Schema.Tables
                             WHERE  (Table_Type = 'BASE TABLE')
                             AND    (Table_Name <> '__MigrationHistory')
                             AND    (Table_Catalog = db_name())
-                            ORDER BY Table_Name";
+                            ORDER BY CASE WHEN Table_Schema = 'dbo' THEN '' ELSE Table_Schema + '.' END, Table_Name";
                     break;
                 case "System.Data.SqlServerCe.4.0":
                     sql = @"SELECT Table_Name AS [Table]
