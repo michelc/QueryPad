@@ -100,19 +100,7 @@ namespace QueryPad
                     if (!sql.ToUpper().Contains("LIMIT")) sql += " LIMIT 10000";
                     break;
                 case "System.Data.OracleClient":
-                    var upper = sql.ToUpper();
-                    if (!upper.Contains("ROWNUM"))
-                    {
-                        if (!upper.Contains("ORDER"))
-                        {
-                            if (!upper.Contains("WHERE"))
-                            {
-                                sql += " WHERE ROWNUM <= 500";
-                                break;
-                            }
-                        }
-                        sql = "SELECT * FROM (" + sql + ") WHERE ROWNUM <= 500";
-                    }
+                    if (!sql.ToUpper().Contains("ROWNUM")) sql += " WHERE ROWNUM <= 500";
                     break;
             }
 
