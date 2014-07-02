@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Globalization;
 using System.Windows.Forms;
 
 namespace QueryPad
@@ -96,6 +97,15 @@ namespace QueryPad
                     Grid.DataSource = Cnx.ExecuteDataSet(sql).Tables[0];
                     Grid.AutoResizeColumns();
                     count = Grid.RowCount;
+                    if (Cnx.CnxParameter.Provider.Contains("Oracle"))
+                    {
+                        var ti = CultureInfo.CurrentCulture.TextInfo;
+                        for (var i = 0; i < Grid.Columns.Count; i++)
+                        {
+                            var text = Grid.Columns[i].HeaderText.ToLower();
+                            Grid.Columns[i].HeaderText = ti.ToTitleCase(text);
+                        }
+                    }
                 }
                 else
                 {
