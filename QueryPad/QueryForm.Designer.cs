@@ -144,6 +144,7 @@
             this.Query.TabIndex = 0;
             this.Query.Text = "";
             this.Query.WordWrap = false;
+            this.Query.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Query_KeyDown);
             // 
             // Toolbar
             // 

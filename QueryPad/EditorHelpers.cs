@@ -58,21 +58,6 @@ namespace QueryPad
             return sql.Trim(" \t\n\r;".ToCharArray());
         }
 
-        // Remove all formatting (in case of copy/paste)
-        public static void RemoveFormatting(this RichTextBox editor)
-        {
-            var start = editor.SelectionStart;
-            var length = editor.SelectionLength;
-            var rtf = editor.Rtf;
-            var text = editor.Text;
-            editor.Rtf = "";
-            editor.Text = text;
-            editor.SelectionStart = start;
-            editor.SelectionLength = length;
-
-            if (editor.Rtf != rtf) editor.ScrollToCaret();
-        }
-
         // Set tabs every 4 characters
         public static void ConfigureTabs(this RichTextBox editor)
         {

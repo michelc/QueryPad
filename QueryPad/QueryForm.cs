@@ -67,9 +67,6 @@ namespace QueryPad
             PreviousCellClick = null;
             ShowInformations("");
 
-            // Remove all formatting
-            Query.RemoveFormatting();
-
             // Get current query to execute
             var sql = Query.CurrentQuery();
 
@@ -293,6 +290,25 @@ namespace QueryPad
             {
                 e.Cancel = false;
                 e.ThrowException = true;
+            }
+        }
+
+        private void Query_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Detect a keyboard event
+
+            // Paste can be Ctrl+V (or Shift+Ins for old schools)
+            var ControlV = (e.Control && (e.KeyCode == Keys.V));
+            var ShiftInsert = (e.Shift && (e.KeyCode == Keys.Insert));
+
+            // Only paste plain text
+            if (ControlV || ShiftInsert)
+            {
+                if (Clipboard.ContainsText())
+                {
+                    Query.Paste(DataFormats.GetFormat("Text"));
+                }
+                e.Handled = true;
             }
         }
     }
