@@ -36,7 +36,7 @@
             this.Query = new System.Windows.Forms.RichTextBox();
             this.Toolbar = new System.Windows.Forms.Panel();
             this.Informations = new System.Windows.Forms.Label();
-            this.Run = new System.Windows.Forms.Button();
+            this.Stop = new System.Windows.Forms.Button();
             this.Execute = new System.Windows.Forms.Button();
             this.Grid = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.SplitVertical)).BeginInit();
@@ -149,7 +149,7 @@
             // Toolbar
             // 
             this.Toolbar.Controls.Add(this.Informations);
-            this.Toolbar.Controls.Add(this.Run);
+            this.Toolbar.Controls.Add(this.Stop);
             this.Toolbar.Controls.Add(this.Execute);
             this.Toolbar.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.Toolbar.Location = new System.Drawing.Point(0, 98);
@@ -171,28 +171,30 @@
             this.Informations.Text = "Informations";
             this.Informations.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // Run
+            // Stop
             // 
-            this.Run.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.Run.BackColor = System.Drawing.Color.LightGray;
-            this.Run.FlatAppearance.BorderSize = 0;
-            this.Run.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.Run.Location = new System.Drawing.Point(100, 9);
-            this.Run.Name = "Run";
-            this.Run.Size = new System.Drawing.Size(75, 23);
-            this.Run.TabIndex = 6;
-            this.Run.Text = "Run Script";
-            this.Run.UseVisualStyleBackColor = false;
+            this.Stop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.Stop.AutoSize = true;
+            this.Stop.BackColor = System.Drawing.Color.LightGray;
+            this.Stop.FlatAppearance.BorderSize = 0;
+            this.Stop.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Stop.Location = new System.Drawing.Point(80, 9);
+            this.Stop.Name = "Stop";
+            this.Stop.Size = new System.Drawing.Size(65, 23);
+            this.Stop.TabIndex = 6;
+            this.Stop.Text = "Sto&p";
+            this.Stop.UseVisualStyleBackColor = false;
             // 
             // Execute
             // 
             this.Execute.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.Execute.AutoSize = true;
             this.Execute.BackColor = System.Drawing.Color.LightGray;
             this.Execute.FlatAppearance.BorderSize = 0;
             this.Execute.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Execute.Location = new System.Drawing.Point(0, 9);
             this.Execute.Name = "Execute";
-            this.Execute.Size = new System.Drawing.Size(75, 23);
+            this.Execute.Size = new System.Drawing.Size(65, 23);
             this.Execute.TabIndex = 5;
             this.Execute.Text = "&Execute";
             this.Execute.UseVisualStyleBackColor = false;
@@ -257,7 +259,7 @@
         private System.Windows.Forms.ListBox Tables;
         private System.Windows.Forms.Label ConnexionName;
         private System.Windows.Forms.Label Informations;
-        private System.Windows.Forms.Button Run;
+        private System.Windows.Forms.Button Stop;
         private System.Windows.Forms.Button Execute;
     }
 }

@@ -49,6 +49,10 @@ namespace QueryPad
 
             Tables.DataSource = Cnx.GetTables();
             Query.ConfigureTabs();
+
+            Execute.Text = char.ConvertFromUtf32(9654) + " " + Execute.Text;
+            Stop.Text = char.ConvertFromUtf32(9632) + " " + Stop.Text;
+            FreezeToolbar(false);
         }
 
         protected override void OnClosed(EventArgs e)
@@ -145,11 +149,29 @@ namespace QueryPad
         {
             // Enable or disable [Execute] button
             Execute.Enabled = !is_busy;
-            Execute.ForeColor = is_busy ? Color.LightGray : Color.Black;
+            if (!is_busy)
+            {
+                Execute.BackColor = Color.FromKnownColor(KnownColor.Highlight);
+                Execute.ForeColor = Color.FromKnownColor(KnownColor.HighlightText);
+            }
+            else
+            {
+                Execute.BackColor = Color.LightGray;
+                Execute.ForeColor = Color.WhiteSmoke;
+            }
 
-            // Enable or disable [Run script] button
-            Run.Enabled = !is_busy;
-            Run.ForeColor = is_busy ? Color.LightGray : Color.Black;
+            // Enable or disable [Stop] button
+            Stop.Enabled = is_busy;
+            if (is_busy)
+            {
+                Stop.BackColor = Color.FromKnownColor(KnownColor.Highlight);
+                Stop.ForeColor = Color.FromKnownColor(KnownColor.HighlightText);
+            }
+            else
+            {
+                Stop.BackColor = Color.LightGray;
+                Stop.ForeColor = Color.WhiteSmoke;
+            }
 
             // Change cursor to hourglass during working
             Cursor = is_busy ? Cursors.WaitCursor : Cursors.Default;
