@@ -14,6 +14,7 @@ namespace QueryPad
         private DataGridViewCellEventArgs PreviousCellClick;
 
         private CancellationTokenSource Cancellation;
+        private DataTable CurrentDataTable;
 
         public QueryForm(CnxParameter CnxParameter)
         {
@@ -88,13 +89,13 @@ namespace QueryPad
                     // Read data from DB
                     var task_read = ExecuteSql_ReaderAsync(sql);
                     await task_read;
-                    var dt = task_read.Result;
+                    CurrentDataTable = task_read.Result;
 
                     // Display DB access statistics
-                    ExecuteSql_Message(dt.Rows.Count, start, read);
+                    ExecuteSql_Message(CurrentDataTable.Rows.Count, start, read);
 
                     // Add data to Grid
-                    count = ExecuteSql_Load(dt);
+                    count = ExecuteSql_Load(CurrentDataTable);
                 }
                 else
                 {
@@ -131,6 +132,7 @@ namespace QueryPad
         private string ExecuteSql_Prepare()
         {
             // Clear results
+            CurrentDataTable = null;
             Grid.DataSource = null;
             Grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             PreviousCellClick = null;
@@ -165,9 +167,18 @@ namespace QueryPad
 
         private int ExecuteSql_Load(DataTable dt)
         {
-            Grid.DataSource = dt;
+            // Show the first 500 rows
+            var count = dt.Rows.Count;
+            if (count > 500) count = 500;
+            var page = dt.Clone();
+            for (int i = 0; i < count; i++)
+            {
+                page.Rows.Add(dt.Rows[i].ItemArray);
+            }
+            Grid.DataSource = page;
             Grid.AutoResizeColumns();
 
+            // Title case Oracle columns header
             if (Cnx.CnxParameter.Provider.Contains("Oracle"))
             {
                 var ti = CultureInfo.CurrentCulture.TextInfo;
@@ -178,6 +189,7 @@ namespace QueryPad
                 }
             }
 
+            // Return loaded rows count
             return Grid.RowCount;
         }
 
@@ -377,6 +389,43 @@ namespace QueryPad
             {
                 e.Cancel = false;
                 e.ThrowException = true;
+            }
+        }
+
+        private void Grid_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Check if we need to load more rows from current query
+
+            if ((e.KeyCode == Keys.PageDown) || (e.KeyCode == Keys.Down))
+            {
+                // There must be only one selected row
+                if (Grid.SelectedRows.Count != 1) return;
+
+                // Selected row must be the last row
+                var RowIndex = Grid.SelectedRows[0].Index;
+                if (RowIndex != Grid.RowCount - 1) return;
+
+                // Just PageDown or Down key without Ctrl, Alt or Shift
+                if (e.Control) return;
+                if (e.Alt) return;
+                if (e.Shift) return;
+
+                // There must be more rows to load
+                var count = CurrentDataTable.Rows.Count;
+                var start = Grid.RowCount;
+                if (start >= count) return;
+
+                // Show the next 500 rows
+                var current = (DataTable)Grid.DataSource;
+                var size = 500;
+                if (start + size > count) size = count - start;
+                var rows = new DataGridViewRow[size];
+                for (int i = 0; i < size; i++)
+                {
+                    current.Rows.Add(CurrentDataTable.Rows[start + i].ItemArray);
+                }
+
+                Grid.Refresh();
             }
         }
 
