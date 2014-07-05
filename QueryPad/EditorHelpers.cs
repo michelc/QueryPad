@@ -24,6 +24,9 @@ namespace QueryPad
         // Get query to execute
         public static string CurrentQuery(this RichTextBox editor)
         {
+            // Empty editor !
+            if (editor.Text.Trim() == "") return "";
+
             // By default, use selected text
             var sql = editor.SelectedText;
 
