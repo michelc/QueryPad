@@ -95,7 +95,7 @@ namespace QueryPad
                     ExecuteSql_Message(CurrentDataTable.Rows.Count, start, read);
 
                     // Add data to Grid
-                    count = ExecuteSql_Load(CurrentDataTable);
+                    count = ExecuteSql_Load();
                 }
                 else
                 {
@@ -165,29 +165,43 @@ namespace QueryPad
             return dt.Result;
         }
 
-        private int ExecuteSql_Load(DataTable dt)
+        private int ExecuteSql_Load()
         {
-            // Show the first 500 rows
-            var count = dt.Rows.Count;
-            if (count > 500) count = 500;
-            var page = dt.Clone();
-            for (int i = 0; i < count; i++)
-            {
-                page.Rows.Add(dt.Rows[i].ItemArray);
-            }
-            Grid.DataSource = page;
-            Grid.AutoResizeColumns();
+            Cursor = Cursors.WaitCursor;
 
-            // Title case Oracle columns header
-            if (Cnx.CnxParameter.Provider.Contains("Oracle"))
+            // Initialize grid
+            var start = Grid.RowCount;
+            if (start == 0)
             {
-                var ti = CultureInfo.CurrentCulture.TextInfo;
-                for (var i = 0; i < Grid.Columns.Count; i++)
+                // Create columns
+                Grid.DataSource = CurrentDataTable.Clone();
+
+                // Title case Oracle columns header
+                if (Cnx.CnxParameter.Provider.Contains("Oracle"))
                 {
-                    var text = Grid.Columns[i].HeaderText.ToLower();
-                    Grid.Columns[i].HeaderText = ti.ToTitleCase(text);
+                    var ti = CultureInfo.CurrentCulture.TextInfo;
+                    for (var i = 0; i < Grid.Columns.Count; i++)
+                    {
+                        var text = Grid.Columns[i].HeaderText.ToLower();
+                        Grid.Columns[i].HeaderText = ti.ToTitleCase(text);
+                    }
                 }
             }
+
+            // Check if there is more rows to load
+            var count = CurrentDataTable.Rows.Count;
+            if (start >= count) return start;
+
+            // Load 500 rows
+            var current = (DataTable)Grid.DataSource;
+            var size = 500;
+            if (start + size > count) size = count - start;
+            for (int i = 0; i < size; i++)
+            {
+                current.Rows.Add(CurrentDataTable.Rows[start + i].ItemArray);
+            }
+            if (start == 0) Grid.AutoResizeColumns();
+            Grid.Refresh();
 
             // Return loaded rows count
             return Grid.RowCount;
@@ -201,14 +215,18 @@ namespace QueryPad
             return count.Result;
         }
 
-        private void ExecuteSql_Message(int count, DateTime start, bool read)
+        private void ExecuteSql_Message(int count, DateTime? start, bool read)
         {
             // Display statistics
 
-            var duration = DateTime.Now.Subtract(start);
-            var message = string.Format("{0} rows ({1:00}:{2:00}.{3:000})"
+            var message = string.Format("{0} rows", count);
+            if (start != null)
+            {
+                var duration = DateTime.Now.Subtract(start.Value);
+                message = string.Format("{0} rows ({1:00}:{2:00}.{3:000})"
                                         , count
                                         , duration.Minutes, duration.Seconds, duration.Milliseconds);
+            }
             if (count < 2) message = message.Replace(" rows ", " row ");
             if (read) message = message.Replace("10000 ", "top 10000 ");
             ShowInformations(message);
@@ -416,16 +434,9 @@ namespace QueryPad
                 if (start >= count) return;
 
                 // Show the next 500 rows
-                var current = (DataTable)Grid.DataSource;
-                var size = 500;
-                if (start + size > count) size = count - start;
-                var rows = new DataGridViewRow[size];
-                for (int i = 0; i < size; i++)
-                {
-                    current.Rows.Add(CurrentDataTable.Rows[start + i].ItemArray);
-                }
-
-                Grid.Refresh();
+                count = ExecuteSql_Load();
+                ExecuteSql_Message(count, null, true);
+                Cursor = Cursors.Default;
             }
         }
 
