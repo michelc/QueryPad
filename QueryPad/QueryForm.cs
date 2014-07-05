@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Data;
 using System.Drawing;
 using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace QueryPad
@@ -9,6 +12,8 @@ namespace QueryPad
     {
         private Connexion Cnx { get; set; }
         private DataGridViewCellEventArgs PreviousCellClick;
+
+        private CancellationTokenSource Cancellation;
 
         public QueryForm(CnxParameter CnxParameter)
         {
@@ -63,57 +68,48 @@ namespace QueryPad
             base.OnClosed(e);
         }
 
-        private void ExecuteSql(object sender, EventArgs e)
+        private async void ExecuteSql(object sender, EventArgs e)
         {
-            // Clear results
-            Grid.DataSource = null;
-            Grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            PreviousCellClick = null;
-            ShowInformations("");
+            // Get query to run
+            var sql = ExecuteSql_Prepare();
+            if (sql == "") return;
 
-            // Get current query to execute
-            var sql = Query.CurrentQuery();
-
-            // Check if query is empty
-            if (sql == "")
-            {
-                ShowInformations("No query !");
-                return;
-            }
-
-            // Update display
-            FreezeToolbar(true);
-            ShowInformations("Executing...");
-
-            // Run query
-            TimeSpan duration;
             var count = -1;
             var read = true;
+            var start = DateTime.Now;
+
+            Cancellation = new CancellationTokenSource();
+
+            // Run query
             try
             {
-                var start = DateTime.Now;
                 if (sql.ToUpper().StartsWith("SELECT"))
                 {
-                    sql = Cnx.SelectTop(sql);
-                    Grid.DataSource = Cnx.ExecuteDataSet(sql).Tables[0];
-                    Grid.AutoResizeColumns();
-                    count = Grid.RowCount;
-                    if (Cnx.CnxParameter.Provider.Contains("Oracle"))
-                    {
-                        var ti = CultureInfo.CurrentCulture.TextInfo;
-                        for (var i = 0; i < Grid.Columns.Count; i++)
-                        {
-                            var text = Grid.Columns[i].HeaderText.ToLower();
-                            Grid.Columns[i].HeaderText = ti.ToTitleCase(text);
-                        }
-                    }
+                    // Read data from DB
+                    var task_read = ExecuteSql_ReaderAsync(sql);
+                    await task_read;
+                    var dt = task_read.Result;
+
+                    // Display DB access statistics
+                    ExecuteSql_Message(dt.Rows.Count, start, read);
+
+                    // Add data to Grid
+                    count = ExecuteSql_Load(dt);
                 }
                 else
                 {
+                    // Update DB
                     read = false;
-                    count = Cnx.ExecuteNonQuery(sql);
+                    var task_write = ExecuteSql_NonQueryAsync(sql);
+                    await task_write;
+
+                    count = task_write.Result;
                 }
-                duration = DateTime.Now.Subtract(start);
+            }
+            catch (TaskCanceledException)
+            {
+                ShowInformations("Stopped");
+                return;
             }
             catch (Exception ex)
             {
@@ -129,6 +125,75 @@ namespace QueryPad
             }
 
             // Display statistics
+            ExecuteSql_Message(count, start, read);
+        }
+
+        private string ExecuteSql_Prepare()
+        {
+            // Clear results
+            Grid.DataSource = null;
+            Grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            PreviousCellClick = null;
+            ShowInformations("");
+
+            // Get current query to execute
+            var sql = Query.CurrentQuery();
+
+            // Check if query is empty
+            if (sql == "")
+            {
+                ShowInformations("No query !");
+                return "";
+            }
+
+            // Update display
+            FreezeToolbar(true);
+            ShowInformations("Executing...");
+
+            // Return the query to run
+            return sql;
+        }
+
+        private async Task<DataTable> ExecuteSql_ReaderAsync(string sql)
+        {
+            sql = Cnx.SelectTop(sql);
+            var dt = Cnx.ExecuteDataTableAsync(sql, Cancellation.Token);
+            await dt;
+
+            return dt.Result;
+        }
+
+        private int ExecuteSql_Load(DataTable dt)
+        {
+            Grid.DataSource = dt;
+            Grid.AutoResizeColumns();
+
+            if (Cnx.CnxParameter.Provider.Contains("Oracle"))
+            {
+                var ti = CultureInfo.CurrentCulture.TextInfo;
+                for (var i = 0; i < Grid.Columns.Count; i++)
+                {
+                    var text = Grid.Columns[i].HeaderText.ToLower();
+                    Grid.Columns[i].HeaderText = ti.ToTitleCase(text);
+                }
+            }
+
+            return Grid.RowCount;
+        }
+
+        private async Task<int> ExecuteSql_NonQueryAsync(string sql)
+        {
+            var count = Cnx.ExecuteNonQueryAsync(sql, Cancellation.Token);
+            await count;
+
+            return count.Result;
+        }
+
+        private void ExecuteSql_Message(int count, DateTime start, bool read)
+        {
+            // Display statistics
+
+            var duration = DateTime.Now.Subtract(start);
             var message = string.Format("{0} rows ({1:00}:{2:00}.{3:000})"
                                         , count
                                         , duration.Minutes, duration.Seconds, duration.Milliseconds);
@@ -332,6 +397,14 @@ namespace QueryPad
                 }
                 e.Handled = true;
             }
+        }
+
+        private void Stop_Click(object sender, EventArgs e)
+        {
+            // [Stop] button has been used
+            // => cancel current query
+
+            Cancellation.Cancel();
         }
     }
 }

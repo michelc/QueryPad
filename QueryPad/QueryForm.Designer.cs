@@ -184,6 +184,7 @@
             this.Stop.TabIndex = 6;
             this.Stop.Text = "Sto&p";
             this.Stop.UseVisualStyleBackColor = false;
+            this.Stop.Click += new System.EventHandler(this.Stop_Click);
             // 
             // Execute
             // 

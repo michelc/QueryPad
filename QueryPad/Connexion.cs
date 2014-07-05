@@ -1,6 +1,8 @@
 ﻿using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Dapper;
 
 namespace QueryPad
@@ -128,14 +130,34 @@ namespace QueryPad
             return ds;
         }
 
-        public int ExecuteNonQuery(string sql)
+        public async Task<DataTable> ExecuteDataTableAsync(string sql, CancellationToken token)
         {
+            // await Task.Delay(1500, token);
+            var dt = new DataTable();
+
+            var command = db.CreateCommand();
+            command.CommandText = sql;
+            try
+            {
+                var t = command.ExecuteReaderAsync(token);
+                await t;
+                dt.Load(t.Result);
+                return dt;
+            }
+            catch { throw; }
+        }
+
+        public async Task<int> ExecuteNonQueryAsync(string sql, CancellationToken token)
+        {
+            // await Task.Delay(1500, token);
             int count = -1;
             var command = db.CreateCommand();
             command.CommandText = sql;
             try
             {
-                count = command.ExecuteNonQuery();
+                var t = command.ExecuteNonQueryAsync(token);
+                await t;
+                count = t.Result;
             }
             catch { throw; }
 
