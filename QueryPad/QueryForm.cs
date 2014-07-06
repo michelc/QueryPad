@@ -76,7 +76,7 @@ namespace QueryPad
             if (sql == "") return;
 
             var count = -1;
-            var read = true;
+            var total = 0;
             var start = DateTime.Now;
 
             Cancellation = new CancellationTokenSource();
@@ -92,7 +92,8 @@ namespace QueryPad
                     CurrentDataTable = task_read.Result;
 
                     // Display DB access statistics
-                    ExecuteSql_Message(CurrentDataTable.Rows.Count, start, read);
+                    total = CurrentDataTable.Rows.Count;
+                    ExecuteSql_Message(0, total, start);
 
                     // Add data to Grid
                     count = ExecuteSql_Load();
@@ -100,7 +101,6 @@ namespace QueryPad
                 else
                 {
                     // Update DB
-                    read = false;
                     var task_write = ExecuteSql_NonQueryAsync(sql);
                     await task_write;
 
@@ -126,7 +126,7 @@ namespace QueryPad
             }
 
             // Display statistics
-            ExecuteSql_Message(count, start, read);
+            ExecuteSql_Message(count, total, start);
         }
 
         private string ExecuteSql_Prepare()
@@ -215,20 +215,19 @@ namespace QueryPad
             return count.Result;
         }
 
-        private void ExecuteSql_Message(int count, DateTime? start, bool read)
+        private void ExecuteSql_Message(int count, int total, DateTime? start)
         {
             // Display statistics
 
             var message = string.Format("{0} rows", count);
+            if (count < total) message = string.Format("{0}/{1} rows", count, total);
             if (start != null)
             {
                 var duration = DateTime.Now.Subtract(start.Value);
-                message = string.Format("{0} rows ({1:00}:{2:00}.{3:000})"
-                                        , count
-                                        , duration.Minutes, duration.Seconds, duration.Milliseconds);
+                message += string.Format(" ({0:00}:{1:00}.{2:000})"
+                                       , duration.Minutes, duration.Seconds, duration.Milliseconds);
             }
             if (count < 2) message = message.Replace(" rows ", " row ");
-            if (read) message = message.Replace("10000 ", "top 10000 ");
             ShowInformations(message);
         }
 
@@ -435,7 +434,8 @@ namespace QueryPad
 
                 // Show the next 500 rows
                 count = ExecuteSql_Load();
-                ExecuteSql_Message(count, null, true);
+                var total = CurrentDataTable.Rows.Count;
+                ExecuteSql_Message(count, total, null);
                 Cursor = Cursors.Default;
             }
         }
