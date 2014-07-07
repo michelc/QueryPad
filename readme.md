@@ -5,11 +5,11 @@ Quick & dirty query tool with just what I need (maybe less).
 
 ## TODO
 
-* Test with Sql Server
+* Use schema informations to find foreign keys
 * Use Dapper NuGet
-* Add OleDb support for Access (no?)
 * Display results as Grid or Text (maybe)
 * Handle SQL transactions (maybe)
+* Accept DESC OneTable
 * Etc...
 
 
