@@ -135,6 +135,7 @@
             this.Query.AcceptsTab = true;
             this.Query.BackColor = System.Drawing.Color.White;
             this.Query.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.Query.DetectUrls = false;
             this.Query.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Query.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Query.HideSelection = false;
