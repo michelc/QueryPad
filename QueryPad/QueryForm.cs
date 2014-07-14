@@ -393,6 +393,16 @@ namespace QueryPad
             Grid.Rows[e.RowIndex].Selected = true;
         }
 
+        private void Grid_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            // Set Yellow background for null values
+
+            if (e.Value == DBNull.Value)
+            {
+                e.CellStyle.BackColor = Color.FromArgb(0xFF, 0xDC, 0x00); // Yellow
+            }
+        }
+
         private void Grid_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
             // Don't track data errors for binary columns
