@@ -205,7 +205,34 @@ namespace QueryPad
             {
                 current.Rows.Add(CurrentDataTable.Rows[start + i].ItemArray);
             }
-            if (start == 0) Grid.AutoResizeColumns();
+
+            // Auto-resize columns width
+            if (start == 0)
+            {
+                Grid.AutoResizeColumns();
+                // Check for big widths
+                Grid.Tag = null;
+                for (var i = 0; i < Grid.Columns.Count; i++)
+                {
+                    if (Grid.Columns[i].ValueType == typeof(string))
+                    {
+                        if (Grid.Columns[i].Width > 750)
+                        {
+                            if (Grid.Columns[i].Width > 2250) Grid.Tag = "x2";
+                            Grid.Columns[i].Width = 750;
+                            Grid.Columns[i].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+                        }
+                    }
+                }
+            }
+            // Double rows height if needed
+            if ((string)Grid.Tag == "x2")
+            {
+                for (var i = start; i < Grid.Rows.Count; i++)
+                {
+                    Grid.Rows[i].Height *= 2;
+                }
+            }
             Grid.Refresh();
 
             // Return loaded rows count
