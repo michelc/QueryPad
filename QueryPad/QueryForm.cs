@@ -54,7 +54,7 @@ namespace QueryPad
             }
 
             Tables.DataSource = Cnx.GetTables();
-            Query.ConfigureTabs();
+            Editor.ConfigureTabs();
 
             Execute.Text = char.ConvertFromUtf32(9654) + " " + Execute.Text;
             Stop.Text = char.ConvertFromUtf32(9632) + " " + Stop.Text;
@@ -139,7 +139,7 @@ namespace QueryPad
             ShowInformations("");
 
             // Get current query to execute
-            var sql = Query.CurrentQuery();
+            var sql = Editor.CurrentQuery();
 
             // Check if query is empty
             if (sql == "")
@@ -277,28 +277,7 @@ namespace QueryPad
             // => generate & run select query to display its content
 
             var list = (ListControl)sender;
-            Query.AppendQuery("SELECT * FROM " + list.SelectedValue);
-            ExecuteSql(null, null);
-        }
-
-        private void Grid_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-            // Double-click a cell
-
-            // Don't track column header
-            if (e.RowIndex < 0) return;
-
-            // Checks if it's an ID column
-            var cell = Grid[e.ColumnIndex, e.RowIndex];
-            var data = QuickNavigation(cell.OwningColumn.HeaderText);
-            if (data == null) return;
-
-            // Yes => generate & run select query to display related data
-            var sql = string.Format("SELECT * FROM {0} WHERE {1} = {2}"
-                                    , data[0]
-                                    , data[1]
-                                    , cell.Value);
-            Query.AppendQuery(sql);
+            Editor.AppendQuery("SELECT * FROM " + list.SelectedValue);
             ExecuteSql(null, null);
         }
 
@@ -393,6 +372,27 @@ namespace QueryPad
             Grid.Rows[e.RowIndex].Selected = true;
         }
 
+        private void Grid_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // Double-click a cell
+
+            // Don't track column header
+            if (e.RowIndex < 0) return;
+
+            // Checks if it's an ID column
+            var cell = Grid[e.ColumnIndex, e.RowIndex];
+            var data = QuickNavigation(cell.OwningColumn.HeaderText);
+            if (data == null) return;
+
+            // Yes => generate & run select query to display related data
+            var sql = string.Format("SELECT * FROM {0} WHERE {1} = {2}"
+                                    , data[0]
+                                    , data[1]
+                                    , cell.Value);
+            Editor.AppendQuery(sql);
+            ExecuteSql(null, null);
+        }
+
         private void Grid_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             // Set Yellow background for null values
@@ -450,7 +450,7 @@ namespace QueryPad
             }
         }
 
-        private void Query_KeyDown(object sender, KeyEventArgs e)
+        private void Editor_KeyDown(object sender, KeyEventArgs e)
         {
             // Detect a keyboard event
 
@@ -463,7 +463,7 @@ namespace QueryPad
             {
                 if (Clipboard.ContainsText())
                 {
-                    Query.Paste(DataFormats.GetFormat("Text"));
+                    Editor.Paste(DataFormats.GetFormat("Text"));
                 }
                 e.Handled = true;
             }
