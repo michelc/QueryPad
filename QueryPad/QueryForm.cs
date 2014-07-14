@@ -385,10 +385,12 @@ namespace QueryPad
             if (data == null) return;
 
             // Yes => generate & run select query to display related data
+            var value = cell.Value.ToString();
+            if (cell.ValueType == typeof(string)) value = "'" + value + "'";
             var sql = string.Format("SELECT * FROM {0} WHERE {1} = {2}"
                                     , data[0]
                                     , data[1]
-                                    , cell.Value);
+                                    , value);
             Editor.AppendQuery(sql);
             ExecuteSql(null, null);
         }
