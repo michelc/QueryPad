@@ -8,7 +8,6 @@ Quick & dirty query tool with just what I need (maybe less).
 * Use schema informations to find foreign keys
 * Use Dapper NuGet
 * Display results as Grid or Text (maybe)
-* Handle SQL transactions (maybe)
 * Accept DESC OneTable
 * Etc...
 

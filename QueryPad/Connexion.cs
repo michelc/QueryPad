@@ -12,6 +12,7 @@ namespace QueryPad
         public CnxParameter CnxParameter { get; set; }
 
         private DbConnection db { get; set; }
+        private DbTransaction transaction { get; set; }
         private string[] tables;
 
         public Connexion(CnxParameter CnxParameter)
@@ -26,11 +27,13 @@ namespace QueryPad
             db = factory.CreateConnection();
             db.ConnectionString = CnxParameter.CnxString;
             db.Open();
+            transaction = db.BeginTransaction();
         }
 
         public void Close()
         {
             // Close current connexion
+            transaction.Commit();
             db.Close();
         }
 
@@ -40,7 +43,7 @@ namespace QueryPad
             if (tables != null) return tables;
 
             // Get all tables for current connection
-            tables = db.Query<string>(this.SqlTables()).ToArray();
+            tables = db.Query<string>(this.SqlTables(), transaction: transaction).ToArray();
 
             // Return list
             return tables;
@@ -119,6 +122,7 @@ namespace QueryPad
 
             var command = db.CreateCommand();
             command.CommandText = sql;
+            command.Transaction = transaction;
 
             da.SelectCommand = command;
             try
@@ -137,6 +141,7 @@ namespace QueryPad
 
             var command = db.CreateCommand();
             command.CommandText = sql;
+            command.Transaction = transaction;
             try
             {
                 var t = command.ExecuteReaderAsync(token);
@@ -150,9 +155,23 @@ namespace QueryPad
         public async Task<int> ExecuteNonQueryAsync(string sql, CancellationToken token)
         {
             // await Task.Delay(1500, token);
+            var supper = sql.ToUpper();
+            if (supper == "COMMIT")
+            {
+                transaction.Commit();
+                transaction = db.BeginTransaction();
+                return 0;
+            }
+            if (supper == "ROLLBACK")
+            {
+                transaction.Rollback();
+                transaction = db.BeginTransaction();
+                return 0;
+            }
             int count = -1;
             var command = db.CreateCommand();
             command.CommandText = sql;
+            command.Transaction = transaction;
             try
             {
                 var t = command.ExecuteNonQueryAsync(token);

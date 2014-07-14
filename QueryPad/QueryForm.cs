@@ -58,6 +58,8 @@ namespace QueryPad
 
             Execute.Text = char.ConvertFromUtf32(9654) + " " + Execute.Text;
             Stop.Text = char.ConvertFromUtf32(9632) + " " + Stop.Text;
+            Commit.Text = char.ConvertFromUtf32(8730) + " " + Commit.Text;
+            Rollback.Text = char.ConvertFromUtf32(9587) + " " + Rollback.Text;
             FreezeToolbar(false);
         }
 
@@ -105,6 +107,9 @@ namespace QueryPad
                     await task_write;
 
                     count = task_write.Result;
+
+                    Commit.Visible = true;
+                    Rollback.Visible = true;
                 }
             }
             catch (TaskCanceledException)
@@ -266,6 +271,10 @@ namespace QueryPad
                 Stop.BackColor = Color.LightGray;
                 Stop.ForeColor = Color.WhiteSmoke;
             }
+
+            // Enable or disable [Commit] and [Rollback] buttons
+            Commit.Enabled = !is_busy;
+            Rollback.Enabled = !is_busy;
 
             // Change cursor to hourglass during working
             Cursor = is_busy ? Cursors.WaitCursor : Cursors.Default;
@@ -477,6 +486,32 @@ namespace QueryPad
             // => cancel current query
 
             Cancellation.Cancel();
+        }
+
+        private void Commit_Click(object sender, EventArgs e)
+        {
+            // [Commit] button has been used
+            // => commit current transaction
+
+            Editor.AppendQuery("COMMIT");
+            ExecuteSql(null, null);
+
+            Commit.Visible = false;
+            Rollback.Visible = false;
+            ShowInformations("commit");
+        }
+
+        private void Rollback_Click(object sender, EventArgs e)
+        {
+            // [Rollback] button has been used
+            // => rollback current transaction
+
+            Editor.AppendQuery("ROLLBACK");
+            ExecuteSql(null, null);
+
+            Commit.Visible = false;
+            Rollback.Visible = false;
+            ShowInformations("rollback");
         }
     }
 }
