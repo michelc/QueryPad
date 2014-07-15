@@ -85,6 +85,14 @@ namespace QueryPad
                             FROM   User_Tables
                             ORDER BY 1";
                     break;
+                case "Npgsql":
+                    sql = @"SELECT Table_Name AS Table
+                            FROM   Information_Schema.Tables
+                            WHERE  (Table_Type = 'BASE TABLE')
+                            AND    (Table_Name <> '__MigrationHistory')
+                            AND    (Table_Schema = 'public')
+                            ORDER BY Table_Name";
+                    break;
             }
             return sql;
         }
@@ -103,6 +111,7 @@ namespace QueryPad
                     sql = "SELECT " + sql;
                     break;
                 case "System.Data.SQLite":
+                case "Npgsql":
                     if (!sql.ToUpper().Contains("LIMIT")) sql += " LIMIT 10000";
                     break;
                 case "System.Data.OracleClient":
