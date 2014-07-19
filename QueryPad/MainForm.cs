@@ -32,7 +32,7 @@ namespace QueryPad
             {
                 var Cnx = new CnxForm();
                 AddFormToTab(Cnx, TabConnections);
-                this.Text = App.Title + " // " + Tabs.SelectedTab.Text;
+                this.Text = App.Name + " // " + Tabs.SelectedTab.Text;
             }
             TabConnections.Controls[0].Select();
         }
@@ -90,7 +90,7 @@ namespace QueryPad
             // A tab has been selected
             // => update title bar
 
-            this.Text = App.Title + " // " + Tabs.SelectedTab.Text.Replace("   x ", "");
+            this.Text = App.Name + " // " + Tabs.SelectedTab.Text.Replace("   x ", "");
         }
 
         private void Tabs_MouseUp(object sender, MouseEventArgs e)
