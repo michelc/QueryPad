@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace QueryPad
+namespace Altrr
 {
     /// <summary>
     /// Application properties
@@ -28,7 +28,7 @@ namespace QueryPad
         private static string _CurrentDirectory;
 
         /// <summary>
-        ///  Application's name
+        /// Application's name
         /// </summary>
         public static string Name
         {
@@ -48,13 +48,13 @@ namespace QueryPad
         private static string _Name;
 
         /// <summary>
-        ///  Application's config filename
+        /// Application's connections filename
         /// </summary>
-        public static string ConfigFile
+        public static string ConnectionsFile
         {
             get
             {
-                return System.IO.Path.Combine(App.CurrentDirectory, App.Name + ".secret");
+                return System.IO.Path.Combine(App.CurrentDirectory, "App.Connections.secret");
             }
         }
     }

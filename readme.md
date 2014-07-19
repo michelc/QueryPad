@@ -14,8 +14,8 @@ Quick & dirty query tool with just what I need (maybe less).
 
 ## Configuration
 
-Connections are defined in the file "QueryPad.secret". It's a JSON file with the
-following informations:
+Connections are defined in the file "App.Connections.secret". It's a JSON file
+with the following informations:
 
 ```
 [
