@@ -101,6 +101,24 @@ namespace QueryPad
                     // Add data to Grid
                     count = ExecuteSql_Load();
                 }
+                else if (sql.ToUpper().StartsWith("DESC"))
+                {
+                    // Read informations from schema
+                    sql = sql.Substring(4).Trim();
+                    Grid.DataSource = new SortableBindingList<Column>(Cnx.GetColumns(sql));
+                    Grid.AutoResizeColumns();
+
+                    // Display columns statistics
+                    if (Grid.RowCount > 0)
+                    {
+                        ShowInformations(Grid.RowCount.ToString() + " columns");
+                    }
+                    else
+                    {
+                        ShowInformations("No such table");
+                    }
+                    return;
+                }
                 else
                 {
                     // Update DB

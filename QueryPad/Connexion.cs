@@ -1,4 +1,7 @@
-﻿using System.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
@@ -48,6 +51,88 @@ namespace QueryPad
 
             // Return list
             return tables;
+        }
+
+        public List<Column> GetColumns(string table)
+        {
+            // Get schema columns
+            var dt = db.GetSchema("Columns", new[] { null, null, table, null });
+            var rows = dt.Rows.Cast<DataRow>().ToList();
+
+            // Get columns informations
+            var cols = new List<dynamic>();            
+            foreach (var c in rows)
+            {
+                var col = new
+                {
+                    Index = Convert.ToInt32(c["Ordinal_Position"]),
+                    Name = Convert.ToString(c["Column_Name"]),
+                    Is_Nullable = Convert.ToString(c["Is_Nullable"]),
+                    Type = Convert.ToString(c["Data_Type"]),
+                    Length = Convert.ToString(c["Character_Maximum_Length"]),
+                    Precision = Convert.ToString(c["Numeric_Precision"]),
+                    Scale = Convert.ToString(c["Numeric_Scale"]),
+                    Default = Convert.ToString(c["Column_Default"])
+                };
+                cols.Add(col);
+            }
+
+            // Get usefull columns informations
+            var columns = new List<Column>();
+            foreach (var col in cols.OrderBy(c => c.Index))
+            {
+                // Check Nullable property
+                var _nullable = false;
+                bool.TryParse(col.Is_Nullable.Replace("YES", "True"), out _nullable);
+                // Check Size and Scale properties
+                var _size = col.Length;
+                var _scale = col.Scale;
+                if (col.Type == "numeric")
+                {
+                    if (!string.IsNullOrEmpty(col.Precision))
+                    {
+                        _size = col.Precision;
+                    }
+                    else
+                    {
+                        _scale = "";
+                    }
+                }
+                else if (col.Type == "nvarchar")
+                {
+                    _scale = "";
+                }
+                else
+                {
+                    _size = "";
+                }
+                // Update Type property
+                if (!string.IsNullOrEmpty(_size))
+                {
+                    _size = "(" + _size;
+                    if (!string.IsNullOrEmpty(_scale)) _size += "," + _scale;
+                    _size += ")";
+                }
+                // Check Default property
+                var _default = string.IsNullOrEmpty(col.Default) ? "" : col.Default.Trim();
+                while ((_default.StartsWith("(")) && (_default.EndsWith(")")))
+                {
+                    _default = _default.Substring(1, _default.Length - 2);
+                }
+                // Define table's column
+                var column = new Column
+                {
+                    Index = col.Index,
+                    Name = col.Name,
+                    Nullable = _nullable,
+                    Type = col.Type + _size,
+                    Default = _default
+                };
+                columns.Add(column);
+            }
+
+            // Return table's columns
+            return columns;
         }
 
         public string SqlTables()
@@ -192,5 +277,15 @@ namespace QueryPad
 
             return count;
         }
+    }
+
+    public class Column
+    {
+        public int Index { get; set; }
+        public string Name { get; set; }
+        [DisplayName("Null?")]
+        public bool Nullable { get; set; }
+        public string Type { get; set; }
+        public string Default { get; set; }
     }
 }
