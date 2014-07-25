@@ -15,7 +15,6 @@ namespace QueryPad
         private DataGridViewCellEventArgs PreviousCellClick;
 
         private CancellationTokenSource Cancellation;
-        private DataTable CurrentDataTable;
 
         public QueryForm(CnxParameter CnxParameter)
         {
@@ -87,21 +86,20 @@ namespace QueryPad
             // Run query
             try
             {
-                if (sql.ToUpper().StartsWith("SELECT"))
+                var check = sql.Substring(0, 6).ToUpper();
+                if (check == "SELECT")
                 {
                     // Read data from DB
-                    var task_read = ExecuteSql_ReaderAsync(sql);
-                    await task_read;
-                    CurrentDataTable = task_read.Result;
+                    var dt = Cnx.ExecuteDataTable(sql);
 
                     // Display DB access statistics
-                    total = CurrentDataTable.Rows.Count;
+                    total = dt.Rows.Count;
                     ExecuteSql_Message(0, total, start);
 
                     // Add data to Grid
-                    count = ExecuteSql_Load();
+                    count = ExecuteSql_Load(dt);
                 }
-                else if (sql.ToUpper().StartsWith("DESC"))
+                else if (check.StartsWith("DESC"))
                 {
                     // Read informations from schema
                     sql = sql.Substring(4).Trim();
@@ -156,7 +154,6 @@ namespace QueryPad
         private string ExecuteSql_Prepare()
         {
             // Clear results
-            CurrentDataTable = null;
             Grid.DataSource = null;
             Grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             PreviousCellClick = null;
@@ -180,77 +177,34 @@ namespace QueryPad
             return sql;
         }
 
-        private async Task<DataTable> ExecuteSql_ReaderAsync(string sql)
-        {
-            sql = Cnx.SelectTop(sql);
-            var dt = Cnx.ExecuteDataTableAsync(sql, Cancellation.Token);
-            await dt;
-
-            return dt.Result;
-        }
-
-        private int ExecuteSql_Load()
+        private int ExecuteSql_Load(DataTable dt)
         {
             Cursor = Cursors.WaitCursor;
 
             // Initialize grid
-            var start = Grid.RowCount;
-            if (start == 0)
-            {
-                // Create columns
-                Grid.DataSource = CurrentDataTable.Clone();
+            Grid.DataSource = dt;
+            var count = Grid.RowCount;
 
-                // Title case Oracle columns header
-                if (Cnx.CnxParameter.Provider.Contains("Oracle"))
+            // Title case Oracle columns header
+            if (Cnx.CnxParameter.Provider.Contains("Oracle"))
+            {
+                var ti = CultureInfo.CurrentCulture.TextInfo;
+                for (var i = 0; i < Grid.Columns.Count; i++)
                 {
-                    var ti = CultureInfo.CurrentCulture.TextInfo;
-                    for (var i = 0; i < Grid.Columns.Count; i++)
-                    {
-                        var text = Grid.Columns[i].HeaderText.ToLower();
-                        Grid.Columns[i].HeaderText = ti.ToTitleCase(text);
-                    }
+                    var text = Grid.Columns[i].HeaderText.ToLower();
+                    Grid.Columns[i].HeaderText = ti.ToTitleCase(text);
                 }
-            }
-
-            // Check if there is more rows to load
-            var count = CurrentDataTable.Rows.Count;
-            if (start >= count) return start;
-
-            // Load 500 rows
-            var current = (DataTable)Grid.DataSource;
-            var size = 500;
-            if (start + size > count) size = count - start;
-            for (int i = 0; i < size; i++)
-            {
-                current.ImportRow(CurrentDataTable.Rows[start + i]);
             }
 
             // Auto-resize columns width
-            if ((start == 0) && (count <= 500))
+            var mode = (count < 250) ? DataGridViewAutoSizeColumnsMode.AllCells : DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            Grid.AutoResizeColumns(mode);
+
+            // Check for big widths
+            Grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            for (var i = 0; i < Grid.Columns.Count; i++)
             {
-                Grid.AutoResizeColumns();
-                // Check for big widths
-                Grid.Tag = null;
-                for (var i = 0; i < Grid.Columns.Count; i++)
-                {
-                    if (Grid.Columns[i].ValueType == typeof(string))
-                    {
-                        if (Grid.Columns[i].Width > 750)
-                        {
-                            if (Grid.Columns[i].Width > 2250) Grid.Tag = "x2";
-                            Grid.Columns[i].Width = 750;
-                            Grid.Columns[i].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-                        }
-                    }
-                }
-            }
-            // Double rows height if needed
-            if ((string)Grid.Tag == "x2")
-            {
-                for (var i = start; i < Grid.Rows.Count; i++)
-                {
-                    Grid.Rows[i].Height *= 2;
-                }
+                if (Grid.Columns[i].Width > 750) Grid.Columns[i].Width = 750;
             }
 
             // Return loaded rows count
@@ -391,8 +345,8 @@ namespace QueryPad
             // Get table first column name (should be the primary key)
             try
             {
-                var test = Cnx.ExecuteDataSet("SELECT * FROM " + table_name + " WHERE 1 = 2");
-                column_name = test.Tables[0].Columns[0].ColumnName;
+                var test = Cnx.ExecuteDataTable("SELECT * FROM " + table_name + " WHERE 1 = 2");
+                column_name = test.Columns[0].ColumnName;
             }
             catch { return null; }
 
@@ -474,37 +428,6 @@ namespace QueryPad
             {
                 e.Cancel = false;
                 e.ThrowException = true;
-            }
-        }
-
-        private void Grid_KeyDown(object sender, KeyEventArgs e)
-        {
-            // Check if we need to load more rows from current query
-
-            if ((e.KeyCode == Keys.PageDown) || (e.KeyCode == Keys.Down))
-            {
-                // There must be only one selected row
-                if (Grid.SelectedRows.Count != 1) return;
-
-                // Selected row must be the last row
-                var RowIndex = Grid.SelectedRows[0].Index;
-                if (RowIndex != Grid.RowCount - 1) return;
-
-                // Just PageDown or Down key without Ctrl, Alt or Shift
-                if (e.Control) return;
-                if (e.Alt) return;
-                if (e.Shift) return;
-
-                // There must be more rows to load
-                var count = CurrentDataTable.Rows.Count;
-                var start = Grid.RowCount;
-                if (start >= count) return;
-
-                // Show the next 500 rows
-                count = ExecuteSql_Load();
-                var total = CurrentDataTable.Rows.Count;
-                ExecuteSql_Message(count, total, null);
-                Cursor = Cursors.Default;
             }
         }
 

@@ -16,6 +16,8 @@ namespace QueryPad
         public CnxParameter CnxParameter { get; set; }
 
         private DbConnection db { get; set; }
+        private DbDataAdapter da { get; set; }
+        private DbCommand dc { get; set; }
         private DbTransaction transaction { get; set; }
         private string[] tables;
 
@@ -31,6 +33,8 @@ namespace QueryPad
             db = factory.CreateConnection();
             db.ConnectionString = CnxParameter.CnxString;
             db.Open();
+            da = factory.CreateDataAdapter();
+            dc = db.CreateCommand();
             transaction = db.BeginTransaction();
         }
 
@@ -183,68 +187,20 @@ namespace QueryPad
             return sql;
         }
 
-        public string SelectTop(string sql)
+        public DataTable ExecuteDataTable(string sql)
         {
-            // Limit select row count to 10000
-            // depending on provider
-
-            switch (CnxParameter.Provider)
-            {
-                case "System.Data.SqlClient":
-                case "System.Data.SqlServerCe.4.0":
-                    sql = sql.Substring(6).Trim();
-                    if (!sql.ToUpper().StartsWith("TOP")) sql = "TOP 10000 " + sql;
-                    sql = "SELECT " + sql;
-                    break;
-                case "System.Data.SQLite":
-                case "Npgsql":
-                    if (!sql.ToUpper().Contains("LIMIT")) sql += " LIMIT 10000";
-                    break;
-                case "System.Data.OracleClient":
-                    if (!sql.ToUpper().Contains("ROWNUM")) sql = "SELECT * FROM (" + sql + ") WHERE ROWNUM <= 2500";
-                    break;
-            }
-
-            return sql;
-        }
-
-        public DataSet ExecuteDataSet(string sql)
-        {
-            var ds = new DataSet();
-
-            var factory = DbProviderFactories.GetFactory(CnxParameter.Provider);
-            var da = factory.CreateDataAdapter();
-
-            var command = db.CreateCommand();
-            command.CommandText = sql;
-            command.Transaction = transaction;
-
-            da.SelectCommand = command;
-            try
-            {
-                da.Fill(ds);
-            }
-            catch { throw; }
-
-            return ds;
-        }
-
-        public async Task<DataTable> ExecuteDataTableAsync(string sql, CancellationToken token)
-        {
-            // await Task.Delay(1500, token);
             var dt = new DataTable();
 
-            var command = db.CreateCommand();
-            command.CommandText = sql;
-            command.Transaction = transaction;
             try
             {
-                var t = command.ExecuteReaderAsync(token);
-                await t;
-                dt.Load(t.Result);
-                return dt;
+                dc.CommandText = sql;
+                dc.Transaction = transaction;
+                da.SelectCommand = dc;
+                da.Fill(dt);
             }
             catch { throw; }
+
+            return dt;
         }
 
         public async Task<int> ExecuteNonQueryAsync(string sql, CancellationToken token)
