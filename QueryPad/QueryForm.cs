@@ -222,11 +222,11 @@ namespace QueryPad
             if (start + size > count) size = count - start;
             for (int i = 0; i < size; i++)
             {
-                current.Rows.Add(CurrentDataTable.Rows[start + i].ItemArray);
+                current.ImportRow(CurrentDataTable.Rows[start + i]);
             }
 
             // Auto-resize columns width
-            if (start == 0)
+            if ((start == 0) && (count <= 500))
             {
                 Grid.AutoResizeColumns();
                 // Check for big widths
@@ -252,7 +252,6 @@ namespace QueryPad
                     Grid.Rows[i].Height *= 2;
                 }
             }
-            Grid.Refresh();
 
             // Return loaded rows count
             return Grid.RowCount;
@@ -285,10 +284,12 @@ namespace QueryPad
         private void ShowInformations(string message)
         {
             // Force informations display
-            Informations.Text = message;
+            Informations.Text = last_message + Environment.NewLine + message;
+            last_message = message;
             Informations.Left = Toolbar.ClientSize.Width - Informations.Width;
             this.Refresh();
         }
+        private string last_message = "";
 
         private void FreezeToolbar(bool is_busy)
         {
