@@ -284,11 +284,34 @@ namespace QueryPad
         private void Tables_DoubleClick(object sender, EventArgs e)
         {
             // Double-click a table name
-            // => generate & run select query to display its content
 
-            var list = (ListControl)sender;
-            Editor.AppendQuery("SELECT * FROM " + list.SelectedValue);
+            if (Tables.Tag == null)
+            {
+                // Simple Double-click
+                // => generate & run select query to display its content
+                Editor.AppendQuery("SELECT * FROM " + Tables.SelectedValue);
+            }
+            else
+            {
+                // Control Double-click
+                // => generate & run desc query to display its structure
+                Editor.AppendQuery("DESC " + Tables.SelectedValue);
+            }
             ExecuteSql(null, null);
+        }
+
+        private void Tables_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Check if Control key is pressed
+
+            if (e.Control) Tables.Tag = "Control";
+        }
+
+        private void Tables_KeyUp(object sender, KeyEventArgs e)
+        {
+            // No Control key is pressed
+
+            Tables.Tag = null;
         }
 
         private string[] QuickNavigation(string foreign_col)

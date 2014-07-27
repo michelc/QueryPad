@@ -35,12 +35,12 @@
             this.SplitHorizontal = new System.Windows.Forms.SplitContainer();
             this.Editor = new System.Windows.Forms.RichTextBox();
             this.Toolbar = new System.Windows.Forms.Panel();
+            this.Rollback = new System.Windows.Forms.Button();
+            this.Commit = new System.Windows.Forms.Button();
             this.Informations = new System.Windows.Forms.Label();
             this.Stop = new System.Windows.Forms.Button();
             this.Execute = new System.Windows.Forms.Button();
             this.Grid = new System.Windows.Forms.DataGridView();
-            this.Commit = new System.Windows.Forms.Button();
-            this.Rollback = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.SplitVertical)).BeginInit();
             this.SplitVertical.Panel1.SuspendLayout();
             this.SplitVertical.Panel2.SuspendLayout();
@@ -87,6 +87,8 @@
             this.Tables.Size = new System.Drawing.Size(258, 368);
             this.Tables.TabIndex = 1;
             this.Tables.DoubleClick += new System.EventHandler(this.Tables_DoubleClick);
+            this.Tables.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Tables_KeyDown);
+            this.Tables.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Tables_KeyUp);
             // 
             // Title
             // 
@@ -162,6 +164,38 @@
             this.Toolbar.Size = new System.Drawing.Size(523, 35);
             this.Toolbar.TabIndex = 1;
             // 
+            // Rollback
+            // 
+            this.Rollback.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.Rollback.AutoSize = true;
+            this.Rollback.BackColor = System.Drawing.Color.LightGray;
+            this.Rollback.FlatAppearance.BorderSize = 0;
+            this.Rollback.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Rollback.Location = new System.Drawing.Point(240, 9);
+            this.Rollback.Name = "Rollback";
+            this.Rollback.Size = new System.Drawing.Size(65, 23);
+            this.Rollback.TabIndex = 9;
+            this.Rollback.Text = "Rollback";
+            this.Rollback.UseVisualStyleBackColor = false;
+            this.Rollback.Visible = false;
+            this.Rollback.Click += new System.EventHandler(this.Rollback_Click);
+            // 
+            // Commit
+            // 
+            this.Commit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.Commit.AutoSize = true;
+            this.Commit.BackColor = System.Drawing.Color.LightGray;
+            this.Commit.FlatAppearance.BorderSize = 0;
+            this.Commit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Commit.Location = new System.Drawing.Point(160, 9);
+            this.Commit.Name = "Commit";
+            this.Commit.Size = new System.Drawing.Size(65, 23);
+            this.Commit.TabIndex = 8;
+            this.Commit.Text = "&Commit";
+            this.Commit.UseVisualStyleBackColor = false;
+            this.Commit.Visible = false;
+            this.Commit.Click += new System.EventHandler(this.Commit_Click);
+            // 
             // Informations
             // 
             this.Informations.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -228,38 +262,6 @@
             this.Grid.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Grid_CellDoubleClick);
             this.Grid.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.Grid_CellFormatting);
             this.Grid.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.Grid_DataError);
-            // 
-            // Commit
-            // 
-            this.Commit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.Commit.AutoSize = true;
-            this.Commit.BackColor = System.Drawing.Color.LightGray;
-            this.Commit.FlatAppearance.BorderSize = 0;
-            this.Commit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.Commit.Location = new System.Drawing.Point(160, 9);
-            this.Commit.Name = "Commit";
-            this.Commit.Size = new System.Drawing.Size(65, 23);
-            this.Commit.TabIndex = 8;
-            this.Commit.Text = "&Commit";
-            this.Commit.UseVisualStyleBackColor = false;
-            this.Commit.Visible = false;
-            this.Commit.Click += new System.EventHandler(this.Commit_Click);
-            // 
-            // Rollback
-            // 
-            this.Rollback.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.Rollback.AutoSize = true;
-            this.Rollback.BackColor = System.Drawing.Color.LightGray;
-            this.Rollback.FlatAppearance.BorderSize = 0;
-            this.Rollback.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.Rollback.Location = new System.Drawing.Point(240, 9);
-            this.Rollback.Name = "Rollback";
-            this.Rollback.Size = new System.Drawing.Size(65, 23);
-            this.Rollback.TabIndex = 9;
-            this.Rollback.Text = "Rollback";
-            this.Rollback.UseVisualStyleBackColor = false;
-            this.Rollback.Visible = false;
-            this.Rollback.Click += new System.EventHandler(this.Rollback_Click);
             // 
             // QueryForm
             // 
