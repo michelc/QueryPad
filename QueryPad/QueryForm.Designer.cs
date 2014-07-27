@@ -87,8 +87,6 @@
             this.Tables.Size = new System.Drawing.Size(258, 368);
             this.Tables.TabIndex = 1;
             this.Tables.DoubleClick += new System.EventHandler(this.Tables_DoubleClick);
-            this.Tables.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Tables_KeyDown);
-            this.Tables.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Tables_KeyUp);
             // 
             // Title
             // 
@@ -269,6 +267,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(805, 399);
             this.Controls.Add(this.SplitVertical);
+            this.KeyPreview = true;
             this.Name = "QueryForm";
             this.Text = "QueryForm";
             this.SplitVertical.Panel1.ResumeLayout(false);

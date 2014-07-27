@@ -12,8 +12,8 @@ namespace QueryPad
     public partial class QueryForm : Form
     {
         private Connexion Cnx { get; set; }
-        private DataGridViewCellEventArgs PreviousCellClick;
 
+        private bool ControlKey = false;
         private CancellationTokenSource Cancellation;
 
         public QueryForm(CnxParameter CnxParameter)
@@ -69,6 +69,22 @@ namespace QueryPad
 
             Cnx.Close();
             base.OnClosed(e);
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            // Check if Control key is pressed
+
+            ControlKey = e.Control;
+            base.OnKeyDown(e);
+        }
+
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            // No Control key is pressed
+
+            ControlKey = false;
+            base.OnKeyUp(e);
         }
 
         private async void ExecuteSql(object sender, EventArgs e)
@@ -156,7 +172,6 @@ namespace QueryPad
             // Clear results
             Grid.DataSource = null;
             Grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            PreviousCellClick = null;
             ShowInformations("");
 
             // Get current query to execute
@@ -285,7 +300,7 @@ namespace QueryPad
         {
             // Double-click a table name
 
-            if (Tables.Tag == null)
+            if (!ControlKey)
             {
                 // Simple Double-click
                 // => generate & run select query to display its content
@@ -293,25 +308,11 @@ namespace QueryPad
             }
             else
             {
-                // Control Double-click
+                // Control + Double-click
                 // => generate & run desc query to display its structure
                 Editor.AppendQuery("DESC " + Tables.SelectedValue);
             }
             ExecuteSql(null, null);
-        }
-
-        private void Tables_KeyDown(object sender, KeyEventArgs e)
-        {
-            // Check if Control key is pressed
-
-            if (e.Control) Tables.Tag = "Control";
-        }
-
-        private void Tables_KeyUp(object sender, KeyEventArgs e)
-        {
-            // No Control key is pressed
-
-            Tables.Tag = null;
         }
 
         private string[] QuickNavigation(string foreign_col)
@@ -384,25 +385,12 @@ namespace QueryPad
             // Don't track column header
             if (e.RowIndex < 0) return;
 
-            // Select the cell after 2 clicks
-            if (PreviousCellClick != null)
+            // Reset full row select
+            if (Grid.SelectionMode != DataGridViewSelectionMode.FullRowSelect)
             {
-                if (e.RowIndex == PreviousCellClick.RowIndex)
-                {
-                    if (e.ColumnIndex == PreviousCellClick.ColumnIndex)
-                    {
-                        Grid.SelectionMode = DataGridViewSelectionMode.CellSelect;
-                        var cell = Grid[e.ColumnIndex, e.RowIndex];
-                        cell.Selected = true;
-                        return;
-                    }
-                }
+                Grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                Grid.Rows[e.RowIndex].Selected = true;
             }
-
-            // Select the full row otherwise
-            PreviousCellClick = e;
-            Grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            Grid.Rows[e.RowIndex].Selected = true;
         }
 
         private void Grid_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -412,7 +400,16 @@ namespace QueryPad
             // Don't track column header
             if (e.RowIndex < 0) return;
 
-            // Checks if it's an ID column
+            // Select current cell if simple double click
+            if (!ControlKey)
+            {
+                Grid.SelectionMode = DataGridViewSelectionMode.CellSelect;
+                Grid[e.ColumnIndex, e.RowIndex].Selected = true;
+                return;
+            }
+
+            // Control + Double-click
+            // => checks if it's an ID column
             var cell = Grid[e.ColumnIndex, e.RowIndex];
             var data = QuickNavigation(cell.OwningColumn.HeaderText);
             if (data == null) return;
