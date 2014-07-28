@@ -59,77 +59,104 @@ namespace QueryPad
 
         public List<Column> GetColumns(string table)
         {
-            // Get schema columns
-            var dt = db.GetSchema("Columns", new[] { null, null, table, null });
-            var rows = dt.Rows.Cast<DataRow>().ToList();
-
-            // Get columns informations
-            var cols = new List<dynamic>();            
-            foreach (var c in rows)
-            {
-                var col = new
-                {
-                    Index = Convert.ToInt32(c["Ordinal_Position"]),
-                    Name = Convert.ToString(c["Column_Name"]),
-                    Is_Nullable = Convert.ToString(c["Is_Nullable"]),
-                    Type = Convert.ToString(c["Data_Type"]),
-                    Length = Convert.ToString(c["Character_Maximum_Length"]),
-                    Precision = Convert.ToString(c["Numeric_Precision"]),
-                    Scale = Convert.ToString(c["Numeric_Scale"]),
-                    Default = Convert.ToString(c["Column_Default"])
-                };
-                cols.Add(col);
-            }
+            // Get all columns for table
+            var cols = db.Query<dynamic>(this.SqlColumns(table), transaction: transaction).ToArray();
 
             // Get usefull columns informations
             var columns = new List<Column>();
-            foreach (var col in cols.OrderBy(c => c.Index))
+            bool first = true;
+            foreach (var col in cols)
             {
                 // Check Nullable property
                 var _nullable = false;
-                bool.TryParse(col.Is_Nullable.Replace("YES", "True"), out _nullable);
-                // Check Size and Scale properties
-                var _size = col.Length;
-                var _scale = col.Scale;
-                if (col.Type == "numeric")
+                if (!string.IsNullOrEmpty(col.is_nullable))
                 {
-                    if (!string.IsNullOrEmpty(col.Precision))
-                    {
-                        _size = col.Precision;
-                    }
-                    else
-                    {
-                        _scale = "";
-                    }
-                }
-                else if (col.Type == "nvarchar")
-                {
-                    _scale = "";
+                    bool.TryParse(col.is_nullable.Replace("YES", "True").Replace("Y", "True"), out _nullable);
                 }
                 else
                 {
-                    _size = "";
+                    _nullable = (col.notnull == 0);
+                }
+                // Check Size and Scale properties
+                var _size = col.size == null ? 0 : (int)col.size;
+                var _scale = col.scale == null ? -1 : (int)col.scale;
+                var _type = ((string)col.type).ToLower();
+                if ((_type == "numeric") || (_type == "number"))
+                {
+                    if ((_type == "number") && (_scale == 0))
+                    {
+                        var _length = col.length == null ? 0 : (int)col.length;
+                        if (_length == 22) _type = "integer";
+                        _scale = 0;
+                    }
+                    if (_type != "integer")
+                    {
+                        if (col.precision != null)
+                        {
+                            _size = (int)col.precision;
+                        }
+                        else
+                        {
+                            _scale = 0;
+                        }
+                    }
+                }
+                else if (_type.Contains("char"))
+                {
+                    _scale = 0;
+                }
+                else
+                {
+                    _size = 0;
                 }
                 // Update Type property
-                if (!string.IsNullOrEmpty(_size))
+                if (_size > 0)
                 {
-                    _size = "(" + _size;
-                    if (!string.IsNullOrEmpty(_scale)) _size += "," + _scale;
-                    _size += ")";
+                    _type += "(" + _size.ToString();
+                    if (_scale > 0) _type += "," + _scale.ToString();
+                    _type += ")";
                 }
                 // Check Default property
-                var _default = string.IsNullOrEmpty(col.Default) ? "" : col.Default.Trim();
+                var _default = col.dflt_value == null ? "" : col.dflt_value.Trim();
                 while ((_default.StartsWith("(")) && (_default.EndsWith(")")))
                 {
                     _default = _default.Substring(1, _default.Length - 2);
                 }
+                // Check Autoincrement
+                if (first)
+                {
+                    first = false;
+                    if ((col.pk != null) && (col.pk == 1))
+                    {
+                        // SQLite
+                        if (_type.ToLower() == "integer") _type = "int identity(1,1)";
+                    }
+                    else if (_type == "serial")
+                    {
+                        // PostgreSQL
+                        _type = "int identity(1,1)";
+                    }
+                    else if ((_type == "int") && (col.auto != null))
+                    {
+                        if (col.auto is int)
+                        {
+                            // SQL Server
+                            if (col.auto > 0) _type = "int identity(1,1)";
+                        }
+                        else if (col.auto is long)
+                        {
+                            // SQL Server Compact
+                            if (col.auto > 0) _type = "int identity(1,1)";
+                        }
+                    }
+                }
                 // Define table's column
                 var column = new Column
                 {
-                    Index = col.Index,
-                    Name = col.Name,
+                    Index = 1 + (int)col.cid,
+                    Name = col.name,
                     Nullable = _nullable,
-                    Type = col.Type + _size,
+                    Type = _type,
                     Default = _default
                 };
                 columns.Add(column);
@@ -184,7 +211,83 @@ namespace QueryPad
                             ORDER BY Table_Name";
                     break;
             }
+
             return sql;
+        }
+
+        public string SqlColumns(string table)
+        {
+            // Query to get all columns for a table
+            // depending on provider
+
+            var sql = "";
+            switch (CnxParameter.Provider)
+            {
+                case "System.Data.SqlClient":
+                    sql = @"SELECT Ordinal_Position - 1 AS [cid]
+                                 , Column_Name AS [name]
+                                 , Data_Type AS [type]
+                                 , Character_Maximum_Length AS [size]
+                                 , Numeric_Precision AS [precision]
+                                 , Numeric_Scale AS [scale]
+                                 , COLUMNPROPERTY(object_id(Table_Schema + '.' + Table_Name), Column_Name, 'IsIdentity') AS [auto]
+                                 , Column_Default AS [dflt_value]
+                                 , Is_Nullable AS [is_nullable]
+                            FROM   Information_Schema.Columns
+                            WHERE  (Table_Name LIKE '{0}')
+                            ORDER BY Ordinal_Position";
+                    break;
+                case "System.Data.SqlServerCe.4.0":
+                    sql = @"SELECT Ordinal_Position - 1 AS [cid]
+                                 , Column_Name AS [name]
+                                 , Data_Type AS [type]
+                                 , Character_Maximum_Length AS [size]
+                                 , Numeric_Precision AS [precision]
+                                 , Numeric_Scale AS [scale]
+                                 , Autoinc_Increment AS [auto]
+                                 , Column_Default AS [dflt_value]
+                                 , Is_Nullable AS [is_nullable]
+                            FROM   Information_Schema.Columns
+                            WHERE  (Table_Name LIKE '{0}')
+                            ORDER BY Ordinal_Position";
+                    break;
+                case "System.Data.SQLite":
+                    sql = @"PRAGMA table_info('{0}')";
+                    break;
+                case "System.Data.OracleClient":
+                    table = table.ToUpper();
+                    sql = @"SELECT Column_ID - 1 AS [cid]
+                                 , Column_Name AS [name]
+                                 , Data_Type AS [type]
+                                 , Char_Col_Decl_Length AS [size]
+                                 , Data_Length AS [length]
+                                 , Data_Precision AS [precision]
+                                 , Data_Scale AS [scale]
+                                 , Data_Default AS [dflt_value]
+                                 , Nullable AS [is_nullable]
+                            FROM   Cols
+                            WHERE  (Table_Name LIKE '{0}')
+                            ORDER BY Column_ID";
+                    break;
+                case "Npgsql":
+                    table = table.ToLower();
+                    sql = @"SELECT Ordinal_Position - 1 AS [cid]
+                                 , Column_Name AS [name]
+                                 , Data_Type AS [type]
+                                 , Character_Maximum_Length AS [size]
+                                 , Numeric_Precision AS [precision]
+                                 , Numeric_Scale AS [scale]
+                                 , (Column_Default LIKE 'nextval(''' || Table_Name || '_' || Column_Name || '_seq''%') AS [auto]
+                                 , Column_Default AS [dflt_value]
+                                 , Is_Nullable AS [is_nullable]
+                            FROM   Information_Schema.Columns
+                            WHERE  (Table_Name LIKE '{0}')
+                            ORDER BY Ordinal_Position";
+                    break;
+            }
+
+            sql = sql.Replace("[", "\"").Replace("]", "\"");
+            return string.Format(sql, table);
         }
 
         public DataTable ExecuteDataTable(string sql)
