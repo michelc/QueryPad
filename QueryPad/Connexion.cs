@@ -51,7 +51,15 @@ namespace QueryPad
             if (tables != null) return tables;
 
             // Get all tables for current connection
-            tables = db.Query<string>(this.SqlTables(), transaction: transaction).ToArray();
+            if (CnxParameter.Provider == "System.Data.OleDb")
+            {
+                var dt = db.GetSchema("Tables", new string[] {null, null, null, "TABLE"});
+                tables = dt.Rows.Cast<DataRow>().Select(r => r["TABLE_NAME"].ToString()).ToArray();
+            }
+            else
+            {
+                tables = db.Query<string>(this.SqlTables(), transaction: transaction).ToArray();
+            }
 
             // Return list
             return tables;

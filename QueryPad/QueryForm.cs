@@ -363,6 +363,12 @@ namespace QueryPad
                     table_name = Tables.Items[i].ToString();
                     break;
                 }
+                else if (string.Compare(Tables.Items[i].ToString(), "dir_" + table_name + "s", true) == 0)
+                {
+                    // PI.MDB very specific
+                    table_name = Tables.Items[i].ToString();
+                    break;
+                }
             }
             if (table_name == "") return null;
 
