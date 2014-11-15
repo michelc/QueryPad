@@ -388,7 +388,8 @@ namespace QueryPad
         {
             // A cell has been clicked
 
-            // Don't track column header
+            // Don't track headers
+            if (e.ColumnIndex < 0) return;
             if (e.RowIndex < 0) return;
 
             // Reset full row select
@@ -403,7 +404,8 @@ namespace QueryPad
         {
             // Double-click a cell
 
-            // Don't track column header
+            // Don't track headers
+            if (e.ColumnIndex < 0) return;
             if (e.RowIndex < 0) return;
 
             // Select current cell if simple double click
