@@ -205,7 +205,7 @@ namespace QueryPad
                             AND    (name NOT LIKE 'sqlite_%')
                             ORDER BY name";
                     break;
-                case "System.Data.OracleClient":
+                case "Oracle.DataAccess.Client":
                     sql = @"SELECT INITCAP(Table_Name)
                             FROM   User_Tables
                             ORDER BY 1";
@@ -262,7 +262,7 @@ namespace QueryPad
                 case "System.Data.SQLite":
                     sql = @"PRAGMA table_info('{0}')";
                     break;
-                case "System.Data.OracleClient":
+                case "Oracle.DataAccess.Client":
                     table = table.ToUpper();
                     sql = @"SELECT Column_ID - 1 AS [cid]
                                  , Column_Name AS [name]
@@ -307,7 +307,14 @@ namespace QueryPad
                 dc.CommandText = sql;
                 dc.Transaction = transaction;
                 da.SelectCommand = dc;
-                da.Fill(dt);
+                if (CnxParameter.Provider == "Oracle.DataAccess.Client")
+                {
+                    da.Fill(0, 1000, dt);
+                }
+                else
+                {
+                    da.Fill(dt);
+                }
             }
             catch { throw; }
 
