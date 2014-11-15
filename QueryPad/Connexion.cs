@@ -355,6 +355,7 @@ namespace QueryPad
 
     public class Column
     {
+        [DisplayName("#")]
         public int Index { get; set; }
         public string Name { get; set; }
         [DisplayName("Null?")]

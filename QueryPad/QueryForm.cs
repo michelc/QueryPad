@@ -2,6 +2,7 @@
 using System.Data;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -15,6 +16,7 @@ namespace QueryPad
 
         private bool ControlKey = false;
         private CancellationTokenSource Cancellation;
+        private DataTable GridSourceBackup;
 
         public QueryForm(CnxParameter CnxParameter)
         {
@@ -60,6 +62,7 @@ namespace QueryPad
             Stop.Text = char.ConvertFromUtf32(9632) + " " + Stop.Text;
             Commit.Text = char.ConvertFromUtf32(8730) + " " + Commit.Text;
             Rollback.Text = char.ConvertFromUtf32(9587) + " " + Rollback.Text;
+            Rotate.Text = char.ConvertFromUtf32(8984) + " " + Rotate.Text;
             FreezeToolbar(false);
         }
 
@@ -113,7 +116,7 @@ namespace QueryPad
                     ExecuteSql_Message(0, total, start);
 
                     // Add data to Grid
-                    count = ExecuteSql_Load(dt);
+                    count = Display_List(dt);
                 }
                 else if (check.StartsWith("DESC"))
                 {
@@ -170,6 +173,7 @@ namespace QueryPad
         private string ExecuteSql_Prepare()
         {
             // Clear results
+            GridSourceBackup = null;
             Grid.DataSource = null;
             Grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             ShowInformations("");
@@ -192,7 +196,7 @@ namespace QueryPad
             return sql;
         }
 
-        private int ExecuteSql_Load(DataTable dt)
+        private int Display_List(DataTable dt)
         {
             Cursor = Cursors.WaitCursor;
 
@@ -224,6 +228,50 @@ namespace QueryPad
 
             // Return loaded rows count
             return Grid.RowCount;
+        }
+
+        private void Display_Row(int RowIndex)
+        {
+            Cursor = Cursors.WaitCursor;
+
+            // Create a datatable with current row pivoted
+            var headers = Grid.Columns.Cast<DataGridViewColumn>().ToList();
+            var datas = Grid.Rows[RowIndex].Cells;
+            var dt = new DataTable();
+            dt.Columns.Add("#", typeof(Int32));
+            dt.Columns.Add("Type", typeof(String));
+            dt.Columns.Add("Column", typeof(String));
+            dt.Columns.Add("Value");
+            for (var x = 0; x < headers.Count; x++)
+            {
+                dt.Rows.Add(new object[] { 1 + x
+                                         , headers[x].ValueType.ToString().Replace("System.", "")
+                                         , headers[x].HeaderText
+                                         , datas[x].Value });
+            }
+
+            // Initialize grid
+            Grid.DataSource = dt;
+            var count = Grid.RowCount;
+
+            // Resize value column width
+            Grid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+            Grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            for (var i = 0; i < Grid.Rows.Count; i++)
+            {
+                var size = Grid.Rows[i].Cells[3].Value.ToString().Length;
+                if (size > 100)
+                {
+                    Grid.Rows[i].Height = Grid.Rows[i].Height * ((size / 100) + 1);
+                }
+            }
+            Grid.Columns[3].Width = 750;
+
+            // Adjust columns styles
+            Grid.DefaultCellStyle.Alignment = DataGridViewContentAlignment.TopLeft;
+            Grid.Columns[0].DefaultCellStyle.ForeColor = Color.Gray;
+            Grid.Columns[1].DefaultCellStyle.ForeColor = Color.Gray;
+            Grid.Columns[2].DefaultCellStyle.Alignment = DataGridViewContentAlignment.TopRight;
         }
 
         private async Task<int> ExecuteSql_NonQueryAsync(string sql)
@@ -286,6 +334,21 @@ namespace QueryPad
             {
                 Stop.BackColor = Color.LightGray;
                 Stop.ForeColor = Color.WhiteSmoke;
+            }
+
+            // Enable or disable [Rotate] button
+            Rotate.Enabled = (is_busy == false) && (Grid.Rows.Count > 0) && (Grid.DataSource is DataTable);
+            if (Rotate.Enabled)
+            {
+                Rotate.BackColor = Color.FromKnownColor(KnownColor.Highlight);
+                Rotate.ForeColor = Color.FromKnownColor(KnownColor.HighlightText);
+                Rotate.Visible = true;
+            }
+            else
+            {
+                Rotate.BackColor = Color.LightGray;
+                Rotate.ForeColor = Color.WhiteSmoke;
+                Rotate.Visible = false;
             }
 
             // Enable or disable [Commit] and [Rollback] buttons
@@ -484,6 +547,25 @@ namespace QueryPad
             // => cancel current query
 
             Cancellation.Cancel();
+        }
+
+        private void Rotate_Click(object sender, EventArgs e)
+        {
+            // [Rotate] button has been used
+            // => alternate between row or list view
+
+            if (GridSourceBackup == null)
+            {
+                GridSourceBackup = (DataTable)Grid.DataSource;
+                Display_Row(Grid.CurrentCell.RowIndex);
+            }
+            else
+            {
+                Display_List(GridSourceBackup);
+                GridSourceBackup = null;
+            }
+
+            FreezeToolbar(false);
         }
 
         private void Commit_Click(object sender, EventArgs e)

@@ -41,6 +41,7 @@
             this.Stop = new System.Windows.Forms.Button();
             this.Execute = new System.Windows.Forms.Button();
             this.Grid = new System.Windows.Forms.DataGridView();
+            this.Rotate = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.SplitVertical)).BeginInit();
             this.SplitVertical.Panel1.SuspendLayout();
             this.SplitVertical.Panel2.SuspendLayout();
@@ -151,6 +152,7 @@
             // 
             // Toolbar
             // 
+            this.Toolbar.Controls.Add(this.Rotate);
             this.Toolbar.Controls.Add(this.Rollback);
             this.Toolbar.Controls.Add(this.Commit);
             this.Toolbar.Controls.Add(this.Informations);
@@ -261,6 +263,22 @@
             this.Grid.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.Grid_CellFormatting);
             this.Grid.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.Grid_DataError);
             // 
+            // Rotate
+            // 
+            this.Rotate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.Rotate.AutoSize = true;
+            this.Rotate.BackColor = System.Drawing.Color.LightGray;
+            this.Rotate.FlatAppearance.BorderSize = 0;
+            this.Rotate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Rotate.Location = new System.Drawing.Point(321, 9);
+            this.Rotate.Name = "Rotate";
+            this.Rotate.Size = new System.Drawing.Size(65, 23);
+            this.Rotate.TabIndex = 10;
+            this.Rotate.Text = "R&otate";
+            this.Rotate.UseVisualStyleBackColor = false;
+            this.Rotate.Visible = false;
+            this.Rotate.Click += new System.EventHandler(this.Rotate_Click);
+            // 
             // QueryForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -303,5 +321,6 @@
         private System.Windows.Forms.Button Execute;
         private System.Windows.Forms.Button Commit;
         private System.Windows.Forms.Button Rollback;
+        private System.Windows.Forms.Button Rotate;
     }
 }
