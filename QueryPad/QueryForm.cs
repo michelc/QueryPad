@@ -17,6 +17,7 @@ namespace QueryPad
         private bool ControlKey = false;
         private CancellationTokenSource Cancellation;
         private DataTable GridSourceBackup;
+        private int GridCurrentIndex;
 
         public QueryForm(CnxParameter CnxParameter)
         {
@@ -230,13 +231,13 @@ namespace QueryPad
             return Grid.RowCount;
         }
 
-        private void Display_Row(int RowIndex)
+        private void Display_CurrentRow()
         {
             Cursor = Cursors.WaitCursor;
 
             // Create a datatable with current row pivoted
-            var headers = Grid.Columns.Cast<DataGridViewColumn>().ToList();
-            var datas = Grid.Rows[RowIndex].Cells;
+            var headers = GridSourceBackup.Columns.Cast<DataColumn>().ToList();
+            var datas = GridSourceBackup.Rows[GridCurrentIndex].ItemArray;
             var dt = new DataTable();
             dt.Columns.Add("#", typeof(Int32));
             dt.Columns.Add("Type", typeof(String));
@@ -245,14 +246,13 @@ namespace QueryPad
             for (var x = 0; x < headers.Count; x++)
             {
                 dt.Rows.Add(new object[] { 1 + x
-                                         , headers[x].ValueType.ToString().Replace("System.", "")
-                                         , headers[x].HeaderText
-                                         , datas[x].Value });
+                                         , headers[x].DataType.ToString().Replace("System.", "")
+                                         , headers[x].Caption
+                                         , datas[x] });
             }
 
             // Initialize grid
             Grid.DataSource = dt;
-            var count = Grid.RowCount;
 
             // Resize value column width
             Grid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
@@ -522,6 +522,31 @@ namespace QueryPad
             }
         }
 
+        private void Grid_KeyUp(object sender, KeyEventArgs e)
+        {
+            // Use left and right arrows to browse rows
+
+            // Browse works only with row detail
+            if (GridSourceBackup == null) return;
+
+            // Get previous or next row index
+            if (e.KeyCode == Keys.Left)
+            {
+                GridCurrentIndex = (GridCurrentIndex == 0) ? GridSourceBackup.Rows.Count - 1 : GridCurrentIndex - 1;
+            }
+            else if (e.KeyCode == Keys.Right)
+            {
+                GridCurrentIndex = (GridCurrentIndex == GridSourceBackup.Rows.Count - 1) ? 0 : GridCurrentIndex + 1;
+            }
+            else
+            {
+                return;
+            }
+
+            Display_CurrentRow();
+            Cursor = Cursors.Default;
+        }
+
         private void Editor_KeyDown(object sender, KeyEventArgs e)
         {
             // Detect a keyboard event
@@ -557,14 +582,17 @@ namespace QueryPad
             if (GridSourceBackup == null)
             {
                 GridSourceBackup = (DataTable)Grid.DataSource;
-                Display_Row(Grid.CurrentCell.RowIndex);
+                GridCurrentIndex = Grid.CurrentRow.Index;
+                Display_CurrentRow();
             }
             else
             {
                 Display_List(GridSourceBackup);
                 GridSourceBackup = null;
+                Grid.CurrentCell = Grid.Rows[GridCurrentIndex].Cells[0];
             }
 
+            Grid.Select();
             FreezeToolbar(false);
         }
 
