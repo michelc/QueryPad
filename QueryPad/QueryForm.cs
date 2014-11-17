@@ -117,7 +117,7 @@ namespace QueryPad
                     ExecuteSql_Message(0, total, start);
 
                     // Add data to Grid
-                    count = Display_List(dt);
+                    count = Display_List(dt, DateTime.Now.Subtract(start).TotalSeconds > 1);
                 }
                 else if (check.StartsWith("DESC"))
                 {
@@ -197,11 +197,12 @@ namespace QueryPad
             return sql;
         }
 
-        private int Display_List(DataTable dt)
+        private int Display_List(DataTable dt, bool slow = true)
         {
             Cursor = Cursors.WaitCursor;
 
             // Initialize grid
+            Grid.SuspendLayout();
             Grid.DataSource = dt;
             var count = Grid.RowCount;
 
@@ -218,7 +219,8 @@ namespace QueryPad
 
             // Auto-resize columns width
             var mode = (count < 250) ? DataGridViewAutoSizeColumnsMode.AllCells : DataGridViewAutoSizeColumnsMode.DisplayedCells;
-            Grid.AutoResizeColumns(mode);
+            if (slow) mode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            if (!slow || (count > 250)) Grid.AutoResizeColumns(mode);
 
             // Check for big widths
             Grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
@@ -228,6 +230,7 @@ namespace QueryPad
             }
 
             // Return loaded rows count
+            Grid.ResumeLayout();
             return Grid.RowCount;
         }
 
@@ -254,6 +257,17 @@ namespace QueryPad
             // Initialize grid
             Grid.DataSource = dt;
 
+            // Title case Oracle columns name
+            if (Cnx.CnxParameter.Provider.Contains("Oracle"))
+            {
+                var ti = CultureInfo.CurrentCulture.TextInfo;
+                for (var i = 0; i < Grid.Rows.Count; i++)
+                {
+                    var text = Grid.Rows[i].Cells[2].Value.ToString().ToLower();
+                    Grid.Rows[i].Cells[2].Value = ti.ToTitleCase(text);
+                }
+            }
+
             // Resize value column width
             Grid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
             Grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
@@ -265,7 +279,7 @@ namespace QueryPad
                     Grid.Rows[i].Height = Grid.Rows[i].Height * ((size / 100) + 1);
                 }
             }
-            Grid.Columns[3].Width = 750;
+            Grid.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
             // Adjust columns styles
             Grid.DefaultCellStyle.Alignment = DataGridViewContentAlignment.TopLeft;

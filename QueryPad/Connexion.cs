@@ -309,7 +309,13 @@ namespace QueryPad
                 da.SelectCommand = dc;
                 if (CnxParameter.Provider == "Oracle.DataAccess.Client")
                 {
-                    da.Fill(0, 1000, dt);
+                    var start = DateTime.Now;
+                    for (int i = 0; i < 500; i += 100)
+                    {
+                        da.Fill(i, 100, dt);
+                        if (dt.Rows.Count < i + 100) break;
+                        if (DateTime.Now.Subtract(start).TotalSeconds > 1) break;
+                    }
                 }
                 else
                 {
