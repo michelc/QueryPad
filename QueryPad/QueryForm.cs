@@ -203,6 +203,7 @@ namespace QueryPad
 
             // Initialize grid
             Grid.SuspendLayout();
+            Grid.ColumnHeadersVisible = false;
             Grid.DataSource = dt;
             var count = Grid.RowCount;
 
@@ -220,7 +221,7 @@ namespace QueryPad
             // Auto-resize columns width
             var mode = (count < 250) ? DataGridViewAutoSizeColumnsMode.AllCells : DataGridViewAutoSizeColumnsMode.DisplayedCells;
             if (slow) mode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
-            if (!slow || (count > 250)) Grid.AutoResizeColumns(mode);
+            Grid.AutoResizeColumns(mode);
 
             // Check for big widths
             Grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
@@ -230,6 +231,7 @@ namespace QueryPad
             }
 
             // Return loaded rows count
+            Grid.ColumnHeadersVisible = true;
             Grid.ResumeLayout();
             return Grid.RowCount;
         }
