@@ -221,6 +221,7 @@ namespace QueryPad
             // Auto-resize columns width
             var mode = (count < 250) ? DataGridViewAutoSizeColumnsMode.AllCells : DataGridViewAutoSizeColumnsMode.DisplayedCells;
             if (slow) mode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            if (count < 50) Grid.ColumnHeadersVisible = true;
             Grid.AutoResizeColumns(mode);
 
             // Check for big widths
