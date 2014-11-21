@@ -560,7 +560,9 @@ namespace QueryPad
                 return;
             }
 
+            var index = Grid.CurrentRow.Index;
             Display_CurrentRow();
+            Grid.CurrentCell = Grid.Rows[index].Cells[0];
             Cursor = Cursors.Default;
         }
 
