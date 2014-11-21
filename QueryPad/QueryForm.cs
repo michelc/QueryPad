@@ -16,8 +16,7 @@ namespace QueryPad
 
         private bool ControlKey = false;
         private CancellationTokenSource Cancellation;
-        private DataTable GridSourceBackup;
-        private int GridCurrentIndex;
+        private DataTableResult QueryResult;
 
         public QueryForm(CnxParameter CnxParameter)
         {
@@ -58,6 +57,7 @@ namespace QueryPad
 
             Tables.DataSource = Cnx.GetTables();
             Editor.ConfigureTabs();
+            QueryResult = new DataTableResult();
 
             Execute.Text = char.ConvertFromUtf32(9654) + " " + Execute.Text;
             Stop.Text = char.ConvertFromUtf32(9632) + " " + Stop.Text;
@@ -110,14 +110,13 @@ namespace QueryPad
                 if (check == "SELECT")
                 {
                     // Read data from DB
-                    var dt = Cnx.ExecuteDataTable(sql);
+                    QueryResult = Cnx.ExecuteDataTable(sql);
 
                     // Display DB access statistics
-                    total = dt.Rows.Count;
-                    ExecuteSql_Message(0, total, start);
+                    ExecuteSql_Message(0, QueryResult.RowCount, start);
 
                     // Add data to Grid
-                    count = Display_List(dt, DateTime.Now.Subtract(start).TotalSeconds > 1);
+                    count = Display_List(QueryResult.DataTable, QueryResult.IsSlow);
                 }
                 else if (check.StartsWith("DESC"))
                 {
@@ -174,7 +173,7 @@ namespace QueryPad
         private string ExecuteSql_Prepare()
         {
             // Clear results
-            GridSourceBackup = null;
+            QueryResult = new DataTableResult();
             Grid.DataSource = null;
             Grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             ShowInformations("");
@@ -197,7 +196,7 @@ namespace QueryPad
             return sql;
         }
 
-        private int Display_List(DataTable dt, bool slow = true)
+        private int Display_List(DataTable dt, bool slow)
         {
             Cursor = Cursors.WaitCursor;
 
@@ -242,8 +241,8 @@ namespace QueryPad
             Cursor = Cursors.WaitCursor;
 
             // Create a datatable with current row pivoted
-            var headers = GridSourceBackup.Columns.Cast<DataColumn>().ToList();
-            var datas = GridSourceBackup.Rows[GridCurrentIndex].ItemArray;
+            var headers = QueryResult.DataTable.Columns.Cast<DataColumn>().ToList();
+            var datas = QueryResult.DataTable.Rows[QueryResult.RowIndex].ItemArray;
             var dt = new DataTable();
             dt.Columns.Add("#", typeof(Int32));
             dt.Columns.Add("Type", typeof(String));
@@ -354,7 +353,7 @@ namespace QueryPad
             }
 
             // Enable or disable [Rotate] button
-            Rotate.Enabled = (is_busy == false) && (Grid.Rows.Count > 0) && (Grid.DataSource is DataTable);
+            Rotate.Enabled = (is_busy == false) && (QueryResult.RowCount > 0);
             if (Rotate.Enabled)
             {
                 Rotate.BackColor = Color.FromKnownColor(KnownColor.Highlight);
@@ -456,7 +455,7 @@ namespace QueryPad
             try
             {
                 var test = Cnx.ExecuteDataTable("SELECT * FROM " + table_name + " WHERE 1 = 2");
-                column_name = test.Columns[0].ColumnName;
+                column_name = test.DataTable.Columns[0].ColumnName;
             }
             catch { return null; }
 
@@ -544,16 +543,16 @@ namespace QueryPad
             // Use left and right arrows to browse rows
 
             // Browse works only with row detail
-            if (GridSourceBackup == null) return;
+            if (QueryResult.RowIndex == -1) return;
 
             // Get previous or next row index
             if (e.KeyCode == Keys.Left)
             {
-                GridCurrentIndex = (GridCurrentIndex == 0) ? GridSourceBackup.Rows.Count - 1 : GridCurrentIndex - 1;
+                QueryResult.RowIndex = (QueryResult.RowIndex == 0) ? QueryResult.RowCount - 1 : QueryResult.RowIndex - 1;
             }
             else if (e.KeyCode == Keys.Right)
             {
-                GridCurrentIndex = (GridCurrentIndex == GridSourceBackup.Rows.Count - 1) ? 0 : GridCurrentIndex + 1;
+                QueryResult.RowIndex = (QueryResult.RowIndex == QueryResult.RowCount - 1) ? 0 : QueryResult.RowIndex + 1;
             }
             else
             {
@@ -598,17 +597,16 @@ namespace QueryPad
             // [Rotate] button has been used
             // => alternate between row or list view
 
-            if (GridSourceBackup == null)
+            if (QueryResult.RowIndex == -1)
             {
-                GridSourceBackup = (DataTable)Grid.DataSource;
-                GridCurrentIndex = Grid.CurrentRow.Index;
+                QueryResult.RowIndex = Grid.CurrentRow.Index;
                 Display_CurrentRow();
             }
             else
             {
-                Display_List(GridSourceBackup);
-                GridSourceBackup = null;
-                Grid.CurrentCell = Grid.Rows[GridCurrentIndex].Cells[0];
+                Display_List(QueryResult.DataTable, false);
+                Grid.CurrentCell = Grid.Rows[QueryResult.RowIndex].Cells[0];
+                QueryResult.RowIndex = -1;
             }
 
             Grid.Select();

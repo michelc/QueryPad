@@ -298,33 +298,37 @@ namespace QueryPad
             return string.Format(sql, table);
         }
 
-        public DataTable ExecuteDataTable(string sql)
+        public DataTableResult ExecuteDataTable(string sql)
         {
-            var dt = new DataTable();
+            var result = new DataTableResult();
 
             try
             {
                 dc.CommandText = sql;
                 dc.Transaction = transaction;
                 da.SelectCommand = dc;
+                var start = DateTime.Now;
                 if (CnxParameter.Provider == "Oracle.DataAccess.Client")
                 {
-                    var start = DateTime.Now;
                     for (int i = 0; i < 500; i += 100)
                     {
-                        da.Fill(i, 100, dt);
-                        if (dt.Rows.Count < i + 100) break;
-                        if (DateTime.Now.Subtract(start).TotalSeconds > 1) break;
+                        da.Fill(i, 100, result.DataTable);
+                        result.RowCount = result.DataTable.Rows.Count;
+                        result.IsSlow = DateTime.Now.Subtract(start).TotalSeconds > 1;
+                        if (result.RowCount < i + 100) break;
+                        if (result.IsSlow) break;
                     }
                 }
                 else
                 {
-                    da.Fill(dt);
+                    da.Fill(result.DataTable);
+                    result.RowCount = result.DataTable.Rows.Count;
+                    result.IsSlow = DateTime.Now.Subtract(start).TotalSeconds > 1;
                 }
             }
             catch { throw; }
 
-            return dt;
+            return result;
         }
 
         public async Task<int> ExecuteNonQueryAsync(string sql, CancellationToken token)
@@ -368,5 +372,23 @@ namespace QueryPad
         public bool Nullable { get; set; }
         public string Type { get; set; }
         public string Default { get; set; }
+    }
+
+    public class DataTableResult
+    {
+        public DataTable DataTable { get; set; }
+        public bool IsSlow { get; set; }
+        public int RowCount { get; set; }
+        public int RowIndex { get; set; }
+
+        public DataTableResult() { this.Clear(); }
+
+        public void Clear()
+        {
+            this.DataTable = new DataTable();
+            this.IsSlow = false;
+            this.RowCount = 0;
+            this.RowIndex = -1;
+        }
     }
 }
