@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
@@ -653,14 +654,31 @@ namespace QueryPad
 
             if (QueryResult.RowIndex == -1)
             {
+                // Set DataTable order to DataGridView order
+                QueryResult.SortIndex = -1;
+                if (Grid.SortedColumn != null)
+                {
+                    QueryResult.SortIndex = Grid.SortedColumn.Index;
+                    QueryResult.SortDirection = (Grid.SortOrder == SortOrder.Ascending) ? ListSortDirection.Ascending : ListSortDirection.Descending;
+                    var sort = Grid.SortedColumn.Name;
+                    if (QueryResult.SortDirection == ListSortDirection.Descending) sort += " DESC";
+                    QueryResult.DataTable = QueryResult.DataTable.Select("", sort).CopyToDataTable();
+                }
+                // Display as row detail
                 QueryResult.RowIndex = Grid.CurrentRow.Index;
                 Display_RowDetail();
             }
             else
             {
+                // Display as rows list
                 Display_List(QueryResult.DataTable, false);
                 Grid.CurrentCell = Grid.Rows[QueryResult.RowIndex].Cells[0];
                 QueryResult.RowIndex = -1;
+                // Reset DataGridView order
+                if (QueryResult.SortIndex != -1)
+                {
+                    Grid.Sort(Grid.Columns[QueryResult.SortIndex], QueryResult.SortDirection);
+                }
             }
 
             Grid.Select();

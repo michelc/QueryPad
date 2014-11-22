@@ -404,6 +404,8 @@ namespace QueryPad
         public bool IsFull { get; set; }
         public int RowCount { get; set; }
         public int RowIndex { get; set; }
+        public int SortIndex { get; set; }
+        public ListSortDirection SortDirection { get; set; }
 
         public DataTableResult() { this.Clear(); }
 
