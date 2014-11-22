@@ -19,7 +19,8 @@ namespace QueryPad
         private DbDataAdapter da { get; set; }
         private DbCommand dc { get; set; }
         private DbTransaction transaction { get; set; }
-        private string[] tables;
+        private string[] cache_tables;
+        private Dictionary<string, List<Column>> cache_columns;
 
         public Connexion(CnxParameter CnxParameter)
         {
@@ -48,25 +49,31 @@ namespace QueryPad
         public string[] GetTables()
         {
             // Return cached list
-            if (tables != null) return tables;
+            if (cache_tables != null) return cache_tables;
 
             // Get all tables for current connection
             if (CnxParameter.Provider == "System.Data.OleDb")
             {
                 var dt = db.GetSchema("Tables", new string[] {null, null, null, "TABLE"});
-                tables = dt.Rows.Cast<DataRow>().Select(r => r["TABLE_NAME"].ToString()).ToArray();
+                cache_tables = dt.Rows.Cast<DataRow>().Select(r => r["TABLE_NAME"].ToString()).ToArray();
             }
             else
             {
-                tables = db.Query<string>(this.SqlTables(), transaction: transaction).ToArray();
+                cache_tables = db.Query<string>(this.SqlTables(), transaction: transaction).ToArray();
             }
 
+            // Initialize columns cache
+            cache_columns = new Dictionary<string, List<Column>>();
+
             // Return list
-            return tables;
+            return cache_tables;
         }
 
         public List<Column> GetColumns(string table)
         {
+            // Return cached list
+            if (cache_columns.ContainsKey(table.ToLower())) return cache_columns[table.ToLower()];
+
             // Get all columns for table
             var cols = db.Query<dynamic>(this.SqlColumns(table), transaction: transaction).ToArray();
 
@@ -171,6 +178,7 @@ namespace QueryPad
             }
 
             // Return table's columns
+            cache_columns.Add(table.ToLower(), columns);
             return columns;
         }
 
