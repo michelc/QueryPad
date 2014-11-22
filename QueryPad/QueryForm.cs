@@ -236,7 +236,7 @@ namespace QueryPad
             return Grid.RowCount;
         }
 
-        private void Display_CurrentRow()
+        private void Display_RowDetail()
         {
             Cursor = Cursors.WaitCursor;
 
@@ -540,10 +540,21 @@ namespace QueryPad
 
         private void Grid_KeyUp(object sender, KeyEventArgs e)
         {
-            // Use left and right arrows to browse rows
+            if (QueryResult.RowIndex != -1)
+            {
+                // Check left and right arrows to browse rows
+                Browse_RowDetail(e);
+            }
+            else
+            {
+                // Check page down and down arrow to load new page
+                Browse_NextPage(e);
+            }
+        }
 
-            // Browse works only with row detail
-            if (QueryResult.RowIndex == -1) return;
+        private void Browse_RowDetail(KeyEventArgs e)
+        {
+            // Use left and right arrows to browse rows
 
             // Get previous or next row index
             if (e.KeyCode == Keys.Left)
@@ -560,9 +571,47 @@ namespace QueryPad
             }
 
             var index = Grid.CurrentRow.Index;
-            Display_CurrentRow();
+            Display_RowDetail();
             Grid.CurrentCell = Grid.Rows[index].Cells[0];
             Cursor = Cursors.Default;
+        }
+
+        private void Browse_NextPage(KeyEventArgs e)
+        {
+            // Check if we need to load more rows from current query
+
+            if ((e.KeyCode == Keys.PageDown) || (e.KeyCode == Keys.Down))
+            {
+                // There must be more rows to load
+                if (QueryResult.IsFull) return;
+
+                // Just page down or down arrow without Ctrl, Alt or Shift
+                if (e.Control) return;
+                if (e.Alt) return;
+                if (e.Shift) return;
+
+                // Current row must be the last row
+                if (Grid.CurrentRow.Index != Grid.RowCount - 1) return;
+
+                // Load a new page of data
+                try
+                {
+                    QueryResult = Cnx.ExecuteNextPage(QueryResult);
+                    Grid.SuspendLayout();
+                    Grid.DataSource = QueryResult.DataTable;
+                    Grid.ResumeLayout();
+                    ExecuteSql_Message(0, QueryResult.RowCount, null);
+                }
+                catch (Exception ex)
+                {
+                    var caption = "Error " + ex.HResult.ToString("x");
+                    var text = string.Format("{0}\n\n({1})", ex.Message, ex.Source);
+                    MessageBox.Show(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ShowInformations("Error");
+                }
+
+                Cursor = Cursors.Default;
+            }
         }
 
         private void Editor_KeyDown(object sender, KeyEventArgs e)
@@ -600,7 +649,7 @@ namespace QueryPad
             if (QueryResult.RowIndex == -1)
             {
                 QueryResult.RowIndex = Grid.CurrentRow.Index;
-                Display_CurrentRow();
+                Display_RowDetail();
             }
             else
             {

@@ -315,7 +315,8 @@ namespace QueryPad
                         da.Fill(i, 100, result.DataTable);
                         result.RowCount = result.DataTable.Rows.Count;
                         result.IsSlow = DateTime.Now.Subtract(start).TotalSeconds > 1;
-                        if (result.RowCount < i + 100) break;
+                        result.IsFull = (result.RowCount < i + 100);
+                        if (result.IsFull) break;
                         if (result.IsSlow) break;
                     }
                 }
@@ -324,7 +325,21 @@ namespace QueryPad
                     da.Fill(result.DataTable);
                     result.RowCount = result.DataTable.Rows.Count;
                     result.IsSlow = DateTime.Now.Subtract(start).TotalSeconds > 1;
+                    result.IsFull = true;
                 }
+            }
+            catch { throw; }
+
+            return result;
+        }
+
+        public DataTableResult ExecuteNextPage(DataTableResult result)
+        {
+            try
+            {
+                da.Fill(result.RowCount, 100, result.DataTable);
+                result.IsFull = (result.DataTable.Rows.Count < result.RowCount + 100);
+                result.RowCount = result.DataTable.Rows.Count;
             }
             catch { throw; }
 
@@ -378,6 +393,7 @@ namespace QueryPad
     {
         public DataTable DataTable { get; set; }
         public bool IsSlow { get; set; }
+        public bool IsFull { get; set; }
         public int RowCount { get; set; }
         public int RowIndex { get; set; }
 
@@ -387,6 +403,7 @@ namespace QueryPad
         {
             this.DataTable = new DataTable();
             this.IsSlow = false;
+            this.IsFull = false;
             this.RowCount = 0;
             this.RowIndex = -1;
         }
