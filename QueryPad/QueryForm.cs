@@ -104,9 +104,10 @@ namespace QueryPad
             Cancellation = new CancellationTokenSource();
 
             // Run query
+            var check = "";
             try
             {
-                var check = sql.Substring(0, 6).ToUpper();
+                check = sql.Substring(0, 6).ToUpper();
                 if (check == "SELECT")
                 {
                     // Read data from DB
@@ -134,11 +135,13 @@ namespace QueryPad
                     {
                         ShowInformations("No such table");
                     }
+                    Grid.Select();
                     return;
                 }
                 else
                 {
                     // Update DB
+                    check = "";
                     var task_write = ExecuteSql_NonQueryAsync(sql);
                     await task_write;
 
@@ -168,6 +171,7 @@ namespace QueryPad
 
             // Display statistics
             ExecuteSql_Message(count, total, start);
+            if (check == "") Editor.Select(); else Grid.Select();
         }
 
         private string ExecuteSql_Prepare()
@@ -591,6 +595,7 @@ namespace QueryPad
                 if (e.Shift) return;
 
                 // Current row must be the last row
+                if (Grid.CurrentRow == null) return;
                 if (Grid.CurrentRow.Index != Grid.RowCount - 1) return;
 
                 // Load a new page of data
