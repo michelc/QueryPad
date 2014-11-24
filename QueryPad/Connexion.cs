@@ -15,6 +15,7 @@ namespace QueryPad
     {
         public CnxParameter CnxParameter { get; set; }
 
+        private DbProviderFactory factory { get; set; }
         private DbConnection db { get; set; }
         private DbDataAdapter da { get; set; }
         private DbCommand dc { get; set; }
@@ -30,7 +31,7 @@ namespace QueryPad
         public void Open()
         {
             // Open the connexion
-            var factory = DbProviderFactories.GetFactory(CnxParameter.Provider);
+            factory = DbProviderFactories.GetFactory(CnxParameter.Provider);
             db = factory.CreateConnection();
             db.ConnectionString = CnxParameter.CnxString;
             db.Open();
@@ -69,7 +70,7 @@ namespace QueryPad
             return cache_tables;
         }
 
-        public List<Column> GetColumns(string table)
+        public List<Column> GetColumns_Ex(string table)
         {
             // Return cached list
             if (cache_columns.ContainsKey(table.ToLower())) return cache_columns[table.ToLower()];
@@ -176,6 +177,119 @@ namespace QueryPad
                 };
                 columns.Add(column);
             }
+
+            // Return table's columns
+            cache_columns.Add(table.ToLower(), columns);
+            return columns;
+        }
+
+        public List<Column> GetColumns(string table)
+        {
+            // Return cached list
+            if (cache_columns.ContainsKey(table.ToLower())) return cache_columns[table.ToLower()];
+            var columns = new List<Column>();
+
+            // Need a specific connexion
+            var db = factory.CreateConnection();
+            db.ConnectionString = CnxParameter.CnxString;
+            db.Open();
+
+            // Get columns name and type
+            var dc = db.CreateCommand();
+            dc.CommandText = "SELECT * FROM " + table + " WHERE (1 = 0)";
+            var dr = dc.ExecuteReader(CommandBehavior.SchemaOnly | CommandBehavior.KeyInfo);
+            var count = dr.FieldCount;
+            for (var i = 0; i < count; i++)
+            {
+                columns.Add(new Column
+                {
+                    Index = i,
+                    Name = dr.GetName(i),
+                    Type = dr.GetDataTypeName(i).ToLower()
+                });
+            }
+
+            // Add nullable and primary key
+            var dt = new DataTable();
+            dt.Load(dr);
+            foreach (DataColumn c in dt.Columns)
+            {
+                var i = c.Ordinal;
+                if (c.AutoIncrement) columns[i].Type += " identity(1,1)";
+                columns[i].Nullable = c.AllowDBNull;
+                columns[i].Primary = dt.PrimaryKey.Contains(c);
+            }
+            dr.Close();
+
+            // Add size and default
+            var restrictions = new[] { null, null, table, null };
+            if (CnxParameter.Provider == "Oracle.DataAccess.Client") restrictions = new[] { null, table.ToUpper(), null };
+            dt = db.GetSchema("Columns", restrictions);
+            var ordinal = -1;
+            if (CnxParameter.Provider == "System.Data.SQLite") ordinal = 0;
+            for (var x = 0; x < count; x++)
+            {
+                var row = dt.Rows[x];
+                var i = (CnxParameter.Provider == "Oracle.DataAccess.Client")
+                        ? Convert.ToInt32(row["ID"]) - 1
+                        : Convert.ToInt32(row["Ordinal_Position"]) + ordinal;
+                // Get default value
+                try
+                {
+                    columns[i].Default = Convert.ToString(row["Column_Default"]).Trim() + "::";
+                    columns[i].Default = columns[i].Default.Substring(0, columns[i].Default.IndexOf("::"));
+                    while ((columns[i].Default.StartsWith("(")) && (columns[i].Default.EndsWith(")")))
+                    {
+                        columns[i].Default = columns[i].Default.Substring(1, columns[i].Default.Length - 2);
+                    }
+                }
+                catch { }
+                // Complete type with size
+                switch (CnxParameter.Provider)
+                {
+                    case "System.Data.SQLite":
+                        // SQLite => GetDataTypeName = data type + size
+                        if (Convert.ToString(row["Data_Type"]).ToLower() == "int identity") columns[i].Type = "int identity(1,1)";
+                        if (columns[i].Type == "integer") columns[i].Type = "int identity(1,1)";
+                        break;
+                    case "Oracle.DataAccess.Client":
+                        columns[i].Type = row["DataType"].ToString().ToLower();
+                        switch (columns[i].Type)
+                        {
+                            case "number":
+                                columns[i].Type += string.Format("({0},{1})", row["Precision"], row["Scale"]);
+                                columns[i].Type = columns[i].Type.Replace("number(,0)", "integer")
+                                                                 .Replace("(,)", "")
+                                                                 .Replace(",0)", ")");
+                                break;
+                            default:
+                                if (columns[i].Type.Contains("char"))
+                                {
+                                    columns[i].Type += string.Format("({0})", row["Length"]);
+                                }
+                                break;
+                        }
+                        break;
+                    default:
+                        switch (columns[i].Type)
+                        {
+                            case "decimal":
+                            case "number":
+                            case "numeric":
+                                columns[i].Type += string.Format("({0},{1})", row["Numeric_Precision"], row["Numeric_Scale"]);
+                                break;
+                            default:
+                                if (columns[i].Type.Contains("char"))
+                                {
+                                    columns[i].Type += string.Format("({0})", row["Character_Maximum_Length"]);
+                                }
+                                break;
+                        }
+                        break;
+                }
+            }
+            db.Close();
+            db = null;
 
             // Return table's columns
             cache_columns.Add(table.ToLower(), columns);
@@ -395,6 +509,7 @@ namespace QueryPad
         public bool Nullable { get; set; }
         public string Type { get; set; }
         public string Default { get; set; }
+        public bool Primary { get; set; }
     }
 
     public class DataTableResult
