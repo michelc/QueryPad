@@ -55,8 +55,15 @@ namespace QueryPad
             // Get all tables for current connection
             if (CnxParameter.Provider == "System.Data.OleDb")
             {
-                var dt = db.GetSchema("Tables", new string[] {null, null, null, "TABLE"});
+                var dt = db.GetSchema("Tables", new string[] { null, null, null, "TABLE" });
                 cache_tables = dt.Rows.Cast<DataRow>().Select(r => r["TABLE_NAME"].ToString()).ToArray();
+            }
+            else if (CnxParameter.Provider == "System.Data.Odbc")
+            {
+                var dt = db.GetSchema("Tables");
+                cache_tables = dt.Rows.Cast<DataRow>()
+                    .Where(r => r["TABLE_TYPE"].ToString() == "TABLE")
+                    .Select(r => r["TABLE_NAME"].ToString()).ToArray();
             }
             else
             {
@@ -259,13 +266,30 @@ namespace QueryPad
                             case "number":
                                 columns[i].Type += string.Format("({0},{1})", row["Precision"], row["Scale"]);
                                 columns[i].Type = columns[i].Type.Replace("number(,0)", "integer")
-                                                                 .Replace("(,)", "")
-                                                                 .Replace(",0)", ")");
+                                                                 .Replace("(,)", "");
                                 break;
                             default:
                                 if (columns[i].Type.Contains("char"))
                                 {
                                     columns[i].Type += string.Format("({0})", row["Length"]);
+                                }
+                                break;
+                        }
+                        break;
+                    case "System.Data.Odbc":
+                        switch (columns[i].Type)
+                        {
+                            case "decimal":
+                                columns[i].Type += string.Format("({0},{1})", row["Column_Size"], row["Decimal_Digits"]);
+                                break;
+                            default:
+                                if (columns[i].Type.Contains("longchar"))
+                                {
+                                    columns[i].Type = "text";
+                                }
+                                else if (columns[i].Type.Contains("char"))
+                                {
+                                    columns[i].Type += string.Format("({0})", row["Column_Size"]);
                                 }
                                 break;
                         }
@@ -287,6 +311,7 @@ namespace QueryPad
                         }
                         break;
                 }
+                columns[i].Type = columns[i].Type.Replace(",0)", ")");
             }
             db.Close();
             db = null;
