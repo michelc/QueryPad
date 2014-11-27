@@ -49,13 +49,21 @@ with the following informations:
   , "Provider": "Npgsql"
   },
   {
-    "CnxString": "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\\DB\\Department.mdb"
+    "CnxString": "Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=C:\\DB\\Department.mdb;ExtendedAnsiSQL=1"
   , "Environment": "Debug"
   , "Name": "Department.MDB"
-  , "Provider": "System.Data.OleDb"
+  , "Provider": "System.Data.Odbc"
   }
 ]
 ```
+
+Supported providers:
+* System.Data.SqlClient
+* System.Data.SqlServerCe.4.0
+* Npgsql
+* System.Data.SQLite
+* Oracle.DataAccess.Client
+* System.Data.Odbc
 
 
 ## Usage
