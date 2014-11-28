@@ -53,17 +53,21 @@ namespace QueryPad
             if (cache_tables != null) return cache_tables;
 
             // Get all tables for current connection
-            if (CnxParameter.Provider == "System.Data.Odbc")
+            var sql = this.SqlTables();
+            if (string.IsNullOrEmpty(sql))
             {
                 var dt = db.GetSchema("Tables");
                 cache_tables = dt.Rows.Cast<DataRow>()
-                    .Where(r => r["TABLE_TYPE"].ToString() == "TABLE")
+                    .Where(r => r["TABLE_TYPE"].ToString().ToUpper() == "TABLE")
                     .Select(r => r["TABLE_NAME"].ToString()).ToArray();
             }
             else
             {
-                cache_tables = db.Query<string>(this.SqlTables(), transaction: transaction).ToArray();
+                cache_tables = db.Query<string>(sql, transaction: transaction).ToArray();
             }
+            cache_tables = cache_tables.Where(t => t.ToLower() != "__migrationhistory")
+                                       .OrderBy(t => t)
+                                       .ToArray();
 
             // Initialize columns cache
             cache_columns = new Dictionary<string, List<Column>>();
@@ -216,23 +220,8 @@ namespace QueryPad
                                    + Table_Name AS [Table]
                             FROM   Information_Schema.Tables
                             WHERE  (Table_Type = 'BASE TABLE')
-                            AND    (Table_Name <> '__MigrationHistory')
                             AND    (Table_Catalog = db_name())
                             ORDER BY CASE WHEN Table_Schema = 'dbo' THEN '' ELSE Table_Schema + '.' END, Table_Name";
-                    break;
-                case "System.Data.SqlServerCe.4.0":
-                    sql = @"SELECT Table_Name AS [Table]
-                            FROM   Information_Schema.Tables
-                            WHERE  (Table_Type = 'TABLE')
-                            AND    (Table_Name <> '__MigrationHistory')
-                            ORDER BY Table_Name";
-                    break;
-                case "System.Data.SQLite":
-                    sql = @"SELECT name AS [Table]
-                            FROM   sqlite_master
-                            WHERE  (type = 'table')
-                            AND    (name NOT LIKE 'sqlite_%')
-                            ORDER BY name";
                     break;
                 case "Oracle.DataAccess.Client":
                     sql = @"SELECT INITCAP(Table_Name)
@@ -243,7 +232,6 @@ namespace QueryPad
                     sql = @"SELECT Table_Name AS Table
                             FROM   Information_Schema.Tables
                             WHERE  (Table_Type = 'BASE TABLE')
-                            AND    (Table_Name <> '__MigrationHistory')
                             AND    (Table_Schema = 'public')
                             ORDER BY Table_Name";
                     break;
