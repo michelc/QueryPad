@@ -581,12 +581,12 @@ namespace QueryPad
             Cursor = Cursors.Default;
         }
 
-        private dynamic GridGetState(DataGridView grid)
+        private DataGridState GridGetState(DataGridView grid)
         {
-            var state = new
+            var state = new DataGridState
             {
                 CurrentRow = grid.CurrentRow.Index,
-                SortedColumn = grid.SortedColumn.Index,
+                SortedColumn = (grid.SortedColumn == null) ? -1 : grid.SortedColumn.Index,
                 SortDirection = (grid.SortOrder == SortOrder.Ascending) ? ListSortDirection.Ascending : ListSortDirection.Descending,
                 Widths = grid.Columns.Cast<DataGridViewColumn>().Select(c => c.Width).ToArray()
             };
@@ -594,10 +594,10 @@ namespace QueryPad
             return state;
         }
 
-        private void GridSetState(DataGridView grid, dynamic state)
+        private void GridSetState(DataGridView grid, DataGridState state)
         {
             grid.CurrentCell = grid.Rows[state.CurrentRow].Cells[0];
-            grid.Sort(Grid.Columns[state.SortedColumn], state.SortDirection);
+            if (state.SortedColumn != -1) grid.Sort(Grid.Columns[state.SortedColumn], state.SortDirection);
             foreach (DataGridViewColumn c in grid.Columns)
             {
                 c.Width = state.Widths[c.Index];
@@ -678,13 +678,11 @@ namespace QueryPad
             if (QueryResult.RowIndex == -1)
             {
                 // Set DataTable order to DataGridView order
-                QueryResult.SortIndex = -1;
-                if (Grid.SortedColumn != null)
+                QueryResult.GridState = GridGetState(Grid);
+                if (QueryResult.GridState.SortedColumn != -1)
                 {
-                    QueryResult.SortIndex = Grid.SortedColumn.Index;
-                    QueryResult.SortDirection = (Grid.SortOrder == SortOrder.Ascending) ? ListSortDirection.Ascending : ListSortDirection.Descending;
                     var sort = Grid.SortedColumn.Name;
-                    if (QueryResult.SortDirection == ListSortDirection.Descending) sort += " DESC";
+                    if (Grid.SortOrder == SortOrder.Descending) sort += " DESC";
                     QueryResult.DataTable = QueryResult.DataTable.Select("", sort).CopyToDataTable();
                 }
                 // Display as row detail
@@ -695,13 +693,9 @@ namespace QueryPad
             {
                 // Display as rows list
                 Display_List(QueryResult.DataTable, false);
-                Grid.CurrentCell = Grid.Rows[QueryResult.RowIndex].Cells[0];
+                QueryResult.GridState.CurrentRow = QueryResult.RowIndex;
+                GridSetState(Grid, QueryResult.GridState);
                 QueryResult.RowIndex = -1;
-                // Reset DataGridView order
-                if (QueryResult.SortIndex != -1)
-                {
-                    Grid.Sort(Grid.Columns[QueryResult.SortIndex], QueryResult.SortDirection);
-                }
             }
 
             Grid.Select();

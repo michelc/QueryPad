@@ -339,8 +339,7 @@ namespace QueryPad
         public bool IsFull { get; set; }
         public int RowCount { get; set; }
         public int RowIndex { get; set; }
-        public int SortIndex { get; set; }
-        public ListSortDirection SortDirection { get; set; }
+        public DataGridState GridState { get; set; }
 
         public DataTableResult() { this.Clear(); }
 
@@ -351,6 +350,15 @@ namespace QueryPad
             this.IsFull = false;
             this.RowCount = 0;
             this.RowIndex = -1;
+            this.GridState = new DataGridState();
         }
+    }
+
+    public class DataGridState
+    {
+        public int CurrentRow { get; set; }
+        public int SortedColumn { get; set; }
+        public ListSortDirection SortDirection { get; set; }
+        public int[] Widths { get; set; }
     }
 }
