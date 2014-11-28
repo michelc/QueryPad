@@ -148,8 +148,8 @@ namespace QueryPad
 
                     count = task_write.Result;
 
-                    Commit.Visible = true;
-                    Rollback.Visible = true;
+                    Commit.Visible = Cnx.UseTransaction;
+                    Rollback.Visible = Cnx.UseTransaction;
                 }
             }
             catch (TaskCanceledException)
@@ -309,6 +309,8 @@ namespace QueryPad
 
             var message = string.Format("{0} rows", count);
             if (count < total) message = string.Format("{0}/{1} rows", count, total);
+            if (count == -10001) message = "commit";
+            if (count == -10002) message = "rollback";
             if (start != null)
             {
                 var duration = DateTime.Now.Subtract(start.Value);
@@ -709,10 +711,6 @@ namespace QueryPad
 
             Editor.AppendQuery("COMMIT");
             ExecuteSql(null, null);
-
-            Commit.Visible = false;
-            Rollback.Visible = false;
-            ShowInformations("commit");
         }
 
         private void Rollback_Click(object sender, EventArgs e)
@@ -722,10 +720,6 @@ namespace QueryPad
 
             Editor.AppendQuery("ROLLBACK");
             ExecuteSql(null, null);
-
-            Commit.Visible = false;
-            Rollback.Visible = false;
-            ShowInformations("rollback");
         }
     }
 }

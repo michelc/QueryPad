@@ -14,6 +14,7 @@ namespace QueryPad
     public class Connexion
     {
         public CnxParameter CnxParameter { get; set; }
+        public bool UseTransaction { get; set; }
 
         private DbProviderFactory factory { get; set; }
         private DbConnection db { get; set; }
@@ -26,6 +27,7 @@ namespace QueryPad
         public Connexion(CnxParameter CnxParameter)
         {
             this.CnxParameter = CnxParameter;
+            this.UseTransaction = false;
         }
 
         public void Open()
@@ -56,10 +58,10 @@ namespace QueryPad
             var sql = this.SqlTables();
             if (string.IsNullOrEmpty(sql))
             {
-                var dt = db.GetSchema("Tables");
-                cache_tables = dt.Rows.Cast<DataRow>()
-                    .Where(r => r["TABLE_TYPE"].ToString().ToUpper() == "TABLE")
-                    .Select(r => r["TABLE_NAME"].ToString()).ToArray();
+                cache_tables = db.GetSchema("Tables")
+                                .Rows.Cast<DataRow>()
+                                .Where(r => r["TABLE_TYPE"].ToString().ToUpper() == "TABLE")
+                                .Select(r => r["TABLE_NAME"].ToString()).ToArray();
             }
             else
             {
@@ -296,13 +298,15 @@ namespace QueryPad
             {
                 transaction.Commit();
                 transaction = db.BeginTransaction();
-                return 0;
+                this.UseTransaction = false;
+                return -10001;
             }
             if (supper == "ROLLBACK")
             {
                 transaction.Rollback();
                 transaction = db.BeginTransaction();
-                return 0;
+                this.UseTransaction = false;
+                return -10002;
             }
             int count = -1;
             var command = db.CreateCommand();
@@ -316,6 +320,7 @@ namespace QueryPad
             }
             catch { throw; }
 
+            this.UseTransaction = true;
             return count;
         }
     }
