@@ -10,6 +10,9 @@ namespace QueryPad
         public MainForm()
         {
             InitializeComponent();
+            this.Width = 1000;
+            this.Height = 800;
+            this.CenterToScreen();
         }
 
         protected override void OnClosed(EventArgs e)

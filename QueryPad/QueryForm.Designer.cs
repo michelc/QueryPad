@@ -74,7 +74,7 @@
             this.SplitVertical.Panel2.Controls.Add(this.SplitHorizontal);
             this.SplitVertical.Panel2.Padding = new System.Windows.Forms.Padding(2, 8, 8, 8);
             this.SplitVertical.Size = new System.Drawing.Size(805, 399);
-            this.SplitVertical.SplitterDistance = 268;
+            this.SplitVertical.SplitterDistance = 209;
             this.SplitVertical.TabIndex = 0;
             // 
             // Tables
@@ -85,7 +85,7 @@
             this.Tables.IntegralHeight = false;
             this.Tables.Location = new System.Drawing.Point(8, 23);
             this.Tables.Name = "Tables";
-            this.Tables.Size = new System.Drawing.Size(258, 368);
+            this.Tables.Size = new System.Drawing.Size(199, 368);
             this.Tables.TabIndex = 1;
             this.Tables.DoubleClick += new System.EventHandler(this.Tables_DoubleClick);
             // 
@@ -96,7 +96,7 @@
             this.Title.Dock = System.Windows.Forms.DockStyle.Top;
             this.Title.Location = new System.Drawing.Point(8, 8);
             this.Title.Name = "Title";
-            this.Title.Size = new System.Drawing.Size(258, 15);
+            this.Title.Size = new System.Drawing.Size(199, 15);
             this.Title.TabIndex = 0;
             // 
             // ConnexionName
@@ -129,7 +129,7 @@
             // 
             this.SplitHorizontal.Panel2.Controls.Add(this.Grid);
             this.SplitHorizontal.Panel2.Padding = new System.Windows.Forms.Padding(0, 2, 0, 0);
-            this.SplitHorizontal.Size = new System.Drawing.Size(523, 383);
+            this.SplitHorizontal.Size = new System.Drawing.Size(582, 383);
             this.SplitHorizontal.SplitterDistance = 133;
             this.SplitHorizontal.TabIndex = 0;
             // 
@@ -144,7 +144,7 @@
             this.Editor.HideSelection = false;
             this.Editor.Location = new System.Drawing.Point(0, 0);
             this.Editor.Name = "Editor";
-            this.Editor.Size = new System.Drawing.Size(523, 98);
+            this.Editor.Size = new System.Drawing.Size(582, 98);
             this.Editor.TabIndex = 0;
             this.Editor.Text = "";
             this.Editor.WordWrap = false;
@@ -161,7 +161,7 @@
             this.Toolbar.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.Toolbar.Location = new System.Drawing.Point(0, 98);
             this.Toolbar.Name = "Toolbar";
-            this.Toolbar.Size = new System.Drawing.Size(523, 35);
+            this.Toolbar.Size = new System.Drawing.Size(582, 35);
             this.Toolbar.TabIndex = 1;
             // 
             // Rotate
@@ -219,7 +219,7 @@
             this.Informations.BackColor = System.Drawing.Color.Transparent;
             this.Informations.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Informations.ForeColor = System.Drawing.Color.DimGray;
-            this.Informations.Location = new System.Drawing.Point(443, 12);
+            this.Informations.Location = new System.Drawing.Point(502, 12);
             this.Informations.Name = "Informations";
             this.Informations.Size = new System.Drawing.Size(80, 16);
             this.Informations.TabIndex = 7;
@@ -272,7 +272,7 @@
             this.Grid.ReadOnly = true;
             this.Grid.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.Grid.RowHeadersWidth = 23;
-            this.Grid.Size = new System.Drawing.Size(523, 244);
+            this.Grid.Size = new System.Drawing.Size(582, 244);
             this.Grid.TabIndex = 0;
             this.Grid.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Grid_CellClick);
             this.Grid.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Grid_CellDoubleClick);
