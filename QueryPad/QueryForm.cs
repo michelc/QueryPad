@@ -575,10 +575,33 @@ namespace QueryPad
                 return;
             }
 
-            var index = Grid.CurrentRow.Index;
+            var state = GridGetState(Grid);
             Display_RowDetail();
-            Grid.CurrentCell = Grid.Rows[index].Cells[0];
+            GridSetState(Grid, state);
             Cursor = Cursors.Default;
+        }
+
+        private dynamic GridGetState(DataGridView grid)
+        {
+            var state = new
+            {
+                CurrentRow = grid.CurrentRow.Index,
+                SortedColumn = grid.SortedColumn.Index,
+                SortDirection = (grid.SortOrder == SortOrder.Ascending) ? ListSortDirection.Ascending : ListSortDirection.Descending,
+                Widths = grid.Columns.Cast<DataGridViewColumn>().Select(c => c.Width).ToArray()
+            };
+
+            return state;
+        }
+
+        private void GridSetState(DataGridView grid, dynamic state)
+        {
+            grid.CurrentCell = grid.Rows[state.CurrentRow].Cells[0];
+            grid.Sort(Grid.Columns[state.SortedColumn], state.SortDirection);
+            foreach (DataGridViewColumn c in grid.Columns)
+            {
+                c.Width = state.Widths[c.Index];
+            }
         }
 
         private void Browse_NextPage(KeyEventArgs e)
