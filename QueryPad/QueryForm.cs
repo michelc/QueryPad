@@ -314,7 +314,7 @@ namespace QueryPad
             dt.Columns.Add("Value");
             for (var x = 0; x < headers.Count; x++)
             {
-                dt.Rows.Add(new object[] { 1 + x
+                dt.Rows.Add(new object[] { x
                                          , headers[x].DataType.ToString().Replace("System.", "")
                                          , headers[x].Caption
                                          , datas[x] });
