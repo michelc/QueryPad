@@ -144,6 +144,10 @@ namespace QueryPad
                 {
                     Format_List(sql.Substring(7).Trim(), QueryResult);
                 }
+                else if (check == "RELOAD")
+                {
+                    Tables.DataSource = Cnx.GetTables();
+                }
                 else
                 {
                     // Update DB

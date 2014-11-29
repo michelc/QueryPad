@@ -21,7 +21,6 @@ namespace QueryPad
         private DbDataAdapter da { get; set; }
         private DbCommand dc { get; set; }
         private DbTransaction transaction { get; set; }
-        private string[] cache_tables;
         private Dictionary<string, List<Column>> cache_columns;
 
         public Connexion(CnxParameter CnxParameter)
@@ -51,31 +50,29 @@ namespace QueryPad
 
         public string[] GetTables()
         {
-            // Return cached list
-            if (cache_tables != null) return cache_tables;
-
             // Get all tables for current connection
+            string[] tables;
             var sql = this.SqlTables();
             if (string.IsNullOrEmpty(sql))
             {
-                cache_tables = db.GetSchema("Tables")
-                                .Rows.Cast<DataRow>()
-                                .Where(r => r["TABLE_TYPE"].ToString().ToUpper() == "TABLE")
-                                .Select(r => r["TABLE_NAME"].ToString()).ToArray();
+                tables = db.GetSchema("Tables")
+                            .Rows.Cast<DataRow>()
+                            .Where(r => r["TABLE_TYPE"].ToString().ToUpper() == "TABLE")
+                            .Select(r => r["TABLE_NAME"].ToString()).ToArray();
             }
             else
             {
-                cache_tables = db.Query<string>(sql, transaction: transaction).ToArray();
+                tables = db.Query<string>(sql, transaction: transaction).ToArray();
             }
-            cache_tables = cache_tables.Where(t => t.ToLower() != "__migrationhistory")
-                                       .OrderBy(t => t)
-                                       .ToArray();
+            tables = tables.Where(t => t.ToLower() != "__migrationhistory")
+                            .OrderBy(t => t)
+                            .ToArray();
 
             // Initialize columns cache
             cache_columns = new Dictionary<string, List<Column>>();
 
             // Return list
-            return cache_tables;
+            return tables;
         }
 
         public List<Column> GetColumns(string table)
