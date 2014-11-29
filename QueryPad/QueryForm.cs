@@ -95,8 +95,9 @@ namespace QueryPad
         private async void ExecuteSql(object sender, EventArgs e)
         {
             // Get query to run
-            var sql = ExecuteSql_Prepare();
+            var sql = Editor.CurrentQuery();
             if (sql == "") return;
+            if (!sql.StartsWith("FORMAT ")) sql = ExecuteSql_Prepare();
 
             var count = -1;
             var total = 0;
@@ -138,6 +139,10 @@ namespace QueryPad
                     }
                     Grid.Select();
                     return;
+                }
+                else if (check == "FORMAT")
+                {
+                    Format_List(sql.Substring(7).Trim(), QueryResult);
                 }
                 else
                 {
@@ -199,6 +204,60 @@ namespace QueryPad
 
             // Return the query to run
             return sql;
+        }
+
+        private void Format_List(string format, DataTableResult result)
+        {
+            // Check if we use single or double quotation marks
+            var single_quote = format.Contains("'{") && format.Contains("}'");
+            var double_quote = format.Contains("\"{") && format.Contains("}\"");
+
+            // Check columns with string values
+            var count = Grid.ColumnCount;
+            var is_string = new bool[count];
+            foreach (DataGridViewColumn c in Grid.Columns)
+            {
+                if (object.ReferenceEquals(c.ValueType, typeof(string))) is_string[c.Index] = true;
+                if (object.ReferenceEquals(c.GetType(), typeof(string))) is_string[c.Index] = true;
+            }
+
+            // Format data in a new DataTable
+            var dt = new DataTable();
+            dt.Columns.Add(" ", typeof(String));
+            var data = new object[count];
+            foreach (DataGridViewRow row in Grid.Rows)
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    data[i] = row.Cells[i].Value;
+                    if (data[i] == DBNull.Value)
+                    {
+                        // Explicit null values
+                        data[i] = "null";
+                    }
+                    else if (is_string[i])
+                    {
+                        // Escape string values
+                        if (single_quote)
+                        {
+                            data[i] = data[i].ToString().Replace("'", "''");
+                        }
+                        else if (double_quote)
+                        {
+                            data[i] = data[i].ToString().Replace("\"", "\"\"");
+                        }
+                    }
+                }
+                var line = string.Format(format, data).Replace("'null'", "null").Replace("\"null\"", "\"\"");
+                dt.Rows.Add(line);
+            }
+
+            // Initialize grid
+            Grid.DataSource = dt;
+            result.RowCount = 0; // avoid Rotate
+
+            // Resize value column width
+            Grid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
         }
 
         private int Display_List(DataTable dt, bool slow)
