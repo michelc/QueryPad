@@ -144,10 +144,6 @@ namespace QueryPad
                 {
                     Format_List(sql.Substring(7).Trim(), QueryResult);
                 }
-                else if (check == "RELOAD")
-                {
-                    Tables.DataSource = Cnx.GetTables();
-                }
                 else
                 {
                     // Update DB
@@ -783,6 +779,14 @@ namespace QueryPad
 
             Editor.AppendQuery("ROLLBACK");
             ExecuteSql(null, null);
+        }
+
+        private void ConnexionName_DoubleClick(object sender, EventArgs e)
+        {
+            // Connexion name was double clicked
+            // => reload table list
+
+            Tables.DataSource = Cnx.GetTables();
         }
     }
 }

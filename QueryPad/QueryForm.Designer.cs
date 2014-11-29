@@ -111,6 +111,7 @@
             this.ConnexionName.TabIndex = 2;
             this.ConnexionName.Text = "ConnexionName";
             this.ConnexionName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.ConnexionName.DoubleClick += new System.EventHandler(this.ConnexionName_DoubleClick);
             // 
             // SplitHorizontal
             // 
