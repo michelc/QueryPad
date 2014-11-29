@@ -99,8 +99,8 @@ namespace QueryPad
             if (sql == "") return;
             if (!sql.StartsWith("FORMAT ")) sql = ExecuteSql_Prepare();
 
+            var index = -1;
             var count = -1;
-            var total = 0;
             var start = DateTime.Now;
 
             Cancellation = new CancellationTokenSource();
@@ -116,10 +116,13 @@ namespace QueryPad
                     QueryResult = Cnx.ExecuteDataTable(sql);
 
                     // Display DB access statistics
-                    ExecuteSql_Message(0, QueryResult.RowCount, start);
+                    count = QueryResult.RowCount;
+                    ExecuteSql_Message(index, count, start);
+                    last_message = Informations.Text;
 
                     // Add data to Grid
-                    count = Display_List(QueryResult.DataTable, QueryResult.IsSlow);
+                    Display_List(QueryResult.DataTable, QueryResult.IsSlow);
+                    if (QueryResult.RowCount > 0) index = 0;
                 }
                 else if (check.StartsWith("DESC"))
                 {
@@ -143,6 +146,9 @@ namespace QueryPad
                 else if (check == "FORMAT")
                 {
                     Format_List(sql.Substring(7).Trim(), QueryResult);
+                    ShowInformations(Grid.RowCount.ToString() + " lines");
+                    Grid.Select();
+                    return;
                 }
                 else
                 {
@@ -176,7 +182,7 @@ namespace QueryPad
             }
 
             // Display statistics
-            ExecuteSql_Message(count, total, start);
+            ExecuteSql_Message(index, count, start);
             if (check == "") Editor.Select(); else Grid.Select();
         }
 
@@ -260,7 +266,7 @@ namespace QueryPad
             Grid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
         }
 
-        private int Display_List(DataTable dt, bool slow)
+        private void Display_List(DataTable dt, bool slow)
         {
             Cursor = Cursors.WaitCursor;
 
@@ -297,7 +303,6 @@ namespace QueryPad
             // Return loaded rows count
             Grid.ColumnHeadersVisible = true;
             Grid.ResumeLayout();
-            return Grid.RowCount;
         }
 
         private void Display_RowDetail()
@@ -362,12 +367,12 @@ namespace QueryPad
             return count.Result;
         }
 
-        private void ExecuteSql_Message(int count, int total, DateTime? start)
+        private void ExecuteSql_Message(int index, int count, DateTime? start)
         {
             // Display statistics
 
             var message = string.Format("{0} rows", count);
-            if (count < total) message = string.Format("{0}/{1} rows", count, total);
+            if ((index != -1) && (count > 1)) message = string.Format("{0}/{1} rows", index + 1, count);
             if (count == -10001) message = "commit";
             if (count == -10002) message = "rollback";
             if (start != null)
@@ -383,8 +388,15 @@ namespace QueryPad
         private void ShowInformations(string message)
         {
             // Force informations display
-            Informations.Text = last_message + Environment.NewLine + message;
-            last_message = message;
+            if (!string.IsNullOrEmpty(last_message))
+            {
+                Informations.Text = last_message + Environment.NewLine + message;
+                last_message = "";
+            }
+            else
+            {
+                Informations.Text = message;
+            }
             Informations.Left = Toolbar.ClientSize.Width - Informations.Width;
             this.Refresh();
         }
@@ -543,6 +555,10 @@ namespace QueryPad
                 Grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 Grid.Rows[e.RowIndex].Selected = true;
             }
+
+            // Update status
+            if (QueryResult.RowCount <= 1) return;
+            ExecuteSql_Message(e.RowIndex, Grid.RowCount, null);
         }
 
         private void Grid_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -606,15 +622,18 @@ namespace QueryPad
 
         private void Grid_KeyUp(object sender, KeyEventArgs e)
         {
+            if (QueryResult.RowCount <= 1) return;
             if (QueryResult.RowIndex != -1)
             {
                 // Check left and right arrows to browse rows
                 Browse_RowDetail(e);
+                ExecuteSql_Message(QueryResult.RowIndex, QueryResult.RowCount, null);
             }
             else
             {
                 // Check page down and down arrow to load new page
                 Browse_NextPage(e);
+                ExecuteSql_Message(Grid.CurrentRow.Index, QueryResult.RowCount, null);
             }
         }
 
@@ -690,7 +709,6 @@ namespace QueryPad
                     Grid.SuspendLayout();
                     Grid.DataSource = QueryResult.DataTable;
                     Grid.ResumeLayout();
-                    ExecuteSql_Message(0, QueryResult.RowCount, null);
                 }
                 catch (Exception ex)
                 {
