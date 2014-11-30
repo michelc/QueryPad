@@ -272,7 +272,6 @@ namespace QueryPad
 
             // Initialize grid
             Grid.SuspendLayout();
-            Grid.ColumnHeadersVisible = false;
             Grid.DataSource = dt;
             var count = Grid.RowCount;
 
@@ -280,7 +279,7 @@ namespace QueryPad
             if (Cnx.CnxParameter.Provider.Contains("Oracle"))
             {
                 var ti = CultureInfo.CurrentCulture.TextInfo;
-                for (var i = 0; i < Grid.Columns.Count; i++)
+                for (var i = 0; i < Grid.ColumnCount; i++)
                 {
                     var text = Grid.Columns[i].HeaderText.ToLower();
                     Grid.Columns[i].HeaderText = ti.ToTitleCase(text);
@@ -289,19 +288,17 @@ namespace QueryPad
 
             // Auto-resize columns width
             var mode = (count < 250) ? DataGridViewAutoSizeColumnsMode.AllCells : DataGridViewAutoSizeColumnsMode.DisplayedCells;
-            if (slow) mode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
-            if (count < 50) Grid.ColumnHeadersVisible = true;
-            Grid.AutoResizeColumns(mode);
+            if (slow) mode = DataGridViewAutoSizeColumnsMode.DisplayedCellsExceptHeader;
+            Grid.AutoResizeColumns(mode);            
 
             // Check for big widths
             Grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-            for (var i = 0; i < Grid.Columns.Count; i++)
+            for (var i = 0; i < Grid.ColumnCount; i++)
             {
                 if (Grid.Columns[i].Width > 750) Grid.Columns[i].Width = 750;
             }
 
             // Return loaded rows count
-            Grid.ColumnHeadersVisible = true;
             Grid.ResumeLayout();
         }
 
@@ -332,7 +329,7 @@ namespace QueryPad
             if (Cnx.CnxParameter.Provider.Contains("Oracle"))
             {
                 var ti = CultureInfo.CurrentCulture.TextInfo;
-                for (var i = 0; i < Grid.Rows.Count; i++)
+                for (var i = 0; i < Grid.RowCount; i++)
                 {
                     var text = Grid.Rows[i].Cells[2].Value.ToString().ToLower();
                     Grid.Rows[i].Cells[2].Value = ti.ToTitleCase(text);
@@ -342,7 +339,7 @@ namespace QueryPad
             // Resize value column width
             Grid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
             Grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-            for (var i = 0; i < Grid.Rows.Count; i++)
+            for (var i = 0; i < Grid.RowCount; i++)
             {
                 var size = Grid.Rows[i].Cells[3].Value.ToString().Length;
                 if (size > 100)

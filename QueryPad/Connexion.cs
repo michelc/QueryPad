@@ -265,7 +265,7 @@ namespace QueryPad
                 {
                     da.Fill(result.DataTable);
                     result.RowCount = result.DataTable.Rows.Count;
-                    result.IsSlow = DateTime.Now.Subtract(start).TotalSeconds > 1;
+                    result.IsSlow = DateTime.Now.Subtract(start).TotalSeconds > 1.5;
                     result.IsFull = true;
                 }
             }
