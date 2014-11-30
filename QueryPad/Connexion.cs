@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -114,6 +115,7 @@ namespace QueryPad
             dr.Close();
 
             // Add size and default
+            var ti = CultureInfo.CurrentCulture.TextInfo;
             var restrictions = new[] { null, null, table, null };
             if (CnxParameter.Provider == "Oracle.DataAccess.Client") restrictions = new[] { null, table.ToUpper(), null };
             dt = db.GetSchema("Columns", restrictions);
@@ -145,6 +147,7 @@ namespace QueryPad
                         if (columns[i].Type == "integer") columns[i].Type = "int identity(1,1)";
                         break;
                     case "Oracle.DataAccess.Client":
+                        columns[i].Name = ti.ToTitleCase(columns[i].Name.ToLower());
                         columns[i].Type = row["DataType"].ToString().ToLower();
                         switch (columns[i].Type)
                         {
@@ -242,6 +245,7 @@ namespace QueryPad
         public DataTableResult ExecuteDataTable(string sql)
         {
             var result = new DataTableResult();
+            var oracle = CnxParameter.Provider.Contains("Oracle");
 
             try
             {
@@ -249,7 +253,7 @@ namespace QueryPad
                 dc.Transaction = transaction;
                 da.SelectCommand = dc;
                 var start = DateTime.Now;
-                if (CnxParameter.Provider == "Oracle.DataAccess.Client")
+                if (oracle)
                 {
                     for (int i = 0; i < 500; i += 100)
                     {
@@ -267,6 +271,15 @@ namespace QueryPad
                     result.RowCount = result.DataTable.Rows.Count;
                     result.IsSlow = DateTime.Now.Subtract(start).TotalSeconds > 1.5;
                     result.IsFull = true;
+                }
+                // Set columns title
+                var count = result.DataTable.Columns.Count;
+                result.Titles = new string[count];
+                var ti = CultureInfo.CurrentCulture.TextInfo;
+                for (int i = 0; i < count; i++)
+                {
+                    result.Titles[i] = result.DataTable.Columns[i].Caption;
+                    if (oracle) result.Titles[i] = ti.ToTitleCase(result.Titles[i].ToLower());
                 }
             }
             catch { throw; }
@@ -342,6 +355,7 @@ namespace QueryPad
         public int RowCount { get; set; }
         public int RowIndex { get; set; }
         public DataGridState GridState { get; set; }
+        public string[] Titles { get; set; }
 
         public DataTableResult() { this.Clear(); }
 
@@ -353,6 +367,7 @@ namespace QueryPad
             this.RowCount = 0;
             this.RowIndex = -1;
             this.GridState = new DataGridState();
+            this.Titles = new string[0];
         }
     }
 

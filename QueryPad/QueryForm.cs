@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -275,15 +274,10 @@ namespace QueryPad
             Grid.DataSource = dt;
             var count = Grid.RowCount;
 
-            // Title case Oracle columns header
-            if (Cnx.CnxParameter.Provider.Contains("Oracle"))
+            // Set columns title
+            for (var i = 0; i < Grid.ColumnCount; i++)
             {
-                var ti = CultureInfo.CurrentCulture.TextInfo;
-                for (var i = 0; i < Grid.ColumnCount; i++)
-                {
-                    var text = Grid.Columns[i].HeaderText.ToLower();
-                    Grid.Columns[i].HeaderText = ti.ToTitleCase(text);
-                }
+                Grid.Columns[i].HeaderText = QueryResult.Titles[i];
             }
 
             // Auto-resize columns width
@@ -325,15 +319,10 @@ namespace QueryPad
             // Initialize grid
             Grid.DataSource = dt;
 
-            // Title case Oracle columns name
-            if (Cnx.CnxParameter.Provider.Contains("Oracle"))
+            // Set columns title
+            for (var i = 0; i < Grid.RowCount; i++)
             {
-                var ti = CultureInfo.CurrentCulture.TextInfo;
-                for (var i = 0; i < Grid.RowCount; i++)
-                {
-                    var text = Grid.Rows[i].Cells[2].Value.ToString().ToLower();
-                    Grid.Rows[i].Cells[2].Value = ti.ToTitleCase(text);
-                }
+                Grid.Rows[i].Cells[2].Value = QueryResult.Titles[i];
             }
 
             // Resize value column width
