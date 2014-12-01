@@ -120,7 +120,7 @@ namespace QueryPad
                     last_message = Informations.Text;
 
                     // Add data to Grid
-                    Display_List(QueryResult.DataTable, QueryResult.IsSlow);
+                    Display_List(QueryResult.DataTable, QueryResult.IsSlow, false);
                     if (QueryResult.RowCount > 0) index = 0;
                 }
                 else if (check.StartsWith("DESC"))
@@ -265,14 +265,14 @@ namespace QueryPad
             Grid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
         }
 
-        private void Display_List(DataTable dt, bool slow)
+        private void Display_List(DataTable dt, bool slow, bool reload)
         {
             Cursor = Cursors.WaitCursor;
 
             // Initialize grid
             Grid.SuspendLayout();
+            Grid.ColumnHeadersVisible = false;
             Grid.DataSource = dt;
-            var count = Grid.RowCount;
 
             // Set columns title
             for (var i = 0; i < Grid.ColumnCount; i++)
@@ -280,11 +280,26 @@ namespace QueryPad
                 Grid.Columns[i].HeaderText = QueryResult.Titles[i];
             }
 
-            // Auto-resize columns width
-            var mode = (count < 250) ? DataGridViewAutoSizeColumnsMode.AllCells : DataGridViewAutoSizeColumnsMode.DisplayedCells;
-            if (slow) mode = DataGridViewAutoSizeColumnsMode.DisplayedCellsExceptHeader;
-            Grid.AutoResizeColumns(mode);            
+            // Just refresh grid display
+            if (reload)
+            {
+                Grid.ResumeLayout();
+                return;
+            }
 
+            // Auto-resize columns width
+            var count = dt.Rows.Count;
+            var mode = (count < 250) ? DataGridViewAutoSizeColumnsMode.AllCells : DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            if (slow)
+            {
+                mode = DataGridViewAutoSizeColumnsMode.DisplayedCellsExceptHeader;
+            }
+            else
+            {
+                Grid.ColumnHeadersVisible = true;
+            }
+            Grid.AutoResizeColumns(mode);
+            
             // Check for big widths
             Grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             for (var i = 0; i < Grid.ColumnCount; i++)
@@ -292,7 +307,8 @@ namespace QueryPad
                 if (Grid.Columns[i].Width > 750) Grid.Columns[i].Width = 750;
             }
 
-            // Return loaded rows count
+            // Refresh grid display
+            Grid.ColumnHeadersVisible = true;
             Grid.ResumeLayout();
         }
 
@@ -757,9 +773,10 @@ namespace QueryPad
             else
             {
                 // Display as rows list
-                Display_List(QueryResult.DataTable, false);
+                Display_List(QueryResult.DataTable, false, true);
                 QueryResult.GridState.CurrentRow = QueryResult.RowIndex;
                 GridSetState(Grid, QueryResult.GridState);
+                Grid.ColumnHeadersVisible = true;
                 QueryResult.RowIndex = -1;
             }
 
