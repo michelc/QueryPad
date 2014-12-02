@@ -10,9 +10,17 @@ namespace QueryPad
         public MainForm()
         {
             InitializeComponent();
-            this.Width = 1000;
-            this.Height = 800;
+            this.Width = 1024;
+            this.Height = 900;
             this.CenterToScreen();
+            if (Screen.GetWorkingArea(this).Width <= 1024)
+            {
+                this.WindowState = FormWindowState.Maximized;
+            }
+            else if (Screen.GetWorkingArea(this).Height <= 900)
+            {
+                this.WindowState = FormWindowState.Maximized;
+            }
         }
 
         protected override void OnClosed(EventArgs e)
