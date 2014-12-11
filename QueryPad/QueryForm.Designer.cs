@@ -42,6 +42,7 @@
             this.Stop = new System.Windows.Forms.Button();
             this.Execute = new System.Windows.Forms.Button();
             this.Grid = new System.Windows.Forms.DataGridView();
+            this.Filter = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.SplitVertical)).BeginInit();
             this.SplitVertical.Panel1.SuspendLayout();
             this.SplitVertical.Panel2.SuspendLayout();
@@ -83,20 +84,21 @@
             this.Tables.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Tables.FormattingEnabled = true;
             this.Tables.IntegralHeight = false;
-            this.Tables.Location = new System.Drawing.Point(8, 23);
+            this.Tables.Location = new System.Drawing.Point(8, 39);
             this.Tables.Name = "Tables";
-            this.Tables.Size = new System.Drawing.Size(199, 368);
+            this.Tables.Size = new System.Drawing.Size(199, 352);
             this.Tables.TabIndex = 1;
             this.Tables.DoubleClick += new System.EventHandler(this.Tables_DoubleClick);
             // 
             // Title
             // 
             this.Title.AutoSize = true;
+            this.Title.Controls.Add(this.Filter);
             this.Title.Controls.Add(this.ConnexionName);
             this.Title.Dock = System.Windows.Forms.DockStyle.Top;
             this.Title.Location = new System.Drawing.Point(8, 8);
             this.Title.Name = "Title";
-            this.Title.Size = new System.Drawing.Size(199, 15);
+            this.Title.Size = new System.Drawing.Size(199, 31);
             this.Title.TabIndex = 0;
             // 
             // ConnexionName
@@ -281,6 +283,17 @@
             this.Grid.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.Grid_DataError);
             this.Grid.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Grid_KeyUp);
             // 
+            // Filter
+            // 
+            this.Filter.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.Filter.Location = new System.Drawing.Point(0, 15);
+            this.Filter.Name = "Filter";
+            this.Filter.Size = new System.Drawing.Size(196, 13);
+            this.Filter.TabIndex = 3;
+            this.Filter.TabStop = false;
+            this.Filter.WordWrap = false;
+            this.Filter.TextChanged += new System.EventHandler(this.Filter_TextChanged);
+            // 
             // QueryForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -324,5 +337,6 @@
         private System.Windows.Forms.Button Commit;
         private System.Windows.Forms.Button Rollback;
         private System.Windows.Forms.Button Rotate;
+        private System.Windows.Forms.TextBox Filter;
     }
 }

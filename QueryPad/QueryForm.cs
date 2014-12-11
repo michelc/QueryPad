@@ -55,7 +55,10 @@ namespace QueryPad
                 return;
             }
 
-            Tables.DataSource = Cnx.GetTables();
+            Tables.DataSource = Cnx.GetTables(false);
+            Filter.BackColor = ControlPaint.LightLight(BackColor);
+            Filter.Top = 10;
+            Filter.Visible = Tables.Items.Count > 20;
             Editor.ConfigureTabs();
             QueryResult = new DataTableResult();
 
@@ -109,7 +112,7 @@ namespace QueryPad
             try
             {
                 check = sql.Substring(0, 6).ToUpper();
-                if (check == "SELECT")
+                if ((check == "SELECT") || (check.StartsWith("EXEC ")))
                 {
                     // Read data from DB
                     QueryResult = Cnx.ExecuteDataTable(sql);
@@ -807,7 +810,18 @@ namespace QueryPad
             // Connexion name was double clicked
             // => reload table list
 
-            Tables.DataSource = Cnx.GetTables();
+            Tables.DataSource = Cnx.GetTables(false);
+            if (Filter.Visible) Filter_TextChanged(null, null);
+        }
+
+        private void Filter_TextChanged(object sender, EventArgs e)
+        {
+            // Filter text has changed
+            // => update table list
+
+            var filter = Filter.Text.ToLowerInvariant();
+            var tables = Cnx.GetTables(true).Where(t => t.ToLowerInvariant().Contains(filter)).ToArray();
+            Tables.DataSource = tables;
         }
     }
 }
