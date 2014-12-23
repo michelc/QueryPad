@@ -120,14 +120,14 @@ namespace QueryPad
             // Add size and default
             var ti = CultureInfo.CurrentCulture.TextInfo;
             var restrictions = new[] { null, null, table, null };
-            if (CnxParameter.Provider == "Oracle.DataAccess.Client") restrictions = new[] { null, table.ToUpper(), null };
+            if (CnxParameter.IsOracle) restrictions = new[] { null, table.ToUpper(), null };
             dt = db.GetSchema("Columns", restrictions);
             var ordinal = -1;
             if (CnxParameter.Provider == "System.Data.SQLite") ordinal = 0;
             for (var x = 0; x < count; x++)
             {
                 var row = dt.Rows[x];
-                var i = (CnxParameter.Provider == "Oracle.DataAccess.Client")
+                var i = (CnxParameter.IsOracle)
                         ? Convert.ToInt32(row["ID"]) - 1
                         : Convert.ToInt32(row["Ordinal_Position"]) + ordinal;
                 // Get default value
@@ -150,6 +150,7 @@ namespace QueryPad
                         if (columns[i].Type == "integer") columns[i].Type = "int identity(1,1)";
                         break;
                     case "Oracle.DataAccess.Client":
+                    case "System.Data.OracleClient":
                         columns[i].Name = ti.ToTitleCase(columns[i].Name.ToLower());
                         columns[i].Type = row["DataType"].ToString().ToLower();
                         switch (columns[i].Type)
@@ -229,6 +230,7 @@ namespace QueryPad
                             ORDER BY CASE WHEN Table_Schema = 'dbo' THEN '' ELSE Table_Schema + '.' END, Table_Name";
                     break;
                 case "Oracle.DataAccess.Client":
+                case "System.Data.OracleClient":
                     sql = @"SELECT INITCAP(Table_Name)
                             FROM   User_Tables
                             ORDER BY 1";
@@ -248,7 +250,7 @@ namespace QueryPad
         public DataTableResult ExecuteDataTable(string sql)
         {
             var result = new DataTableResult();
-            var oracle = CnxParameter.Provider.Contains("Oracle");
+            var oracle = CnxParameter.IsOracle;
 
             try
             {

@@ -46,6 +46,14 @@ namespace Altrr
             }
         }
 
+        public bool IsOracle
+        {
+            get
+            {
+                return Provider.ToLower().Contains("oracle");
+            }
+        }
+
         public static List<CnxParameter> Load()
         {
             // Load connections parameters from a JSON file
