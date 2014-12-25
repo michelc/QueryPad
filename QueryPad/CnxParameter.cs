@@ -46,6 +46,7 @@ namespace Altrr
             }
         }
 
+        [Browsable(false)]
         public bool IsOracle
         {
             get
