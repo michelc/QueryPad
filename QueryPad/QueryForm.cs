@@ -3,8 +3,6 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Altrr;
 
@@ -15,7 +13,6 @@ namespace QueryPad
         private Connexion Cnx { get; set; }
 
         private bool ControlKey = false;
-        private CancellationTokenSource Cancellation;
         private DataTableResult QueryResult;
 
         public QueryForm(CnxParameter CnxParameter)
@@ -99,119 +96,137 @@ namespace QueryPad
             // Get query to run
             var sql = Editor.CurrentQuery();
             if (sql == "") return;
-            if (!sql.StartsWith("FORMAT ")) sql = ExecuteSql_Prepare();
 
-            var index = -1;
-            var count = -1;
-            var start = DateTime.Now;
-
-            Cancellation = new CancellationTokenSource();
-
-            // Run query
-            var check = "";
-            try
-            {
-                check = sql.Substring(0, 6).ToUpper();
-                if ((check == "SELECT") || (check.StartsWith("EXEC ")))
-                {
-                    // Read data from DB
-                    QueryResult = Cnx.ExecuteDataTable(sql);
-
-                    // Display DB access statistics
-                    count = QueryResult.RowCount;
-                    ExecuteSql_Message(index, count, start);
-                    last_message = Informations.Text;
-
-                    // Add data to Grid
-                    Display_List(QueryResult.DataTable, QueryResult.IsSlow, false);
-                    if (QueryResult.RowCount > 0) index = 0;
-                }
-                else if (check.StartsWith("DESC"))
-                {
-                    // Read informations from schema
-                    sql = sql.Substring(4).Trim();
-                    Grid.DataSource = new SortableBindingList<Column>(Cnx.GetColumns(sql));
-                    Grid.AutoResizeColumns();
-
-                    // Display columns statistics
-                    if (Grid.RowCount > 0)
-                    {
-                        ShowInformations(Grid.RowCount.ToString() + " columns");
-                    }
-                    else
-                    {
-                        ShowInformations("No such table");
-                    }
-                    Grid.Select();
-                    return;
-                }
-                else if (check == "FORMAT")
-                {
-                    Format_List(sql.Substring(7).Trim(), QueryResult);
-                    ShowInformations(Grid.RowCount.ToString() + " lines");
-                    Grid.Select();
-                    return;
-                }
-                else
-                {
-                    // Update DB
-                    check = "";
-                    var task_write = ExecuteSql_NonQueryAsync(sql);
-                    await task_write;
-
-                    count = task_write.Result;
-
-                    Commit.Visible = Cnx.UseTransaction;
-                    Rollback.Visible = Cnx.UseTransaction;
-                }
-            }
-            catch (TaskCanceledException)
-            {
-                ShowInformations("Stopped");
-                return;
-            }
-            catch (Exception ex)
-            {
-                var caption = "Error " + ex.HResult.ToString("x");
-                var text = string.Format("{0}\n\n({1})", ex.Message, ex.Source);
-                MessageBox.Show(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                ShowInformations("Error");
-                return;
-            }
-            finally
-            {
-                FreezeToolbar(false);
-            }
-
-            // Display statistics
-            ExecuteSql_Message(index, count, start);
-            if (check == "") Editor.Select(); else Grid.Select();
-        }
-
-        private string ExecuteSql_Prepare()
-        {
             // Clear results
-            QueryResult = new DataTableResult();
-            Grid.DataSource = null;
-            Grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            ShowInformations("");
-
-            // Get current query to execute
-            var sql = Editor.CurrentQuery();
-
-            // Check if query is empty
-            if (sql == "")
+            if (!sql.StartsWith("FORMAT "))
             {
-                ShowInformations("No query !");
-                return "";
+                QueryResult = new DataTableResult();
+                Grid.DataSource = null;
+                Grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             }
 
             // Update display
             FreezeToolbar(true);
             ShowInformations("Executing...");
 
-            // Return the query to run
-            return sql;
+            // Run query
+            var index = -1;
+            var count = -1;
+            var start = DateTime.Now;
+            var SqlType = Execute_Type(sql);
+            var information = "";
+            try
+            {
+                switch (SqlType)
+                {
+                    case SqlType.Query:
+                        // Read data from DB
+                        QueryResult = Cnx.ExecuteDataTable(sql);
+
+                        // Display DB access statistics
+                        count = QueryResult.RowCount;
+                        Execute_Message(index, count, start);
+                        last_message = Informations.Text;
+
+                        // Add data to Grid
+                        Display_List(QueryResult.DataTable, QueryResult.IsSlow, false);
+                        if (QueryResult.RowCount > 0) index = 0;
+                        break;
+                    case SqlType.Desc:
+                        // Read informations from schema
+                        sql = sql.Substring(4).Trim();
+                        Grid.DataSource = new SortableBindingList<Column>(Cnx.GetColumns(sql));
+                        Grid.AutoResizeColumns();
+
+                        // Display columns statistics
+                        if (Grid.RowCount > 0)
+                        {
+                            information = Grid.RowCount.ToString() + " columns";
+                        }
+                        else
+                        {
+                            information = "No such table";
+                        }
+                        break;
+                    case SqlType.Format:
+                        sql = sql.Substring(7).Trim();
+                        Format_List(sql, QueryResult);
+                        information = Grid.RowCount.ToString() + " lines";
+                        break;
+                    case SqlType.NonQuery:
+                        // Update DB
+                        count = Cnx.ExecuteNonQuery(sql);
+
+                        // Show transaction buttons if necessary
+                        Commit.Visible = Cnx.UseTransaction;
+                        Rollback.Visible = Cnx.UseTransaction;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                var caption = "Error " + ex.HResult.ToString("x");
+                var text = string.Format("{0}\n\n({1})", ex.Message, ex.Source);
+                MessageBox.Show(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                information = "Error";
+            }
+
+            // Reset display
+            if (information != "")
+            {
+                ShowInformations(information);
+            }
+            else
+            {
+                Execute_Message(index, count, start);
+            }
+            FreezeToolbar(false);
+            if (Grid.DataSource != null)
+            {
+                Grid.Select();
+            }
+            else
+            {
+                Editor.Select();
+            }
+        }
+
+        private enum SqlType { Query, NonQuery, Desc, Format };
+
+        private SqlType Execute_Type(string sql)
+        {
+            var check = sql.Substring(0, 6).ToUpper();
+
+            // Query
+            if (check == "SELECT") return SqlType.Query;
+            if (check.StartsWith("EXEC ")) return SqlType.Query;
+
+            // Describe
+            if (check.StartsWith("DESC")) return SqlType.Desc;
+
+            // Formatting
+            if (check == "FORMAT") return SqlType.Format;
+
+            // NonQuery
+            return SqlType.NonQuery;
+        }
+
+        private void Execute_Message(int index, int count, DateTime? start)
+        {
+            // Display statistics
+
+            var message = string.Format("{0} rows", count);
+            if ((index != -1) && (count > 1)) message = string.Format("{0}/{1} rows", index + 1, count);
+            if (count == -10001) message = "commit";
+            if (count == -10002) message = "rollback";
+            if (start != null)
+            {
+                var duration = DateTime.Now.Subtract(start.Value);
+                message += string.Format(" ({0:0}:{1:00}.{2:000})"
+                                       , duration.Minutes, duration.Seconds, duration.Milliseconds);
+            }
+            if (count < 2) message = message.Replace(" rows ", " row ");
+            ShowInformations(message);
         }
 
         private void Format_List(string format, DataTableResult result)
@@ -362,32 +377,6 @@ namespace QueryPad
             Grid.Columns[0].DefaultCellStyle.ForeColor = Color.Gray;
             Grid.Columns[1].DefaultCellStyle.ForeColor = Color.Gray;
             Grid.Columns[2].DefaultCellStyle.Alignment = DataGridViewContentAlignment.TopRight;
-        }
-
-        private async Task<int> ExecuteSql_NonQueryAsync(string sql)
-        {
-            var count = Cnx.ExecuteNonQueryAsync(sql, Cancellation.Token);
-            await count;
-
-            return count.Result;
-        }
-
-        private void ExecuteSql_Message(int index, int count, DateTime? start)
-        {
-            // Display statistics
-
-            var message = string.Format("{0} rows", count);
-            if ((index != -1) && (count > 1)) message = string.Format("{0}/{1} rows", index + 1, count);
-            if (count == -10001) message = "commit";
-            if (count == -10002) message = "rollback";
-            if (start != null)
-            {
-                var duration = DateTime.Now.Subtract(start.Value);
-                message += string.Format(" ({0:00}:{1:00}.{2:000})"
-                                       , duration.Minutes, duration.Seconds, duration.Milliseconds);
-            }
-            if (count < 2) message = message.Replace(" rows ", " row ");
-            ShowInformations(message);
         }
 
         private void ShowInformations(string message)
@@ -563,7 +552,7 @@ namespace QueryPad
 
             // Update status
             if (QueryResult.RowCount <= 1) return;
-            ExecuteSql_Message(e.RowIndex, Grid.RowCount, null);
+            Execute_Message(e.RowIndex, Grid.RowCount, null);
         }
 
         private void Grid_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -632,13 +621,13 @@ namespace QueryPad
             {
                 // Check left and right arrows to browse rows
                 Browse_RowDetail(e);
-                ExecuteSql_Message(QueryResult.RowIndex, QueryResult.RowCount, null);
+                Execute_Message(QueryResult.RowIndex, QueryResult.RowCount, null);
             }
             else
             {
                 // Check page down and down arrow to load new page
                 Browse_NextPage(e);
-                ExecuteSql_Message(Grid.CurrentRow.Index, QueryResult.RowCount, null);
+                Execute_Message(Grid.CurrentRow.Index, QueryResult.RowCount, null);
             }
         }
 
@@ -751,7 +740,7 @@ namespace QueryPad
             // [Stop] button has been used
             // => cancel current query
 
-            Cancellation.Cancel();
+            // Cancellation.Cancel();
         }
 
         private void Rotate_Click(object sender, EventArgs e)

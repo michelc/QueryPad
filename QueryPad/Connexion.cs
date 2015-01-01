@@ -5,8 +5,6 @@ using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Altrr;
 using Dapper;
 
@@ -305,9 +303,8 @@ namespace QueryPad
             return result;
         }
 
-        public async Task<int> ExecuteNonQueryAsync(string sql, CancellationToken token)
+        public int ExecuteNonQuery(string sql)
         {
-            // await Task.Delay(1500, token);
             var supper = sql.ToUpper();
             if (supper == "COMMIT")
             {
@@ -329,9 +326,7 @@ namespace QueryPad
             command.Transaction = transaction;
             try
             {
-                var t = command.ExecuteNonQueryAsync(token);
-                await t;
-                count = t.Result;
+                count = command.ExecuteNonQuery();
             }
             catch { throw; }
 
