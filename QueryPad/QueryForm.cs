@@ -3,6 +3,8 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Altrr;
 
@@ -13,6 +15,7 @@ namespace QueryPad
         private Connexion Cnx { get; set; }
 
         private bool ControlKey = false;
+        public DateTime? StartTime;
         private DataTableResult QueryResult;
 
         public QueryForm(CnxParameter CnxParameter)
@@ -91,14 +94,15 @@ namespace QueryPad
             base.OnKeyUp(e);
         }
 
-        private async void ExecuteSql(object sender, EventArgs e)
+        private void Execute_Click(object sender, EventArgs e)
         {
             // Get query to run
             var sql = Editor.CurrentQuery();
             if (sql == "") return;
 
             // Clear results
-            if (!sql.StartsWith("FORMAT "))
+            var type = Execute_Type(sql);
+            if (type != SqlType.Format)
             {
                 QueryResult = new DataTableResult();
                 Grid.DataSource = null;
@@ -107,79 +111,188 @@ namespace QueryPad
 
             // Update display
             FreezeToolbar(true);
-            ShowInformations("Executing...");
+            StartTime = DateTime.Now;
+            RunTime.Enabled = true;
 
-            // Run query
-            var index = -1;
-            var count = -1;
-            var start = DateTime.Now;
-            var SqlType = Execute_Type(sql);
-            var information = "";
+            // Execute SQL
+            switch (type)
+            {
+                case SqlType.Query:
+                    // Read data from DB
+                    Execute_QueryAsync(sql);
+                    break;
+                case SqlType.Desc:
+                    // Describe a DB table
+                    Execute_Desc(sql.Substring(4).Trim());
+                    break;
+                case SqlType.Format:
+                    // Format DB data
+                    Execute_Format(sql.Substring(7).Trim());
+                    break;
+                case SqlType.NonQuery:
+                    // Update DB
+                    Execute_NonQueryAsync(sql);
+                    break;
+            }
+        }
+
+        private enum SqlType { Query, NonQuery, Desc, Format };
+
+        private SqlType Execute_Type(string sql)
+        {
+            var check = sql.Length < 6 ? "" : sql.Substring(0, 6).ToUpper();
+
+            // Query
+            if (check == "SELECT") return SqlType.Query;
+            if (check.StartsWith("EXEC ")) return SqlType.Query;
+
+            // Describe
+            if (check.StartsWith("DESC ")) return SqlType.Desc;
+
+            // Formatting
+            if (check == "FORMAT") return SqlType.Format;
+
+            // NonQuery
+            return SqlType.NonQuery;
+        }
+
+        private void Execute_QueryAsync(string sql)
+        {
+            var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+            var Cancellation = new CancellationTokenSource();
+
+            // Read data from DB
+            var run = new Task<DataTableResult>(() => Cnx.ExecuteDataTable(sql));
+
+            // Success => display results
+            var ok = run.ContinueWith<string>((t) =>
+            {
+                // Display DB access statistics
+                QueryResult = t.Result;
+                var count = QueryResult.RowCount;
+                var index = -1;
+                Execute_Message(index, count, StartTime);
+                last_message = Informations.Text;
+
+                // Add data to Grid
+                Display_List(QueryResult.DataTable, QueryResult.IsSlow, false);
+                if (QueryResult.RowCount > 0) index = 0;
+                Execute_Message(index, count, StartTime);
+
+                return "";
+            }, Cancellation.Token, TaskContinuationOptions.OnlyOnRanToCompletion, scheduler);
+
+            // Failure => show error
+            var ko = run.ContinueWith<string>((t) =>
+            {
+                return Execute_Error(t.Exception.InnerException);
+            }
+            , Cancellation.Token, TaskContinuationOptions.OnlyOnFaulted, scheduler);
+
+            // Reset display at the end
+            var end_ok = ok.ContinueWith((t) => Execute_End(t.Result), scheduler);
+            var end_ko = ko.ContinueWith((t) => Execute_End(t.Result), scheduler);
+
+            // Start query task
+            run.Start();
+        }
+
+        private void Execute_Desc(string sql)
+        {
+            var informations = "";
             try
             {
-                switch (SqlType)
+                // Read informations from schema
+                Grid.DataSource = new SortableBindingList<Column>(Cnx.GetColumns(sql));
+                Grid.AutoResizeColumns();
+                if (Grid.RowCount > 0)
                 {
-                    case SqlType.Query:
-                        // Read data from DB
-                        QueryResult = Cnx.ExecuteDataTable(sql);
-
-                        // Display DB access statistics
-                        count = QueryResult.RowCount;
-                        Execute_Message(index, count, start);
-                        last_message = Informations.Text;
-
-                        // Add data to Grid
-                        Display_List(QueryResult.DataTable, QueryResult.IsSlow, false);
-                        if (QueryResult.RowCount > 0) index = 0;
-                        break;
-                    case SqlType.Desc:
-                        // Read informations from schema
-                        sql = sql.Substring(4).Trim();
-                        Grid.DataSource = new SortableBindingList<Column>(Cnx.GetColumns(sql));
-                        Grid.AutoResizeColumns();
-
-                        // Display columns statistics
-                        if (Grid.RowCount > 0)
-                        {
-                            information = Grid.RowCount.ToString() + " columns";
-                        }
-                        else
-                        {
-                            information = "No such table";
-                        }
-                        break;
-                    case SqlType.Format:
-                        sql = sql.Substring(7).Trim();
-                        Format_List(sql, QueryResult);
-                        information = Grid.RowCount.ToString() + " lines";
-                        break;
-                    case SqlType.NonQuery:
-                        // Update DB
-                        count = Cnx.ExecuteNonQuery(sql);
-
-                        // Show transaction buttons if necessary
-                        Commit.Visible = Cnx.UseTransaction;
-                        Rollback.Visible = Cnx.UseTransaction;
-                        break;
+                    informations = Grid.RowCount.ToString() + " columns";
+                }
+                else
+                {
+                    informations = "No such table";
                 }
             }
             catch (Exception ex)
             {
-                var caption = "Error " + ex.HResult.ToString("x");
-                var text = string.Format("{0}\n\n({1})", ex.Message, ex.Source);
-                MessageBox.Show(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                information = "Error";
+                informations = Execute_Error(ex);
             }
 
             // Reset display
-            if (information != "")
+            Execute_End(informations);
+        }
+
+        private void Execute_Format(string sql)
+        {
+            var informations = "";
+            try
             {
-                ShowInformations(information);
+                // Format DB data
+                Format_List(sql, QueryResult);
+                informations = Grid.RowCount.ToString() + " lines";
             }
-            else
+            catch (Exception ex)
             {
-                Execute_Message(index, count, start);
+                informations = Execute_Error(ex);
             }
+
+            // Reset display
+            Execute_End(informations);
+        }
+
+        private void Execute_NonQueryAsync(string sql)
+        {
+            var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+            var Cancellation = new CancellationTokenSource();
+
+            // Update DB
+            var run = new Task<int>(() => Cnx.ExecuteNonQuery(sql));
+
+            // Success => display results
+            var ok = run.ContinueWith<string>((t) =>
+            {
+                // Show task result
+                Execute_Message(-1, t.Result, StartTime);
+
+                // Show transaction buttons if necessary
+                Commit.Visible = Cnx.UseTransaction;
+                Rollback.Visible = Cnx.UseTransaction;
+
+                return "";
+            }, Cancellation.Token, TaskContinuationOptions.OnlyOnRanToCompletion, scheduler);
+
+            // Failure => show error
+            var ko = run.ContinueWith<string>((t) =>
+            {
+                return Execute_Error(t.Exception.InnerException);
+            }
+            , Cancellation.Token, TaskContinuationOptions.OnlyOnFaulted, scheduler);
+
+            // Reset display at the end
+            var end_ok = ok.ContinueWith((t) => Execute_End(t.Result), scheduler);
+            var end_ko = ko.ContinueWith((t) => Execute_End(t.Result), scheduler);
+
+            // Start nonquery task
+            run.Start();
+        }
+
+        private string Execute_Error(Exception ex)
+        {
+            RunTime.Enabled = false;
+
+            var caption = "Error " + ex.HResult.ToString("x");
+            var text = string.Format("{0}\n\n({1})", ex.Message, ex.Source);
+            MessageBox.Show(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return "Error";
+        }
+
+        private void Execute_End(string informations)
+        {
+            // Reset display
+            RunTime.Enabled = false;
+            if (informations != "") ShowInformations(informations);
+
             FreezeToolbar(false);
             if (Grid.DataSource != null)
             {
@@ -189,26 +302,6 @@ namespace QueryPad
             {
                 Editor.Select();
             }
-        }
-
-        private enum SqlType { Query, NonQuery, Desc, Format };
-
-        private SqlType Execute_Type(string sql)
-        {
-            var check = sql.Substring(0, 6).ToUpper();
-
-            // Query
-            if (check == "SELECT") return SqlType.Query;
-            if (check.StartsWith("EXEC ")) return SqlType.Query;
-
-            // Describe
-            if (check.StartsWith("DESC")) return SqlType.Desc;
-
-            // Formatting
-            if (check == "FORMAT") return SqlType.Format;
-
-            // NonQuery
-            return SqlType.NonQuery;
         }
 
         private void Execute_Message(int index, int count, DateTime? start)
@@ -463,7 +556,7 @@ namespace QueryPad
                 // => generate & run desc query to display its structure
                 Editor.AppendQuery("DESC " + Tables.SelectedValue);
             }
-            ExecuteSql(null, null);
+            Execute_Click(null, null);
         }
 
         private string[] QuickNavigation(string foreign_col)
@@ -585,7 +678,7 @@ namespace QueryPad
                                     , data[1]
                                     , value);
             Editor.AppendQuery(sql);
-            ExecuteSql(null, null);
+            Execute_Click(null, null);
         }
 
         private void Grid_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
@@ -782,7 +875,7 @@ namespace QueryPad
             // => commit current transaction
 
             Editor.AppendQuery("COMMIT");
-            ExecuteSql(null, null);
+            Execute_Click(null, null);
         }
 
         private void Rollback_Click(object sender, EventArgs e)
@@ -791,7 +884,7 @@ namespace QueryPad
             // => rollback current transaction
 
             Editor.AppendQuery("ROLLBACK");
-            ExecuteSql(null, null);
+            Execute_Click(null, null);
         }
 
         private void ConnexionName_DoubleClick(object sender, EventArgs e)
@@ -811,6 +904,15 @@ namespace QueryPad
             var filter = Filter.Text.ToLowerInvariant();
             var tables = Cnx.GetTables(true).Where(t => t.ToLowerInvariant().Contains(filter)).ToArray();
             Tables.DataSource = tables;
+        }
+
+        private void RunTime_Tick(object sender, EventArgs e)
+        {
+            // Display duration during SQL execution
+
+            var duration = DateTime.Now.Subtract(StartTime.Value);
+            Informations.Text = string.Format("({0}:{1:00}.{2:000})", duration.Minutes, duration.Seconds, duration.Milliseconds);
+            Informations.Left = Toolbar.ClientSize.Width - Informations.Width;
         }
     }
 }

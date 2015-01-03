@@ -28,9 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.SplitVertical = new System.Windows.Forms.SplitContainer();
             this.Tables = new System.Windows.Forms.ListBox();
             this.Title = new System.Windows.Forms.Panel();
+            this.Filter = new System.Windows.Forms.TextBox();
             this.ConnexionName = new System.Windows.Forms.Label();
             this.SplitHorizontal = new System.Windows.Forms.SplitContainer();
             this.Editor = new System.Windows.Forms.RichTextBox();
@@ -42,7 +44,7 @@
             this.Stop = new System.Windows.Forms.Button();
             this.Execute = new System.Windows.Forms.Button();
             this.Grid = new System.Windows.Forms.DataGridView();
-            this.Filter = new System.Windows.Forms.TextBox();
+            this.RunTime = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.SplitVertical)).BeginInit();
             this.SplitVertical.Panel1.SuspendLayout();
             this.SplitVertical.Panel2.SuspendLayout();
@@ -100,6 +102,17 @@
             this.Title.Name = "Title";
             this.Title.Size = new System.Drawing.Size(199, 31);
             this.Title.TabIndex = 0;
+            // 
+            // Filter
+            // 
+            this.Filter.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.Filter.Location = new System.Drawing.Point(0, 15);
+            this.Filter.Name = "Filter";
+            this.Filter.Size = new System.Drawing.Size(196, 13);
+            this.Filter.TabIndex = 3;
+            this.Filter.TabStop = false;
+            this.Filter.WordWrap = false;
+            this.Filter.TextChanged += new System.EventHandler(this.Filter_TextChanged);
             // 
             // ConnexionName
             // 
@@ -257,7 +270,7 @@
             this.Execute.TabIndex = 5;
             this.Execute.Text = "&Execute";
             this.Execute.UseVisualStyleBackColor = false;
-            this.Execute.Click += new System.EventHandler(this.ExecuteSql);
+            this.Execute.Click += new System.EventHandler(this.Execute_Click);
             // 
             // Grid
             // 
@@ -283,16 +296,9 @@
             this.Grid.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.Grid_DataError);
             this.Grid.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Grid_KeyUp);
             // 
-            // Filter
+            // RunTime
             // 
-            this.Filter.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.Filter.Location = new System.Drawing.Point(0, 15);
-            this.Filter.Name = "Filter";
-            this.Filter.Size = new System.Drawing.Size(196, 13);
-            this.Filter.TabIndex = 3;
-            this.Filter.TabStop = false;
-            this.Filter.WordWrap = false;
-            this.Filter.TextChanged += new System.EventHandler(this.Filter_TextChanged);
+            this.RunTime.Tick += new System.EventHandler(this.RunTime_Tick);
             // 
             // QueryForm
             // 
@@ -338,5 +344,6 @@
         private System.Windows.Forms.Button Rollback;
         private System.Windows.Forms.Button Rotate;
         private System.Windows.Forms.TextBox Filter;
+        private System.Windows.Forms.Timer RunTime;
     }
 }
