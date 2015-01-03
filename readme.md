@@ -19,12 +19,6 @@ with the following informations:
 ```
 [
   {
-    "CnxString": "Data Source=C:\\DB\\Department.sdf"
-  , "Environment": "Debug"
-  , "Name": "Department.SDF"
-  , "Provider": "System.Data.SqlServerCe.4.0"
-  },
-  {
     "CnxString": "Data Source=.\\SQLEXPRESS;Integrated Security=SSPI;AttachDBFilename=C:\\DB\\Department_Express.mdf;User Instance=true;Database=Department_Express"
   , "Environment": "Test"
   , "Name": "Department.MDF"
@@ -37,16 +31,28 @@ with the following informations:
   , "Provider": "System.Data.SqlClient"
   },
   {
-    "CnxString": "Data Source=C:\\DB\\Department.db"
-  , "Environment": "Test"
-  , "Name": "Department.DB"
-  , "Provider": "System.Data.SQLite"
+    "CnxString": "Data Source=C:\\DB\\Department.sdf"
+  , "Environment": "Debug"
+  , "Name": "Department.SDF"
+  , "Provider": "System.Data.SqlServerCe.4.0"
   },
   {
     "CnxString": "Server=xxxxx.amazonaws.com;Database=yyyyy;User Id=zzzzz;Password=xyz;Port=5432;Ssl=true"
   , "Environment": "Release"
   , "Name": "Department.Heroku"
   , "Provider": "Npgsql"
+  },
+  {
+    "CnxString": "Data Source=C:\\DB\\Department.db"
+  , "Environment": "Test"
+  , "Name": "Department.DB"
+  , "Provider": "System.Data.SQLite"
+  },
+  {
+    "CnxString": "Data Source=DEPARTMENT;User ID=zzzzz;Password=xyz"
+  , "Environment": "Release"
+  , "Name": "Department.Oracle"
+  , "Provider": "Oracle.DataAccess.Client"
   },
   {
     "CnxString": "Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=C:\\DB\\Department.mdb;ExtendedAnsiSQL=1"
@@ -62,11 +68,14 @@ Supported providers:
 * System.Data.SqlServerCe.4.0
 * Npgsql
 * System.Data.SQLite
-* Oracle.DataAccess.Client
+* Oracle.DataAccess.Client (and System.Data.OracleClient)
 * System.Data.Odbc
 
 
 ## Usage
+
+Connection title
+* double click => refresh table list
 
 Table list
 * double click => SELECT * FROM table name
