@@ -67,7 +67,7 @@ namespace QueryPad
             Commit.Text = char.ConvertFromUtf32(8730) + " " + Commit.Text;
             Rollback.Text = char.ConvertFromUtf32(9587) + " " + Rollback.Text;
             Rotate.Text = char.ConvertFromUtf32(8984) + " " + Rotate.Text;
-            FreezeToolbar(false);
+            EnableToolbar(true);
         }
 
         protected override void OnClosed(EventArgs e)
@@ -110,7 +110,7 @@ namespace QueryPad
             }
 
             // Update display
-            FreezeToolbar(true);
+            EnableToolbar(false);
             StartTime = DateTime.Now;
             RunTime.Enabled = true;
 
@@ -293,7 +293,7 @@ namespace QueryPad
             RunTime.Enabled = false;
             if (informations != "") ShowInformations(informations);
 
-            FreezeToolbar(false);
+            EnableToolbar(true);
             if (Grid.DataSource != null)
             {
                 Grid.Select();
@@ -489,55 +489,24 @@ namespace QueryPad
         }
         private string last_message = "";
 
-        private void FreezeToolbar(bool is_busy)
+        private void EnableToolbar(bool onoff)
         {
-            // Enable or disable [Execute] button
-            Execute.Enabled = !is_busy;
-            if (!is_busy)
-            {
-                Execute.BackColor = Color.FromKnownColor(KnownColor.Highlight);
-                Execute.ForeColor = Color.FromKnownColor(KnownColor.HighlightText);
-            }
-            else
-            {
-                Execute.BackColor = Color.LightGray;
-                Execute.ForeColor = Color.WhiteSmoke;
-            }
+            // [Execute] button is enabled when toolbar is
+            Execute.Enable(onoff);
 
-            // Enable or disable [Stop] button
-            Stop.Enabled = is_busy;
-            if (is_busy)
-            {
-                Stop.BackColor = Color.FromKnownColor(KnownColor.Highlight);
-                Stop.ForeColor = Color.FromKnownColor(KnownColor.HighlightText);
-            }
-            else
-            {
-                Stop.BackColor = Color.LightGray;
-                Stop.ForeColor = Color.WhiteSmoke;
-            }
+            // [Stop] button is disabled when toolbar is enabled
+            Stop.Enable(!onoff);
 
-            // Enable or disable [Rotate] button
-            Rotate.Enabled = (is_busy == false) && (QueryResult.RowCount > 0);
-            if (Rotate.Enabled)
-            {
-                Rotate.BackColor = Color.FromKnownColor(KnownColor.Highlight);
-                Rotate.ForeColor = Color.FromKnownColor(KnownColor.HighlightText);
-                Rotate.Visible = true;
-            }
-            else
-            {
-                Rotate.BackColor = Color.LightGray;
-                Rotate.ForeColor = Color.WhiteSmoke;
-                Rotate.Visible = false;
-            }
+            // [Rotate] button is enabled when toolbar is enabled and result is not empty
+            Rotate.Enable(onoff && (QueryResult.RowCount > 0));
+            Rotate.Visible = Rotate.Enabled;
 
-            // Enable or disable [Commit] and [Rollback] buttons
-            Commit.Enabled = !is_busy;
-            Rollback.Enabled = !is_busy;
+            // [Commit] and [Rollback] buttons are enabled when toolbar is
+            Commit.Enable(onoff);
+            Rollback.Enable(onoff);
 
-            // Change cursor to hourglass during working
-            Cursor = is_busy ? Cursors.WaitCursor : Cursors.Default;
+            // Cursor is hourglass when toolbar is disabled
+            Cursor = onoff ? Cursors.Default : Cursors.WaitCursor;
         }
 
         private void Tables_DoubleClick(object sender, EventArgs e)
@@ -834,6 +803,7 @@ namespace QueryPad
             // => cancel current query
 
             // Cancellation.Cancel();
+            Stop.Enable(false);
         }
 
         private void Rotate_Click(object sender, EventArgs e)
@@ -866,7 +836,7 @@ namespace QueryPad
             }
 
             Grid.Select();
-            FreezeToolbar(false);
+            EnableToolbar(true);
         }
 
         private void Commit_Click(object sender, EventArgs e)

@@ -207,7 +207,7 @@
             this.Rollback.Name = "Rollback";
             this.Rollback.Size = new System.Drawing.Size(65, 23);
             this.Rollback.TabIndex = 9;
-            this.Rollback.Text = "Rollback";
+            this.Rollback.Text = "Rollbac&k";
             this.Rollback.UseVisualStyleBackColor = false;
             this.Rollback.Visible = false;
             this.Rollback.Click += new System.EventHandler(this.Rollback_Click);

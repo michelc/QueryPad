@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System.Drawing;
+using System.Windows.Forms;
 
 namespace QueryPad
 {
@@ -82,6 +83,24 @@ namespace QueryPad
                 tabs[i - 1] = (int)(width * i);
             }
             editor.SelectionTabs = tabs;
+        }
+
+        public static void Enable(this Button button, bool onoff)
+        {
+            // Enable or disable button
+            button.Enabled = onoff;
+
+            // Update button color
+            if (onoff)
+            {
+                button.BackColor = Color.FromKnownColor(KnownColor.Highlight);
+                button.ForeColor = Color.FromKnownColor(KnownColor.HighlightText);
+            }
+            else
+            {
+                button.BackColor = Color.LightGray;
+                button.ForeColor = Color.WhiteSmoke;
+            }
         }
     }
 }
