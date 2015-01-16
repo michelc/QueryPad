@@ -67,7 +67,7 @@ namespace QueryPad
             Commit.Text = char.ConvertFromUtf32(8730) + " " + Commit.Text;
             Rollback.Text = char.ConvertFromUtf32(9587) + " " + Rollback.Text;
             Rotate.Text = char.ConvertFromUtf32(8984) + " " + Rotate.Text;
-            EnableToolbar(true);
+            EnableUI(true);
         }
 
         protected override void OnClosed(EventArgs e)
@@ -110,7 +110,7 @@ namespace QueryPad
             }
 
             // Update display
-            EnableToolbar(false);
+            EnableUI(false);
             StartTime = DateTime.Now;
             RunTime.Enabled = true;
 
@@ -293,7 +293,7 @@ namespace QueryPad
             RunTime.Enabled = false;
             if (informations != "") ShowInformations(informations);
 
-            EnableToolbar(true);
+            EnableUI(true);
             if (Grid.DataSource != null)
             {
                 Grid.Select();
@@ -489,8 +489,13 @@ namespace QueryPad
         }
         private string last_message = "";
 
-        private void EnableToolbar(bool onoff)
+        private void EnableUI(bool onoff)
         {
+            // Table list is enabled when toolbar is
+            Tables.Enabled = onoff;
+            Filter.Enabled = onoff;
+            ConnexionName.Enabled = onoff;
+
             // [Execute] button is enabled when toolbar is
             Execute.Enable(onoff);
 
@@ -836,7 +841,7 @@ namespace QueryPad
             }
 
             Grid.Select();
-            EnableToolbar(true);
+            EnableUI(true);
         }
 
         private void Commit_Click(object sender, EventArgs e)
