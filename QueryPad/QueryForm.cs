@@ -619,6 +619,7 @@ namespace QueryPad
 
             // Update status
             if (QueryResult.RowCount <= 1) return;
+            if (QueryResult.RowIndex != -1) return;
             Execute_Message(e.RowIndex, Grid.RowCount, null);
         }
 
