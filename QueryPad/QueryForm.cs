@@ -15,8 +15,9 @@ namespace QueryPad
         private Connexion Cnx { get; set; }
 
         private bool ControlKey = false;
-        public DateTime? StartTime;
+        private DateTime? StartTime;
         private DataTableResult QueryResult;
+        private CancellationTokenSource Cancellation;
 
         public QueryForm(CnxParameter CnxParameter)
         {
@@ -156,19 +157,17 @@ namespace QueryPad
             return SqlType.NonQuery;
         }
 
-        private void Execute_QueryAsync(string sql)
+        private async void Execute_QueryAsync(string sql)
         {
-            var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
-            var Cancellation = new CancellationTokenSource();
+            Cancellation = new CancellationTokenSource();
+            var infos = "";
 
-            // Read data from DB
-            var run = new Task<DataTableResult>(() => Cnx.ExecuteDataTable(sql));
-
-            // Success => display results
-            var ok = run.ContinueWith<string>((t) =>
+            try
             {
+                // Execute query
+                QueryResult = await Task.Run(() => Cnx.ExecuteDataTable(sql, Cancellation.Token));
+
                 // Display DB access statistics
-                QueryResult = t.Result;
                 var count = QueryResult.RowCount;
                 var index = -1;
                 Execute_Message(index, count, StartTime);
@@ -178,23 +177,19 @@ namespace QueryPad
                 Display_List(QueryResult.DataTable, QueryResult.IsSlow, false);
                 if (QueryResult.RowCount > 0) index = 0;
                 Execute_Message(index, count, StartTime);
-
-                return "";
-            }, Cancellation.Token, TaskContinuationOptions.OnlyOnRanToCompletion, scheduler);
-
-            // Failure => show error
-            var ko = run.ContinueWith<string>((t) =>
-            {
-                return Execute_Error(t.Exception.InnerException);
             }
-            , Cancellation.Token, TaskContinuationOptions.OnlyOnFaulted, scheduler);
-
-            // Reset display at the end
-            var end_ok = ok.ContinueWith((t) => Execute_End(t.Result), scheduler);
-            var end_ko = ko.ContinueWith((t) => Execute_End(t.Result), scheduler);
-
-            // Start query task
-            run.Start();
+            catch (OperationCanceledException)
+            {
+                infos = "Stopped";
+            }
+            catch (Exception ex)
+            {
+                infos = Execute_Error(ex);
+            }
+            finally
+            {
+                Execute_End(infos);
+            }
         }
 
         private void Execute_Desc(string sql)
@@ -244,7 +239,7 @@ namespace QueryPad
         private void Execute_NonQueryAsync(string sql)
         {
             var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
-            var Cancellation = new CancellationTokenSource();
+            Cancellation = new CancellationTokenSource();
 
             // Update DB
             var run = new Task<int>(() => Cnx.ExecuteNonQuery(sql));
@@ -593,7 +588,7 @@ namespace QueryPad
             // Get table first column name (should be the primary key)
             try
             {
-                var test = Cnx.ExecuteDataTable("SELECT * FROM " + table_name + " WHERE 1 = 2");
+                var test = Cnx.ExecuteDataTable("SELECT * FROM " + table_name + " WHERE 1 = 2", new CancellationTokenSource().Token);
                 column_name = test.DataTable.Columns[0].ColumnName;
             }
             catch { return null; }
@@ -808,7 +803,7 @@ namespace QueryPad
             // [Stop] button has been used
             // => cancel current query
 
-            // Cancellation.Cancel();
+            Cancellation.Cancel();
             Stop.Enable(false);
         }
 

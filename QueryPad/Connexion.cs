@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using Altrr;
 using Dapper;
 
@@ -245,36 +246,30 @@ namespace QueryPad
             return sql;
         }
 
-        public DataTableResult ExecuteDataTable(string sql)
+        public DataTableResult ExecuteDataTable(string sql, CancellationToken token)
         {
             var result = new DataTableResult();
             var oracle = CnxParameter.IsOracle;
 
             try
             {
+                // Read an load data asynchronously
                 dc.CommandText = sql;
                 dc.Transaction = transaction;
                 da.SelectCommand = dc;
                 var start = DateTime.Now;
-                if (oracle)
+                var page = oracle ? 100 : 1000;
+                for (int i = 0; i < 100000; i += page)
                 {
-                    for (int i = 0; i < 500; i += 100)
-                    {
-                        da.Fill(i, 100, result.DataTable);
-                        result.RowCount = result.DataTable.Rows.Count;
-                        result.IsSlow = DateTime.Now.Subtract(start).TotalSeconds > 1;
-                        result.IsFull = (result.RowCount < i + 100);
-                        if (result.IsFull) break;
-                        if (result.IsSlow) break;
-                    }
-                }
-                else
-                {
-                    da.Fill(result.DataTable);
+                    da.Fill(i, page, result.DataTable);
                     result.RowCount = result.DataTable.Rows.Count;
-                    result.IsSlow = DateTime.Now.Subtract(start).TotalSeconds > 1.5;
-                    result.IsFull = true;
+                    result.IsSlow = DateTime.Now.Subtract(start).TotalSeconds > 2.5;
+                    result.IsFull = (result.RowCount < i + page);
+                    if (result.IsFull) break;
+                    if (result.IsSlow) break;
+                    if (token.IsCancellationRequested) break;
                 }
+
                 // Set columns title
                 var count = result.DataTable.Columns.Count;
                 result.Titles = new string[count];
@@ -288,6 +283,7 @@ namespace QueryPad
             catch { throw; }
 
             return result;
+
         }
 
         public DataTableResult ExecuteNextPage(DataTableResult result)
