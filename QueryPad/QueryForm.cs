@@ -69,6 +69,8 @@ namespace QueryPad
             Rollback.Text = char.ConvertFromUtf32(9587) + " " + Rollback.Text;
             Rotate.Text = char.ConvertFromUtf32(8984) + " " + Rotate.Text;
             EnableUI(true);
+            RunTime_Enable(false);
+            RunTime_Tick(null, null);
         }
 
         protected override void OnClosed(EventArgs e)
@@ -113,7 +115,7 @@ namespace QueryPad
             // Update display
             EnableUI(false);
             StartTime = DateTime.Now;
-            RunTime.Enabled = true;
+            RunTime_Enable(true);
 
             // Execute SQL
             switch (type)
@@ -274,7 +276,7 @@ namespace QueryPad
 
         private string Execute_Error(Exception ex)
         {
-            RunTime.Enabled = false;
+            RunTime_Enable(false);
 
             var caption = "Error " + ex.HResult.ToString("x");
             var text = string.Format("{0}\n\n({1})", ex.Message, ex.Source);
@@ -285,7 +287,7 @@ namespace QueryPad
         private void Execute_End(string informations)
         {
             // Reset display
-            RunTime.Enabled = false;
+            RunTime_Enable(false);
             if (informations != "") ShowInformations(informations);
 
             EnableUI(true);
@@ -879,11 +881,37 @@ namespace QueryPad
 
         private void RunTime_Tick(object sender, EventArgs e)
         {
-            // Display duration during SQL execution
+            if (RunTime.Tag.ToString() == "True")
+            {
+                // Display duration during SQL execution
+                var duration = DateTime.Now.Subtract(StartTime.Value);
+                Informations.Text = string.Format("({0}:{1:00}.{2:000})", duration.Minutes, duration.Seconds, duration.Milliseconds);
+                Informations.Left = Toolbar.ClientSize.Width - Informations.Width;
+            }
+            else if (RunTime.Tag.ToString() == "Oracle")
+            {
+                // Keep Oracle connection alive
+                Cnx.ExecuteNonQuery("SELECT SYSDATE FROM DUAL");
+            }
+        }
 
-            var duration = DateTime.Now.Subtract(StartTime.Value);
-            Informations.Text = string.Format("({0}:{1:00}.{2:000})", duration.Minutes, duration.Seconds, duration.Milliseconds);
-            Informations.Left = Toolbar.ClientSize.Width - Informations.Width;
+        private void RunTime_Enable(bool onoff)
+        {
+            // Activate or deactivate duration display
+            RunTime.Tag = onoff.ToString();
+            RunTime.Interval = 100;
+            RunTime.Enabled = onoff;
+
+            // Nothing more when duration activated
+            if (onoff) return;
+
+            // Activate dummy sql every 5 minutes to refresh Oracle session
+            if (Cnx.CnxParameter.IsOracle)
+            {
+                RunTime.Tag = "Oracle";
+                RunTime.Interval = (int)new TimeSpan(0, 5, 0).TotalMilliseconds;
+                RunTime.Enabled = true;
+            }
         }
     }
 }

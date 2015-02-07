@@ -253,7 +253,7 @@ namespace QueryPad
 
             try
             {
-                // Read an load data asynchronously
+                // Read and load data asynchronously
                 dc.CommandText = sql;
                 dc.Transaction = transaction;
                 da.SelectCommand = dc;
