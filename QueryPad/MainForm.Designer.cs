@@ -36,12 +36,12 @@
             // TabConnections
             // 
             this.TabConnections.Location = new System.Drawing.Point(4, 30);
+            this.TabConnections.Margin = new System.Windows.Forms.Padding(0);
             this.TabConnections.Name = "TabConnections";
-            this.TabConnections.Padding = new System.Windows.Forms.Padding(3);
+            this.TabConnections.Padding = new System.Windows.Forms.Padding(10);
             this.TabConnections.Size = new System.Drawing.Size(801, 428);
             this.TabConnections.TabIndex = 0;
             this.TabConnections.Text = "Connections";
-            this.TabConnections.UseVisualStyleBackColor = true;
             this.TabConnections.Enter += new System.EventHandler(this.TabConnections_Enter);
             // 
             // Tabs

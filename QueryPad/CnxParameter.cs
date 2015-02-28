@@ -13,10 +13,10 @@ namespace Altrr
     public class CnxParameter
     {
         [DataMember]
-        public string Name { get; set; }
+        public string Environment { get; set; }
 
         [DataMember]
-        public string Environment { get; set; }
+        public string Name { get; set; }
 
         [DataMember]
         public string Provider { get; set; }

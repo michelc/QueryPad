@@ -28,14 +28,11 @@ namespace QueryPad
 
             switch (CnxParameter.Environment)
             {
-                case "Debug":
-                    BackColor = Color.FromArgb(0xDD, 0xDD, 0xDD); // Silver
-                    break;
                 case "Test":
-                    BackColor = Color.FromArgb(0xFF, 0x85, 0x1B); // Orange
+                    Execute.Tag = Commit.Tag = Color.Orange;
                     break;
                 case "Release":
-                    BackColor = Color.FromArgb(0xFF, 0x41, 0x36); // Red
+                    Execute.Tag = Commit.Tag = Color.Red;
                     break;
             }
 
@@ -56,9 +53,11 @@ namespace QueryPad
                 return;
             }
 
+            Grid.ColumnHeadersDefaultCellStyle.BackColor = Color.LightGray;
+            Grid.DefaultCellStyle.ForeColor = Tables.ForeColor = Color.FromArgb(0x45, 0x44, 0x41);
+
             Tables.DataSource = Cnx.GetTables(false);
-            Filter.BackColor = ControlPaint.LightLight(BackColor);
-            Filter.Top = 10;
+            Filter.Top = 16;
             Filter.Width = Tables.Width;
             Filter.Visible = Tables.Items.Count > 20;
             Editor.ConfigureTabs();
@@ -294,6 +293,7 @@ namespace QueryPad
             EnableUI(true);
             if (Grid.DataSource != null)
             {
+                Grid.Columns[Grid.ColumnCount - 1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                 Grid.Select();
             }
             else
@@ -660,7 +660,7 @@ namespace QueryPad
 
             if (e.Value == DBNull.Value)
             {
-                e.CellStyle.BackColor = Color.FromArgb(0xFF, 0xDC, 0x00); // Yellow
+                e.CellStyle.BackColor = Color.Yellow;
             }
         }
 

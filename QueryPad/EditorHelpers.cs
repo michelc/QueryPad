@@ -95,6 +95,7 @@ namespace QueryPad
             {
                 button.BackColor = Color.FromKnownColor(KnownColor.Highlight);
                 button.ForeColor = Color.FromKnownColor(KnownColor.HighlightText);
+                if (button.Tag != null) button.BackColor = (Color)button.Tag;
             }
             else
             {
