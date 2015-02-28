@@ -105,6 +105,8 @@
             // 
             // Filter
             // 
+            this.Filter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.Filter.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Filter.Location = new System.Drawing.Point(0, 15);
             this.Filter.Name = "Filter";

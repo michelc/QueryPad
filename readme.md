@@ -5,10 +5,17 @@ Quick & dirty query tool with just what I need (maybe less).
 
 ## TODO
 
+* Stop with non query SQL (what about transaction ?)
 * Use schema informations to find foreign keys
-* Use Dapper NuGet
+* Use Dapper NuGet ?
 * Display results as Grid or Text (maybe)
 * Etc...
+
+
+## IDEAS
+
+* Better SQL editor (maybe syntax highlighting)
+* Modern UI (so WPF ?)
 
 
 ## Configuration

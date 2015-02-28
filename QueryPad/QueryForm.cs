@@ -59,6 +59,7 @@ namespace QueryPad
             Tables.DataSource = Cnx.GetTables(false);
             Filter.BackColor = ControlPaint.LightLight(BackColor);
             Filter.Top = 10;
+            Filter.Width = Tables.Width;
             Filter.Visible = Tables.Items.Count > 20;
             Editor.ConfigureTabs();
             QueryResult = new DataTableResult();
