@@ -47,7 +47,7 @@ namespace QueryPad
         {
             // Close current connexion
             if (transaction != null) transaction.Commit();
-            db.Close();
+            try { db.Close(); } catch { }
         }
 
         public string[] GetTables(bool use_cache)
