@@ -291,7 +291,7 @@ namespace QueryPad
             if (informations != "") ShowInformations(informations);
 
             EnableUI(true);
-            if (Grid.DataSource != null)
+            if ((Grid.DataSource != null) && (Grid.RowCount > 0))
             {
                 Grid.Columns[Grid.ColumnCount - 1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                 Grid.Select();
