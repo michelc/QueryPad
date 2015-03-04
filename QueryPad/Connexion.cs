@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Altrr;
 using Dapper;
@@ -35,17 +36,17 @@ namespace QueryPad
             // Open the connexion
             factory = DbProviderFactories.GetFactory(CnxParameter.Provider);
             db = factory.CreateConnection();
-            db.ConnectionString = CnxParameter.CnxString;
+            db.ConnectionString = Regex.Replace(CnxParameter.CnxString, "transaction=no", "", RegexOptions.IgnoreCase);
             db.Open();
             da = factory.CreateDataAdapter();
             dc = db.CreateCommand();
-            transaction = db.BeginTransaction();
+            transaction = CnxParameter.NoTransaction ? null : db.BeginTransaction();
         }
 
         public void Close()
         {
             // Close current connexion
-            transaction.Commit();
+            if (transaction != null) transaction.Commit();
             db.Close();
         }
 
@@ -255,7 +256,7 @@ namespace QueryPad
             {
                 // Read and load data asynchronously
                 dc.CommandText = sql;
-                dc.Transaction = transaction;
+                if (transaction != null) dc.Transaction = transaction;
                 da.SelectCommand = dc;
                 var start = DateTime.Now;
                 var page = oracle ? 100 : 1000;
@@ -304,29 +305,35 @@ namespace QueryPad
             var supper = sql.ToUpper();
             if (supper == "COMMIT")
             {
-                transaction.Commit();
-                transaction = db.BeginTransaction();
+                if (transaction != null)
+                {
+                    transaction.Commit();
+                    transaction = db.BeginTransaction();
+                }
                 this.UseTransaction = false;
                 return -10001;
             }
             if (supper == "ROLLBACK")
             {
-                transaction.Rollback();
-                transaction = db.BeginTransaction();
+                if (transaction != null)
+                {
+                    transaction.Rollback();
+                    transaction = db.BeginTransaction();
+                }
                 this.UseTransaction = false;
                 return -10002;
             }
             int count = -1;
             var command = db.CreateCommand();
             command.CommandText = sql;
-            command.Transaction = transaction;
+            if (transaction != null) command.Transaction = transaction;
             try
             {
                 count = command.ExecuteNonQuery();
             }
             catch { throw; }
 
-            this.UseTransaction = true;
+            if (transaction != null) this.UseTransaction = true;
             return count;
         }
     }

@@ -55,6 +55,15 @@ namespace Altrr
             }
         }
 
+        [Browsable(false)]
+        public bool NoTransaction
+        {
+            get
+            {
+                return CnxString.ToLower().Contains("transaction=no");
+            }
+        }
+
         public static List<CnxParameter> Load()
         {
             // Load connections parameters from a JSON file
