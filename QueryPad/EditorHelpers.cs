@@ -59,7 +59,7 @@ namespace QueryPad
                 sql = editor.SelectedText;
             }
 
-            return sql.Trim(" \t\n\r;".ToCharArray());
+            return sql.Trim(" \t\n\r".ToCharArray());
         }
 
         // Set tabs every 4 characters

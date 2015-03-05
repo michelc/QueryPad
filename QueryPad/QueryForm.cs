@@ -134,26 +134,46 @@ namespace QueryPad
                     break;
                 case SqlType.NonQuery:
                     // Update DB
-                    Execute_NonQueryAsync(sql);
+                    Execute_NonQueryAsync(sql, type);
+                    break;
+                case SqlType.Script:
+                    // Run Script
+                    Execute_NonQueryAsync(sql, type);
                     break;
             }
         }
 
-        private enum SqlType { Query, NonQuery, Desc, Format };
+        private enum SqlType { Query, NonQuery, Desc, Format, Script };
 
         private SqlType Execute_Type(string sql)
         {
             var check = sql.Length < 6 ? "" : sql.Substring(0, 6).ToUpper();
-
-            // Query
-            if (check == "SELECT") return SqlType.Query;
-            if (check.StartsWith("EXEC ")) return SqlType.Query;
 
             // Describe
             if (check.StartsWith("DESC ")) return SqlType.Desc;
 
             // Formatting
             if (check == "FORMAT") return SqlType.Format;
+
+            // Script
+            if (sql.ToUpper().Contains("BEGIN"))
+            {
+                // It's a acript when there is a BEGIN statement
+                var test = "\n" + sql.ToUpper().Replace(" ", "\n");
+                if (test.Contains("\nBEGIN\n")) return SqlType.Script;
+            }
+            if (sql.Contains(";"))
+            {
+                var test = sql.Split(';');
+                // It's a script when there is more than 2 statements
+                if (test.Length > 2) return SqlType.Script;
+                // It's a script when there is 2 statements
+                if ((test.Length == 2) && (test[1].Trim() != "")) return SqlType.Script;
+            }
+
+            // Query
+            if (check == "SELECT") return SqlType.Query;
+            if (check.StartsWith("EXEC ")) return SqlType.Query;
 
             // NonQuery
             return SqlType.NonQuery;
@@ -238,19 +258,23 @@ namespace QueryPad
             Execute_End(informations);
         }
 
-        private void Execute_NonQueryAsync(string sql)
+        private void Execute_NonQueryAsync(string sql, SqlType type)
         {
             var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
             Cancellation = new CancellationTokenSource();
 
             // Update DB
-            var run = new Task<int>(() => Cnx.ExecuteNonQuery(sql));
+            var run = type == SqlType.NonQuery
+                    ? new Task<int>(() => Cnx.ExecuteNonQuery(sql))
+                    : new Task<int>(() => Cnx.ExecuteNonQueries(sql));
+
 
             // Success => display results
             var ok = run.ContinueWith<string>((t) =>
             {
                 // Show task result
-                Execute_Message(-1, t.Result, StartTime);
+                var index = type == SqlType.NonQuery ? -1 : -2;
+                Execute_Message(index, t.Result, StartTime);
 
                 // Show transaction buttons if necessary
                 Commit.Visible = Cnx.UseTransaction;
@@ -307,7 +331,7 @@ namespace QueryPad
             // Display statistics
 
             var message = string.Format("{0} rows", count);
-            if ((index != -1) && (count > 1)) message = string.Format("{0}/{1} rows", index + 1, count);
+            if ((index >= 0) && (count > 1)) message = string.Format("{0}/{1} rows", index + 1, count);
             if (count == -10001) message = "commit";
             if (count == -10002) message = "rollback";
             if (start != null)
@@ -317,6 +341,7 @@ namespace QueryPad
                                        , duration.Minutes, duration.Seconds, duration.Milliseconds);
             }
             if (count < 2) message = message.Replace(" rows ", " row ");
+            if (index == -2) message = message.Replace(" row", " command");
             ShowInformations(message);
         }
 

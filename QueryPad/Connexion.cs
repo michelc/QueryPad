@@ -300,6 +300,23 @@ namespace QueryPad
             return result;
         }
 
+        public int ExecuteNonQueries(string script)
+        {
+            var list = script.Split(';');
+            var count = 0;
+            foreach (var line in list)
+            {
+                var sql = line.Trim();
+                if (sql != "")
+                {
+                    ExecuteNonQuery(sql);
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
         public int ExecuteNonQuery(string sql)
         {
             var supper = sql.ToUpper();
