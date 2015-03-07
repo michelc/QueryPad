@@ -71,10 +71,9 @@ namespace QueryPad
                 editor.Selection = new Range(editor, 0, first, editor.GetLineLength(last), last);
                 // Get query to execute
                 sql = editor.SelectedText;
-                sql = sql.Trim();
             }
 
-            return sql.Trim(" \t\n\r".ToCharArray());
+            return sql.Trim();
         }
 
         // Split sql script in command lines
@@ -101,6 +100,9 @@ namespace QueryPad
 
             // Remove empty commands
             commands = commands.Where(x => x.Trim() != "").Select(x => x.Trim()).ToArray();
+
+            // Micro-optimization
+            if (commands[commands.Length - 1].ToUpper() == "END;") commands[commands.Length - 1] = "END;";
 
             return commands;
         }

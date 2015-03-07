@@ -162,10 +162,7 @@ namespace QueryPad
             // Script
             var commands = sql.SplitCommands();
             // It's a script when it starts with "BEGIN" and ends with "END;"
-            if (commands[0].ToUpper() == "BEGIN")
-            {
-                if (commands[commands.Length - 1].ToUpper() == "END;") return SqlType.Script;
-            }
+            if (commands.First() + commands.Last() == "BEGINEND;") return SqlType.Script;
             // It's a script when there is more than 2 statements
             if (commands.Length > 1) return SqlType.Script;
 

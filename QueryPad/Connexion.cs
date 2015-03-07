@@ -304,14 +304,8 @@ namespace QueryPad
         {
             // Get individual commands
             var commands = script.SplitCommands();
-            if (commands[0].ToUpper() == "BEGIN")
-            {
-                if (commands[commands.Length - 1].ToUpper() == "END;")
-                {
-                    // Or one big BEGIN ... END; command
-                    commands = new[] { script };
-                }
-            }
+            // Or one big BEGIN ... END; command
+            if (commands.First() + commands.Last() == "BEGINEND;") commands = new[] { script };
 
             // Execute each command
             var count = 0;
