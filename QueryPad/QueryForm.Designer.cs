@@ -35,7 +35,7 @@
             this.Filter = new System.Windows.Forms.TextBox();
             this.ConnexionName = new System.Windows.Forms.Label();
             this.SplitHorizontal = new System.Windows.Forms.SplitContainer();
-            this.Editor = new System.Windows.Forms.RichTextBox();
+            this.Editor = new FastColoredTextBoxNS.FastColoredTextBox();
             this.Toolbar = new System.Windows.Forms.Panel();
             this.Rotate = new System.Windows.Forms.Button();
             this.Rollback = new System.Windows.Forms.Button();
@@ -54,34 +54,35 @@
             this.SplitHorizontal.Panel1.SuspendLayout();
             this.SplitHorizontal.Panel2.SuspendLayout();
             this.SplitHorizontal.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.Editor)).BeginInit();
             this.Toolbar.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Grid)).BeginInit();
             this.SuspendLayout();
-            //
+            // 
             // SplitVertical
-            //
+            // 
             this.SplitVertical.Dock = System.Windows.Forms.DockStyle.Fill;
             this.SplitVertical.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.SplitVertical.Location = new System.Drawing.Point(0, 0);
             this.SplitVertical.Margin = new System.Windows.Forms.Padding(0);
             this.SplitVertical.Name = "SplitVertical";
-            //
+            // 
             // SplitVertical.Panel1
-            //
+            // 
             this.SplitVertical.Panel1.Controls.Add(this.Tables);
             this.SplitVertical.Panel1.Controls.Add(this.Title);
             this.SplitVertical.Panel1.Padding = new System.Windows.Forms.Padding(8, 8, 2, 8);
-            //
+            // 
             // SplitVertical.Panel2
-            //
+            // 
             this.SplitVertical.Panel2.Controls.Add(this.SplitHorizontal);
             this.SplitVertical.Panel2.Padding = new System.Windows.Forms.Padding(2, 8, 8, 8);
             this.SplitVertical.Size = new System.Drawing.Size(805, 399);
             this.SplitVertical.SplitterDistance = 209;
             this.SplitVertical.TabIndex = 0;
-            //
+            // 
             // Tables
-            //
+            // 
             this.Tables.BackColor = System.Drawing.SystemColors.Control;
             this.Tables.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Tables.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -93,9 +94,9 @@
             this.Tables.Size = new System.Drawing.Size(199, 352);
             this.Tables.TabIndex = 1;
             this.Tables.DoubleClick += new System.EventHandler(this.Tables_DoubleClick);
-            //
+            // 
             // Title
-            //
+            // 
             this.Title.AutoSize = true;
             this.Title.Controls.Add(this.Filter);
             this.Title.Controls.Add(this.ConnexionName);
@@ -104,10 +105,10 @@
             this.Title.Name = "Title";
             this.Title.Size = new System.Drawing.Size(199, 31);
             this.Title.TabIndex = 0;
-            //
+            // 
             // Filter
-            //
-            this.Filter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            // 
+            this.Filter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.Filter.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Filter.Location = new System.Drawing.Point(0, 15);
@@ -117,9 +118,9 @@
             this.Filter.TabStop = false;
             this.Filter.WordWrap = false;
             this.Filter.TextChanged += new System.EventHandler(this.Filter_TextChanged);
-            //
+            // 
             // ConnexionName
-            //
+            // 
             this.ConnexionName.AutoSize = true;
             this.ConnexionName.BackColor = System.Drawing.Color.Transparent;
             this.ConnexionName.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -128,52 +129,75 @@
             this.ConnexionName.Margin = new System.Windows.Forms.Padding(0);
             this.ConnexionName.MinimumSize = new System.Drawing.Size(0, 16);
             this.ConnexionName.Name = "ConnexionName";
-            this.ConnexionName.Size = new System.Drawing.Size(85, 16);
+            this.ConnexionName.Size = new System.Drawing.Size(92, 16);
             this.ConnexionName.TabIndex = 2;
             this.ConnexionName.Text = "ConnexionName";
             this.ConnexionName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.ConnexionName.DoubleClick += new System.EventHandler(this.ConnexionName_DoubleClick);
-            //
+            // 
             // SplitHorizontal
-            //
+            // 
             this.SplitHorizontal.Dock = System.Windows.Forms.DockStyle.Fill;
             this.SplitHorizontal.Location = new System.Drawing.Point(2, 8);
             this.SplitHorizontal.Margin = new System.Windows.Forms.Padding(0);
             this.SplitHorizontal.Name = "SplitHorizontal";
             this.SplitHorizontal.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            //
+            // 
             // SplitHorizontal.Panel1
-            //
+            // 
             this.SplitHorizontal.Panel1.Controls.Add(this.Editor);
             this.SplitHorizontal.Panel1.Controls.Add(this.Toolbar);
-            //
+            // 
             // SplitHorizontal.Panel2
-            //
+            // 
             this.SplitHorizontal.Panel2.Controls.Add(this.Grid);
             this.SplitHorizontal.Panel2.Padding = new System.Windows.Forms.Padding(0, 2, 0, 0);
             this.SplitHorizontal.Size = new System.Drawing.Size(582, 383);
             this.SplitHorizontal.SplitterDistance = 133;
             this.SplitHorizontal.TabIndex = 0;
-            //
+            // 
             // Editor
-            //
-            this.Editor.AcceptsTab = true;
-            this.Editor.BackColor = System.Drawing.Color.White;
-            this.Editor.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.Editor.DetectUrls = false;
+            // 
+            this.Editor.AllowMacroRecording = false;
+            this.Editor.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
+            this.Editor.AutoIndentCharsPatterns = "";
+            this.Editor.AutoScrollMinSize = new System.Drawing.Size(2, 17);
+            this.Editor.BackBrush = null;
+            this.Editor.CharHeight = 17;
+            this.Editor.CharWidth = 8;
+            this.Editor.CommentPrefix = "--";
+            this.Editor.CurrentLineColor = System.Drawing.Color.Silver;
+            this.Editor.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.Editor.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
             this.Editor.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.Editor.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Editor.HideSelection = false;
+            this.Editor.Font = new System.Drawing.Font("Consolas", 11.25F);
+            this.Editor.HighlightingRangeType = FastColoredTextBoxNS.HighlightingRangeType.AllTextRange;
+            this.Editor.IsReplaceMode = false;
+            this.Editor.Language = FastColoredTextBoxNS.Language.SQL;
+            this.Editor.LeftBracket = '(';
+            this.Editor.LineNumberColor = System.Drawing.Color.DarkGray;
             this.Editor.Location = new System.Drawing.Point(0, 0);
             this.Editor.Name = "Editor";
+            this.Editor.Paddings = new System.Windows.Forms.Padding(0);
+            this.Editor.RightBracket = ')';
+            this.Editor.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(51)))), ((int)(((byte)(153)))), ((int)(((byte)(255)))));
+            this.Editor.ShowLineNumbers = false;
             this.Editor.Size = new System.Drawing.Size(582, 98);
             this.Editor.TabIndex = 0;
-            this.Editor.Text = "";
-            this.Editor.WordWrap = false;
-            this.Editor.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Editor_KeyDown);
-            //
+            this.Editor.Zoom = 100;
+            // 
             // Toolbar
-            //
+            // 
             this.Toolbar.Controls.Add(this.Rotate);
             this.Toolbar.Controls.Add(this.Rollback);
             this.Toolbar.Controls.Add(this.Commit);
@@ -185,9 +209,9 @@
             this.Toolbar.Name = "Toolbar";
             this.Toolbar.Size = new System.Drawing.Size(582, 35);
             this.Toolbar.TabIndex = 1;
-            //
+            // 
             // Rotate
-            //
+            // 
             this.Rotate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.Rotate.AutoSize = true;
             this.Rotate.BackColor = System.Drawing.Color.LightGray;
@@ -201,9 +225,9 @@
             this.Rotate.UseVisualStyleBackColor = false;
             this.Rotate.Visible = false;
             this.Rotate.Click += new System.EventHandler(this.Rotate_Click);
-            //
+            // 
             // Rollback
-            //
+            // 
             this.Rollback.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.Rollback.AutoSize = true;
             this.Rollback.BackColor = System.Drawing.Color.LightGray;
@@ -217,9 +241,9 @@
             this.Rollback.UseVisualStyleBackColor = false;
             this.Rollback.Visible = false;
             this.Rollback.Click += new System.EventHandler(this.Rollback_Click);
-            //
+            // 
             // Commit
-            //
+            // 
             this.Commit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.Commit.AutoSize = true;
             this.Commit.BackColor = System.Drawing.Color.LightGray;
@@ -233,9 +257,9 @@
             this.Commit.UseVisualStyleBackColor = false;
             this.Commit.Visible = false;
             this.Commit.Click += new System.EventHandler(this.Commit_Click);
-            //
+            // 
             // Informations
-            //
+            // 
             this.Informations.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.Informations.AutoSize = true;
             this.Informations.BackColor = System.Drawing.Color.Transparent;
@@ -243,13 +267,13 @@
             this.Informations.ForeColor = System.Drawing.Color.DimGray;
             this.Informations.Location = new System.Drawing.Point(502, 12);
             this.Informations.Name = "Informations";
-            this.Informations.Size = new System.Drawing.Size(80, 16);
+            this.Informations.Size = new System.Drawing.Size(81, 17);
             this.Informations.TabIndex = 7;
             this.Informations.Text = "Informations";
             this.Informations.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            //
+            // 
             // Stop
-            //
+            // 
             this.Stop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.Stop.AutoSize = true;
             this.Stop.BackColor = System.Drawing.Color.LightGray;
@@ -262,9 +286,9 @@
             this.Stop.Text = "Sto&p";
             this.Stop.UseVisualStyleBackColor = false;
             this.Stop.Click += new System.EventHandler(this.Stop_Click);
-            //
+            // 
             // Execute
-            //
+            // 
             this.Execute.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.Execute.AutoSize = true;
             this.Execute.BackColor = System.Drawing.Color.LightGray;
@@ -277,9 +301,9 @@
             this.Execute.Text = "&Execute";
             this.Execute.UseVisualStyleBackColor = false;
             this.Execute.Click += new System.EventHandler(this.Execute_Click);
-            //
+            // 
             // Grid
-            //
+            // 
             this.Grid.AllowUserToAddRows = false;
             this.Grid.AllowUserToDeleteRows = false;
             this.Grid.AllowUserToOrderColumns = true;
@@ -304,13 +328,13 @@
             this.Grid.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.Grid_CellFormatting);
             this.Grid.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.Grid_DataError);
             this.Grid.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Grid_KeyUp);
-            //
+            // 
             // RunTime
-            //
+            // 
             this.RunTime.Tick += new System.EventHandler(this.RunTime_Tick);
-            //
+            // 
             // QueryForm
-            //
+            // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(805, 399);
@@ -329,6 +353,7 @@
             this.SplitHorizontal.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.SplitHorizontal)).EndInit();
             this.SplitHorizontal.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.Editor)).EndInit();
             this.Toolbar.ResumeLayout(false);
             this.Toolbar.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Grid)).EndInit();
@@ -341,7 +366,6 @@
         private System.Windows.Forms.SplitContainer SplitVertical;
         private System.Windows.Forms.Panel Title;
         private System.Windows.Forms.SplitContainer SplitHorizontal;
-        private System.Windows.Forms.RichTextBox Editor;
         private System.Windows.Forms.Panel Toolbar;
         private System.Windows.Forms.DataGridView Grid;
         private System.Windows.Forms.ListBox Tables;
@@ -354,5 +378,6 @@
         private System.Windows.Forms.Button Rotate;
         private System.Windows.Forms.TextBox Filter;
         private System.Windows.Forms.Timer RunTime;
+        private FastColoredTextBoxNS.FastColoredTextBox Editor;
     }
 }

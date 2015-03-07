@@ -14,7 +14,6 @@ Quick & dirty query tool with just what I need (maybe less).
 
 ## IDEAS
 
-* Better SQL editor (maybe syntax highlighting)
 * Modern UI (so WPF ?)
 
 
@@ -96,3 +95,8 @@ Grid cell
 Row detail (after a rotation)
 * right arrow => next row
 * left arrow => previous row
+
+
+## Credit
+
+* FastColoredTextBox (https://github.com/PavelTorgashov/FastColoredTextBox)

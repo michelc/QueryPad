@@ -60,7 +60,11 @@ namespace QueryPad
             Filter.Top = 16;
             Filter.Width = Tables.Width;
             Filter.Visible = Tables.Items.Count > 20;
-            Editor.ConfigureTabs();
+
+            Editor.SyntaxHighlighter.StatementsStyle = Editor.SyntaxHighlighter.KeywordStyle
+                                                      = Editor.SyntaxHighlighter.TypesStyle
+                                                      = Editor.SyntaxHighlighter.BlueStyle;
+
             QueryResult = new DataTableResult();
 
             Execute.Text = char.ConvertFromUtf32(9654) + " " + Execute.Text;
@@ -804,25 +808,6 @@ namespace QueryPad
                 }
 
                 Cursor = Cursors.Default;
-            }
-        }
-
-        private void Editor_KeyDown(object sender, KeyEventArgs e)
-        {
-            // Detect a keyboard event
-
-            // Paste can be Ctrl+V (or Shift+Ins for old schools)
-            var ControlV = (e.Control && (e.KeyCode == Keys.V));
-            var ShiftInsert = (e.Shift && (e.KeyCode == Keys.Insert));
-
-            // Only paste plain text
-            if (ControlV || ShiftInsert)
-            {
-                if (Clipboard.ContainsText())
-                {
-                    Editor.Paste(DataFormats.GetFormat("Text"));
-                }
-                e.Handled = true;
             }
         }
 
