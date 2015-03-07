@@ -38,6 +38,7 @@ namespace QueryPad
             List.Columns[0].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
             Cursor = Cursors.Default;
+            List.Select();
 
             base.OnEnter(e);
         }
@@ -73,6 +74,38 @@ namespace QueryPad
                     case "Release":
                         e.CellStyle.BackColor = Color.Red;
                         break;
+                }
+            }
+        }
+
+        private void List_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Press a key
+            // => select next connection starting with this key
+
+            var letter = e.KeyChar.ToString().ToUpper();
+            if (letter.CompareTo("A") < 0) return;
+            if (letter.CompareTo("Z") > 0) return;
+
+            // Search to the end
+            for (var i = List.CurrentRow.Index + 1; i < List.RowCount; i++)
+            {
+                var name = List.Rows[i].Cells[1].Value.ToString().ToUpper();
+                if (name.Substring(0, 1) == letter)
+                {
+                    List.CurrentCell = List.Rows[i].Cells[0];
+                    return;
+                }
+            }
+
+            // Search from the beginning
+            for (var i = 0; i < List.CurrentRow.Index; i++)
+            {
+                var name = List.Rows[i].Cells[1].Value.ToString().ToUpper();
+                if (name.Substring(0, 1) == letter)
+                {
+                    List.CurrentCell = List.Rows[i].Cells[0];
+                    return;
                 }
             }
         }
