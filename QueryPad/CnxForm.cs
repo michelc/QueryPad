@@ -78,6 +78,17 @@ namespace QueryPad
             }
         }
 
+        private void List_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Return or Space over a connection
+            // => open this connection
+
+            if ((e.KeyCode == Keys.Return) || (e.KeyCode == Keys.Space))
+            {
+                List_CellDoubleClick(sender, new DataGridViewCellEventArgs(0, List.CurrentRow.Index));
+            }
+        }
+
         private void List_KeyPress(object sender, KeyPressEventArgs e)
         {
             // Press a key

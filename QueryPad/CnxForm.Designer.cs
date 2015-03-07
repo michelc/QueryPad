@@ -63,6 +63,7 @@
             this.List.TabIndex = 0;
             this.List.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.List_CellDoubleClick);
             this.List.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.List_CellFormatting);
+            this.List.KeyDown += new System.Windows.Forms.KeyEventHandler(this.List_KeyDown);
             this.List.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.List_KeyPress);
             // 
             // CnxForm
