@@ -83,10 +83,17 @@ namespace QueryPad
             // Simplify end of lines
             script = script.Replace("\r\n", "\n");
 
-            // Replace comma + newline with a GO separator
-            script = Regex.Replace(script, @";\s*$", "\nGO", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            // Check for script start
+            var check = script.Length < 6 ? "" : script.Substring(0, 6).ToUpper();
+            if ((check == "BEGIN\n") || (check == "BEGIN "))
+            {
+                script = "BEGIN\nGO\n" + script.Substring(6);
+            }
 
-            // Replace double newline with a GO separator
+            // Complete comma + newline with a GO separator
+            script = Regex.Replace(script, @";\s*$", ";\nGO", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+
+            // Complete double newline with a GO separator
             script = Regex.Replace(script, @"^\s*$", "GO", RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
             // Split commands on GO separator

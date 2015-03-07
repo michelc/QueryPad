@@ -302,9 +302,20 @@ namespace QueryPad
 
         public int ExecuteNonQueries(string script)
         {
-            var list = script.SplitCommands();
+            // Get individual commands
+            var commands = script.SplitCommands();
+            if (commands[0].ToUpper() == "BEGIN")
+            {
+                if (commands[commands.Length - 1].ToUpper() == "END;")
+                {
+                    // Or one big BEGIN ... END; command
+                    commands = new[] { script };
+                }
+            }
+
+            // Execute each command
             var count = 0;
-            foreach (var sql in list)
+            foreach (var sql in commands)
             {
                 ExecuteNonQuery(sql);
                 count++;
