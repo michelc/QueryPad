@@ -57,6 +57,7 @@ namespace QueryPad
             CnxParameter.Save(CnxParameters);
             var Main = (MainForm)this.Parent.FindForm();
             Main.OpenConnection(CnxParameter);
+            Cursor = Cursors.Default;
         }
 
         private void List_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
@@ -85,6 +86,7 @@ namespace QueryPad
 
             if ((e.KeyCode == Keys.Return) || (e.KeyCode == Keys.Space))
             {
+                Cursor = Cursors.WaitCursor;
                 List_CellDoubleClick(sender, new DataGridViewCellEventArgs(0, List.CurrentRow.Index));
             }
         }
