@@ -302,16 +302,12 @@ namespace QueryPad
 
         public int ExecuteNonQueries(string script)
         {
-            var list = script.Split(';');
+            var list = script.SplitCommands();
             var count = 0;
-            foreach (var line in list)
+            foreach (var sql in list)
             {
-                var sql = line.Trim();
-                if (sql != "")
-                {
-                    ExecuteNonQuery(sql);
-                    count++;
-                }
+                ExecuteNonQuery(sql);
+                count++;
             }
 
             return count;

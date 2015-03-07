@@ -162,18 +162,12 @@ namespace QueryPad
             // Script
             if (sql.ToUpper().Contains("BEGIN"))
             {
-                // It's a acript when there is a BEGIN statement
+                // It's a script when there is a BEGIN statement
                 var test = "\n" + sql.ToUpper().Replace(" ", "\n");
                 if (test.Contains("\nBEGIN\n")) return SqlType.Script;
             }
-            if (sql.Contains(";"))
-            {
-                var test = sql.Split(';');
-                // It's a script when there is more than 2 statements
-                if (test.Length > 2) return SqlType.Script;
-                // It's a script when there is 2 statements
-                if ((test.Length == 2) && (test[1].Trim() != "")) return SqlType.Script;
-            }
+            // It's a script when there is more than 2 statements
+            if (sql.SplitCommands().Length > 1) return SqlType.Script;
 
             // Query
             if (check == "SELECT") return SqlType.Query;

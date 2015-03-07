@@ -1,4 +1,6 @@
 ﻿using System.Drawing;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using FastColoredTextBoxNS;
 
@@ -73,6 +75,27 @@ namespace QueryPad
             }
 
             return sql.Trim(" \t\n\r".ToCharArray());
+        }
+
+        // Split sql script in command lines
+        public static string[] SplitCommands(this string script)
+        {
+            // Simplify end of lines
+            script = script.Replace("\r\n", "\n");
+
+            // Replace comma + newline with a GO separator
+            script = Regex.Replace(script, @";\s*$", "\nGO", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+
+            // Replace double newline with a GO separator
+            script = Regex.Replace(script, @"^\s*$", "GO", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+
+            // Split commands on GO separator
+            var commands = Regex.Split(script, @"^\s*GO\s*$", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+
+            // Remove empty commands
+            commands = commands.Where(x => x.Trim() != "").Select(x => x.Trim()).ToArray();
+
+            return commands;
         }
 
         public static void Enable(this Button button, bool onoff)
