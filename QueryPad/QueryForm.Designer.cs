@@ -86,13 +86,16 @@
             this.Tables.BackColor = System.Drawing.SystemColors.Control;
             this.Tables.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.Tables.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Tables.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.Tables.ForeColor = System.Drawing.Color.DimGray;
             this.Tables.FormattingEnabled = true;
             this.Tables.IntegralHeight = false;
+            this.Tables.ItemHeight = 21;
             this.Tables.Location = new System.Drawing.Point(8, 39);
             this.Tables.Name = "Tables";
             this.Tables.Size = new System.Drawing.Size(199, 352);
             this.Tables.TabIndex = 1;
+            this.Tables.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.Tables_DrawItem);
             this.Tables.DoubleClick += new System.EventHandler(this.Tables_DoubleClick);
             // 
             // Title

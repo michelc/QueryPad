@@ -62,8 +62,8 @@ namespace QueryPad
             Filter.Visible = Tables.Items.Count > 20;
 
             Editor.SyntaxHighlighter.StatementsStyle = Editor.SyntaxHighlighter.KeywordStyle
-                                                      = Editor.SyntaxHighlighter.TypesStyle
-                                                      = Editor.SyntaxHighlighter.BlueStyle;
+                                                     = Editor.SyntaxHighlighter.TypesStyle
+                                                     = Editor.SyntaxHighlighter.BlueStyle;
 
             QueryResult = new DataTableResult();
 
@@ -549,6 +549,33 @@ namespace QueryPad
                 Editor.AppendQuery("DESC " + Tables.SelectedValue);
             }
             Execute_Click(null, null);
+        }
+
+        private void Tables_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            // Draw a table name
+
+            // http://stackoverflow.com/questions/3663704/how-to-change-listbox-selection-background-color
+            // but need to set ItemHeight to 21?
+
+            if (e.Index < 0) return;
+            if (e.Index >= Tables.Items.Count) return;
+
+            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+            {
+                // Just set BackColor for selected table name
+                e = new DrawItemEventArgs(e.Graphics,
+                                          e.Font,
+                                          e.Bounds,
+                                          e.Index,
+                                          e.State ^ DrawItemState.Selected,
+                                          e.ForeColor,
+                                          Execute.BackColor);
+            }
+
+            e.DrawBackground();
+            e.Graphics.DrawString(Tables.Items[e.Index].ToString(), e.Font, new SolidBrush(e.ForeColor), e.Bounds);
+            // (hide focus effect) e.DrawFocusRectangle();
         }
 
         private string[] QuickNavigation(string foreign_col)
