@@ -263,7 +263,6 @@ namespace QueryPad
                     ? new Task<int>(() => Cnx.ExecuteNonQuery(sql))
                     : new Task<int>(() => Cnx.ExecuteNonQueries(sql));
 
-
             // Success => display results
             var ok = run.ContinueWith<string>((t) =>
             {

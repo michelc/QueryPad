@@ -343,6 +343,7 @@ namespace QueryPad
             }
             int count = -1;
             var command = db.CreateCommand();
+            if (!sql.EndsWith("END;")) sql = sql.Trim(";".ToCharArray());
             command.CommandText = sql;
             if (transaction != null) command.Transaction = transaction;
             try
