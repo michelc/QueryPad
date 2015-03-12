@@ -256,6 +256,7 @@ namespace QueryPad
             {
                 // Read and load data asynchronously
                 dc.CommandText = sql;
+                try { dc.CommandTimeout = 90; } catch { }
                 if (transaction != null) dc.Transaction = transaction;
                 da.SelectCommand = dc;
                 var start = DateTime.Now;
@@ -345,6 +346,7 @@ namespace QueryPad
             var command = db.CreateCommand();
             if (!sql.EndsWith("END;")) sql = sql.Trim(";".ToCharArray());
             command.CommandText = sql;
+            try { command.CommandTimeout = 90; } catch { }
             if (transaction != null) command.Transaction = transaction;
             try
             {
