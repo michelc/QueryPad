@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -355,6 +356,11 @@ namespace QueryPad
 
         private void Format_List(string format, DataTableResult result)
         {
+            // Unescapes literal tabs or new lines
+            format = format.Replace("\\t", "\t");
+            format = format.Replace("\\r", "\r");
+            format = format.Replace("\\n", "\n");
+
             // Check if we use single or double quotation marks
             var single_quote = format.Contains("'{") && format.Contains("}'");
             var double_quote = format.Contains("\"{") && format.Contains("}\"");
@@ -742,6 +748,7 @@ namespace QueryPad
 
         private void Grid_KeyUp(object sender, KeyEventArgs e)
         {
+            if ((e.Control) && (e.KeyCode == Keys.C)) Grid_Copy();
             if (QueryResult.RowCount <= 1) return;
             if (QueryResult.RowIndex != -1)
             {
@@ -754,6 +761,22 @@ namespace QueryPad
                 // Check page down and down arrow to load new page
                 Browse_NextPage(e);
                 Execute_Message(Grid.CurrentRow.Index, QueryResult.RowCount, null);
+            }
+        }
+
+        private void Grid_Copy()
+        {
+            // When Grid contains FORMAT data
+            if (Grid.Columns[0].Name == " ")
+            {
+                // Manual clipboard copy to keep potential tabs
+                Clipboard.Clear();
+                var raw = new StringBuilder();
+                foreach (DataGridViewRow row in Grid.SelectedRows)
+                {
+                    raw.AppendLine(row.Cells[0].Value.ToString());
+                }
+                Clipboard.SetText(raw.ToString());
             }
         }
 
