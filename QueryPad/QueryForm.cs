@@ -238,6 +238,20 @@ namespace QueryPad
         private void Execute_Format(string sql)
         {
             var informations = "";
+
+            // Reset Grid with original datas
+            // (after a previous Format command)
+            if (QueryResult.GridState.Widths != null)
+            {
+                Display_List(QueryResult.DataTable, false, true);
+                GridSetState(Grid, QueryResult.GridState);
+                Grid.ColumnHeadersVisible = true;
+            }
+            else
+            {
+                QueryResult.GridState = GridGetState(Grid);
+            }
+
             try
             {
                 // Format DB data
