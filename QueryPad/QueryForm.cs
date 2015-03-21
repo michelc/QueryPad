@@ -238,7 +238,12 @@ namespace QueryPad
 
         private void Execute_Format(string sql)
         {
-            var informations = "";
+            // Avoid error when there is no data to format
+            if (Grid.RowCount == 0)
+            {
+                Execute_End("no data");
+                return;
+            }
 
             // Reset Grid with original datas
             // (after a previous Format command)
@@ -253,6 +258,7 @@ namespace QueryPad
                 QueryResult.GridState = GridGetState(Grid);
             }
 
+            var informations = "";
             try
             {
                 // Format DB data
