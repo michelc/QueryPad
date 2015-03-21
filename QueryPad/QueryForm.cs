@@ -4,6 +4,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -378,6 +379,8 @@ namespace QueryPad
             {
                 if (object.ReferenceEquals(c.ValueType, typeof(string))) is_string[c.Index] = true;
                 if (object.ReferenceEquals(c.GetType(), typeof(string))) is_string[c.Index] = true;
+                format = Regex.Replace(format, "\\{" + c.Name + "\\}", "{" + c.Index + "}", RegexOptions.IgnoreCase);
+                format = Regex.Replace(format, "\\{" + c.Name + "\\:", "{" + c.Index + ":", RegexOptions.IgnoreCase);
             }
 
             // Format data in a new DataTable
