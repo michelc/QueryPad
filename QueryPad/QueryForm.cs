@@ -207,7 +207,7 @@ namespace QueryPad
             }
             finally
             {
-                Execute_End(infos);
+                Execute_End(infos, SqlType.Query);
             }
         }
 
@@ -234,7 +234,7 @@ namespace QueryPad
             }
 
             // Reset display
-            Execute_End(informations);
+            Execute_End(informations, SqlType.Desc);
         }
 
         private void Execute_Format(string sql)
@@ -242,7 +242,7 @@ namespace QueryPad
             // Avoid error when there is no data to format
             if (Grid.RowCount == 0)
             {
-                Execute_End("no data");
+                Execute_End("no data", SqlType.Format);
                 return;
             }
 
@@ -272,7 +272,7 @@ namespace QueryPad
             }
 
             // Reset display
-            Execute_End(informations);
+            Execute_End(informations, SqlType.Format);
         }
 
         private void Execute_NonQueryAsync(string sql, SqlType type)
@@ -307,8 +307,8 @@ namespace QueryPad
             , Cancellation.Token, TaskContinuationOptions.OnlyOnFaulted, scheduler);
 
             // Reset display at the end
-            var end_ok = ok.ContinueWith((t) => Execute_End(t.Result), scheduler);
-            var end_ko = ko.ContinueWith((t) => Execute_End(t.Result), scheduler);
+            var end_ok = ok.ContinueWith((t) => Execute_End(t.Result, SqlType.NonQuery), scheduler);
+            var end_ko = ko.ContinueWith((t) => Execute_End(t.Result, SqlType.NonQuery), scheduler);
 
             // Start nonquery task
             run.Start();
@@ -324,7 +324,7 @@ namespace QueryPad
             return "Error";
         }
 
-        private void Execute_End(string informations)
+        private void Execute_End(string informations, SqlType type)
         {
             // Reset display
             RunTime_Enable(false);
@@ -333,7 +333,10 @@ namespace QueryPad
             EnableUI(true);
             if ((Grid.DataSource != null) && (Grid.RowCount > 0))
             {
-                Grid.Columns[Grid.ColumnCount - 1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                if (type == SqlType.Query)
+                {
+                    Grid.Columns[Grid.ColumnCount - 1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                }
                 Grid.Select();
             }
             else
