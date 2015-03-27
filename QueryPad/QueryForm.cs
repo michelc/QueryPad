@@ -316,6 +316,7 @@ namespace QueryPad
 
         private string Execute_Error(Exception ex)
         {
+            ControlKey = false;
             RunTime_Enable(false);
 
             var caption = "Error " + ex.HResult.ToString("x");
