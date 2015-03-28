@@ -469,6 +469,7 @@ namespace QueryPad
             {
                 var caption = Grid.Columns[i].HeaderText;
                 maxlengths[i] = Math.Max(maxlengths[i], caption.Length);
+                maxlengths[i] = Math.Min(maxlengths[i], 100);
                 header += string.Format(" {0} |", caption.PadRight(maxlengths[i]));
                 hbreak += string.Format("-{0}-|", "".PadRight(maxlengths[i], '-'));
                 if (is_left[i]) maxlengths[i] = -maxlengths[i];
@@ -486,12 +487,13 @@ namespace QueryPad
             var text = new StringBuilder();
             text.AppendLine(header.Trim());
             text.AppendLine(hbreak.Trim());
-            var data = new object[count];
+            var data = new string[count];
             foreach (DataGridViewRow row in Grid.Rows)
             {
                 for (var i = 0; i < count; i++)
                 {
                     data[i] = row.Cells[i].FormattedValue.ToString();
+                    if (data[i].Length > 100) data[i] = data[i].Substring(0, 99) + "…";
                 }
                 var line = string.Format(format, data).TrimEnd();
                 text.AppendLine(line);
