@@ -435,13 +435,15 @@ namespace QueryPad
 
         private void Format_Text()
         {
-            // Check columns with string values
+            // Get columns alignment (left or right)
             var count = Grid.ColumnCount;
-            var is_string = new bool[count];
+            var is_left = new bool[count];
             foreach (DataGridViewColumn c in Grid.Columns)
             {
-                if (object.ReferenceEquals(c.ValueType, typeof(string))) is_string[c.Index] = true;
-                if (object.ReferenceEquals(c.GetType(), typeof(string))) is_string[c.Index] = true;
+                if (object.ReferenceEquals(c.ValueType, typeof(string))) is_left[c.Index] = true;
+                if (object.ReferenceEquals(c.GetType(), typeof(string))) is_left[c.Index] = true;
+                if (object.ReferenceEquals(c.ValueType, typeof(DateTime))) is_left[c.Index] = true;
+                if (object.ReferenceEquals(c.GetType(), typeof(DateTime))) is_left[c.Index] = true;
             }
 
             // Get columns maxlength
@@ -450,7 +452,7 @@ namespace QueryPad
             {
                 for (var i = 0; i < count; i++)
                 {
-                    var length = row.Cells[i].Value.ToString().Length;
+                    var length = row.Cells[i].FormattedValue.ToString().Length;
                     if (maxlengths[i] < length) maxlengths[i] = length;
                 }
             }
@@ -465,7 +467,7 @@ namespace QueryPad
                 maxlengths[i] = Math.Max(maxlengths[i], caption.Length);
                 header += "  " + caption.PadRight(maxlengths[i]);
                 hbreak += "  " + "".PadRight(maxlengths[i], '-');
-                if (is_string[i]) maxlengths[i] = -maxlengths[i];
+                if (is_left[i]) maxlengths[i] = -maxlengths[i];
                 format += string.Format("  {{{0},{1}}}", i, maxlengths[i]);
             }
             format = format.Substring(2);
@@ -474,17 +476,17 @@ namespace QueryPad
 
             // Export data as text
             var text = new StringBuilder();
-            text.AppendLine(header);
+            text.AppendLine(header.TrimEnd());
             text.AppendLine(hbreak);
             var data = new object[count];
             foreach (DataGridViewRow row in Grid.Rows)
             {
                 for (var i = 0; i < count; i++)
                 {
-                    data[i] = row.Cells[i].Value.ToString();
+                    data[i] = row.Cells[i].FormattedValue.ToString();
                 }
-                text.AppendFormat(format, data);
-                text.AppendLine();
+                var line = string.Format(format, data).TrimEnd();
+                text.AppendLine(line);
             }
 
             // Export is available via clipboard
