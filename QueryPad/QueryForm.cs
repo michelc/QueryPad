@@ -263,7 +263,14 @@ namespace QueryPad
             try
             {
                 // Format DB data
-                Format_List(sql, QueryResult);
+                if (sql.ToLower() == "text")
+                {
+                    Format_Text();
+                }
+                else
+                {
+                    Format_List(sql, QueryResult);
+                }
                 informations = Grid.RowCount.ToString() + " lines";
             }
             catch (Exception ex)
@@ -424,6 +431,64 @@ namespace QueryPad
 
             // Resize value column width
             Grid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+        }
+
+        private void Format_Text()
+        {
+            // Check columns with string values
+            var count = Grid.ColumnCount;
+            var is_string = new bool[count];
+            foreach (DataGridViewColumn c in Grid.Columns)
+            {
+                if (object.ReferenceEquals(c.ValueType, typeof(string))) is_string[c.Index] = true;
+                if (object.ReferenceEquals(c.GetType(), typeof(string))) is_string[c.Index] = true;
+            }
+
+            // Get columns maxlength
+            var maxlengths = new int[count];
+            foreach (DataGridViewRow row in Grid.Rows)
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    var length = row.Cells[i].Value.ToString().Length;
+                    if (maxlengths[i] < length) maxlengths[i] = length;
+                }
+            }
+
+            // Build export format and headers
+            var format = "";
+            var header = "";
+            var hbreak = "";
+            for (var i = 0; i < count; i++)
+            {
+                var caption = Grid.Columns[i].HeaderText;
+                maxlengths[i] = Math.Max(maxlengths[i], caption.Length);
+                header += "  " + caption.PadRight(maxlengths[i]);
+                hbreak += "  " + "".PadRight(maxlengths[i], '-');
+                if (is_string[i]) maxlengths[i] = -maxlengths[i];
+                format += string.Format("  {{{0},{1}}}", i, maxlengths[i]);
+            }
+            format = format.Substring(2);
+            header = header.Substring(2);
+            hbreak = hbreak.Substring(2);
+
+            // Export data as text
+            var text = new StringBuilder();
+            text.AppendLine(header);
+            text.AppendLine(hbreak);
+            var data = new object[count];
+            foreach (DataGridViewRow row in Grid.Rows)
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    data[i] = row.Cells[i].Value.ToString();
+                }
+                text.AppendFormat(format, data);
+                text.AppendLine();
+            }
+
+            // Export is available via clipboard
+            Clipboard.SetText(text.ToString());
         }
 
         private void Display_List(DataTable dt, bool slow, bool reload)
