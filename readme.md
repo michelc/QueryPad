@@ -8,7 +8,6 @@ Quick & dirty query tool with just what I need (maybe less).
 * Stop with non query SQL (what about transaction ?)
 * Use schema informations to find foreign keys
 * Use Dapper NuGet ?
-* Display results as Grid or Text (maybe)
 * Etc...
 
 
@@ -128,6 +127,28 @@ FORMAT UPDATE Reports SET Caption = '{1}', Total = {4} WHERE (Id = {ID});
 UPDATE Reports SET Caption = 'Confections', Total = 10 WHERE (Id = 1);
 UPDATE Reports SET Caption = 'Produce', Total = 12 WHERE (Id = 2);
 UPDATE Reports SET Caption = 'Seafood', Total = 5 WHERE (Id = 3);
+```
+
+LIST syntax
+```
+FORMAT LIST
+=>
+Id  Caption      Description                          Created     Total
+--  -----------  -----------------------------------  ----------  -----
+ 1  Confections  Desserts, candies, and sweet breads  04/08/2014     10
+ 2  Produce      Dried fruit and bean curd            04/17/2014     12
+ 3  Seafood      Seaweed and fish                     05/23/2014      5
+```
+
+GRID syntax
+```
+FORMAT GRID
+=>
+| Id | Caption     | Description                         | Created    | Total |
+|----|-------------|-------------------------------------|------------|-------|
+|  1 | Confections | Desserts, candies, and sweet breads | 04/08/2014 |    10 |
+|  2 | Produce     | Dried fruit and bean curd           | 04/17/2014 |    12 |
+|  3 | Seafood     | Seaweed and fish                    | 05/23/2014 |     5 |
 ```
 
 

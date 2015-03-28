@@ -263,9 +263,13 @@ namespace QueryPad
             try
             {
                 // Format DB data
-                if (sql.ToLower() == "text")
+                if (sql.ToLower() == "list")
                 {
-                    Format_Text();
+                    Format_Text(sql.ToLower());
+                }
+                else if (sql.ToLower() == "grid")
+                {
+                    Format_Text(sql.ToLower());
                 }
                 else
                 {
@@ -433,7 +437,7 @@ namespace QueryPad
             Grid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
         }
 
-        private void Format_Text()
+        private void Format_Text(string mode)
         {
             // Get columns alignment (left or right)
             var count = Grid.ColumnCount;
@@ -458,26 +462,30 @@ namespace QueryPad
             }
 
             // Build export format and headers
-            var format = "";
-            var header = "";
-            var hbreak = "";
+            var format = "|";
+            var header = "|";
+            var hbreak = "|";
             for (var i = 0; i < count; i++)
             {
                 var caption = Grid.Columns[i].HeaderText;
                 maxlengths[i] = Math.Max(maxlengths[i], caption.Length);
-                header += "  " + caption.PadRight(maxlengths[i]);
-                hbreak += "  " + "".PadRight(maxlengths[i], '-');
+                header += string.Format(" {0} |", caption.PadRight(maxlengths[i]));
+                hbreak += string.Format("-{0}-|", "".PadRight(maxlengths[i], '-'));
                 if (is_left[i]) maxlengths[i] = -maxlengths[i];
-                format += string.Format("  {{{0},{1}}}", i, maxlengths[i]);
+                format += string.Format(" {{{0},{1}}} |", i, maxlengths[i]);
             }
-            format = format.Substring(2);
-            header = header.Substring(2);
-            hbreak = hbreak.Substring(2);
+            if (mode == "list")
+            {
+                format = format.Replace("|", "");
+                header = header.Replace("|", "");
+                hbreak = hbreak.Replace("-|-", "  ").Replace("|-", "").Replace("-|", "");
+            }
+            format = format.Trim();
 
             // Export data as text
             var text = new StringBuilder();
-            text.AppendLine(header.TrimEnd());
-            text.AppendLine(hbreak);
+            text.AppendLine(header.Trim());
+            text.AppendLine(hbreak.Trim());
             var data = new object[count];
             foreach (DataGridViewRow row in Grid.Rows)
             {
