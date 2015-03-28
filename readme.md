@@ -97,6 +97,40 @@ Row detail (after a rotation)
 * left arrow => previous row
 
 
+## Format command
+
+After a SELECT, FORMAT is a pseudo-command to rearrange data from the query.
+
+SELECT query
+```
+SELECT * FROM Categories
+=>
+Id  Caption      Description                          Created     Total
+--  -----------  -----------------------------------  ----------  -----
+1   Confections  Desserts, candies, and sweet breads  04/08/2014  10
+2   Produce      Dried fruit and bean curd            04/17/2014  12
+3   Seafood      Seaweed and fish                     05/23/2014  5
+```
+
+FORMAT example 1
+```
+FORMAT {0};"{Caption}";{created:yyyy-MM-dd};{total}
+=>
+1;"Confections";2014-04-08;10
+2;"Produce";2014-04-17;12
+3;"Seafood";2014-05-23;5
+```
+
+FORMAT example 2
+```
+FORMAT UPDATE Reports SET Caption = '{1}', Total = {4} WHERE (Id = {ID});
+=>
+UPDATE Reports SET Caption = 'Confections', Total = 10 WHERE (Id = 1);
+UPDATE Reports SET Caption = 'Produce', Total = 12 WHERE (Id = 2);
+UPDATE Reports SET Caption = 'Seafood', Total = 5 WHERE (Id = 3);
+```
+
+
 ## Credit
 
 * FastColoredTextBox (https://github.com/PavelTorgashov/FastColoredTextBox)
