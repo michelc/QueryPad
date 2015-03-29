@@ -391,6 +391,14 @@ namespace QueryPad
             var single_quote = format.Contains("'{") && format.Contains("}'");
             var double_quote = format.Contains("\"{") && format.Contains("}\"");
 
+            // Check CSV export
+            var is_csv = format.ToLower() == "text";
+            if (is_csv)
+            {
+                format = "";
+                double_quote = true;
+            }
+
             // Check columns with string values
             var count = Grid.ColumnCount;
             var is_string = new bool[count];
@@ -398,9 +406,17 @@ namespace QueryPad
             {
                 if (object.ReferenceEquals(c.ValueType, typeof(string))) is_string[c.Index] = true;
                 if (object.ReferenceEquals(c.GetType(), typeof(string))) is_string[c.Index] = true;
-                format = Regex.Replace(format, "\\{" + c.Name + "\\}", "{" + c.Index + "}", RegexOptions.IgnoreCase);
-                format = Regex.Replace(format, "\\{" + c.Name + "\\:", "{" + c.Index + ":", RegexOptions.IgnoreCase);
+                if (is_csv)
+                {
+                    format += is_string[c.Index] ? "\t\"{" + c.Index + "}\"" : "\t{" + c.Index + "}";
+                }
+                else
+                {
+                    format = Regex.Replace(format, "\\{" + c.Name + "\\}", "{" + c.Index + "}", RegexOptions.IgnoreCase);
+                    format = Regex.Replace(format, "\\{" + c.Name + "\\:", "{" + c.Index + ":", RegexOptions.IgnoreCase);
+                }
             }
+            if (is_csv) format = format.Substring(1);
 
             // Format data as text
             var text = new StringBuilder();
