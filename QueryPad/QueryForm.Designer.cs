@@ -43,6 +43,7 @@
             this.Informations = new System.Windows.Forms.Label();
             this.Stop = new System.Windows.Forms.Button();
             this.Execute = new System.Windows.Forms.Button();
+            this.Output = new System.Windows.Forms.TextBox();
             this.Grid = new System.Windows.Forms.DataGridView();
             this.RunTime = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.SplitVertical)).BeginInit();
@@ -153,6 +154,7 @@
             // 
             // SplitHorizontal.Panel2
             // 
+            this.SplitHorizontal.Panel2.Controls.Add(this.Output);
             this.SplitHorizontal.Panel2.Controls.Add(this.Grid);
             this.SplitHorizontal.Panel2.Padding = new System.Windows.Forms.Padding(0, 2, 0, 0);
             this.SplitHorizontal.Size = new System.Drawing.Size(582, 383);
@@ -305,6 +307,24 @@
             this.Execute.UseVisualStyleBackColor = false;
             this.Execute.Click += new System.EventHandler(this.Execute_Click);
             // 
+            // Output
+            // 
+            this.Output.AcceptsReturn = true;
+            this.Output.AcceptsTab = true;
+            this.Output.BackColor = System.Drawing.Color.White;
+            this.Output.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.Output.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Output.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Output.Location = new System.Drawing.Point(0, 2);
+            this.Output.Multiline = true;
+            this.Output.Name = "Output";
+            this.Output.ReadOnly = true;
+            this.Output.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.Output.Size = new System.Drawing.Size(582, 244);
+            this.Output.TabIndex = 1;
+            this.Output.Visible = false;
+            this.Output.WordWrap = false;
+            // 
             // Grid
             // 
             this.Grid.AllowUserToAddRows = false;
@@ -354,6 +374,7 @@
             this.Title.PerformLayout();
             this.SplitHorizontal.Panel1.ResumeLayout(false);
             this.SplitHorizontal.Panel2.ResumeLayout(false);
+            this.SplitHorizontal.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SplitHorizontal)).EndInit();
             this.SplitHorizontal.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.Editor)).EndInit();
@@ -382,5 +403,6 @@
         private System.Windows.Forms.TextBox Filter;
         private System.Windows.Forms.Timer RunTime;
         private FastColoredTextBoxNS.FastColoredTextBox Editor;
+        private System.Windows.Forms.TextBox Output;
     }
 }

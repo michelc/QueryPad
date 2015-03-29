@@ -265,11 +265,11 @@ namespace QueryPad
                 // Format DB data
                 if (sql.ToLower() == "list")
                 {
-                    Format_Text(sql.ToLower());
+                    Format_Text(sql.ToLower(), QueryResult);
                 }
                 else if (sql.ToLower() == "grid")
                 {
-                    Format_Text(sql.ToLower());
+                    Format_Text(sql.ToLower(), QueryResult);
                 }
                 else
                 {
@@ -343,7 +343,11 @@ namespace QueryPad
             if (informations != "") ShowInformations(informations);
 
             EnableUI(true);
-            if ((Grid.DataSource != null) && (Grid.RowCount > 0))
+            if (Output.Visible)
+            {
+                Output.Select(0, 0);
+            }
+            else if ((Grid.DataSource != null) && (Grid.RowCount > 0))
             {
                 if (type == SqlType.Query)
                 {
@@ -437,7 +441,7 @@ namespace QueryPad
             Grid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
         }
 
-        private void Format_Text(string mode)
+        private void Format_Text(string mode, DataTableResult result)
         {
             // Get columns alignment (left or right)
             var count = Grid.ColumnCount;
@@ -504,8 +508,11 @@ namespace QueryPad
                 text.AppendLine(line);
             }
 
-            // Export is available via clipboard
-            Clipboard.SetText(text.ToString());
+            // Display data
+            Output.Text = text.ToString();
+            Output.Visible = true;
+            Grid.Visible = false;
+            result.RowCount = 0; // avoid Rotate
         }
 
         private void Display_List(DataTable dt, bool slow, bool reload)
@@ -516,6 +523,8 @@ namespace QueryPad
             Grid.SuspendLayout();
             Grid.ColumnHeadersVisible = false;
             Grid.DataSource = dt;
+            Grid.Visible = true;
+            Output.Visible = false;
 
             // Set columns title
             for (var i = 0; i < Grid.ColumnCount; i++)
