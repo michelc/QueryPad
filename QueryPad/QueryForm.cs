@@ -402,9 +402,8 @@ namespace QueryPad
                 format = Regex.Replace(format, "\\{" + c.Name + "\\:", "{" + c.Index + ":", RegexOptions.IgnoreCase);
             }
 
-            // Format data in a new DataTable
-            var dt = new DataTable();
-            dt.Columns.Add(" ", typeof(String));
+            // Format data as text
+            var text = new StringBuilder();
             var data = new object[count];
             foreach (DataGridViewRow row in Grid.Rows)
             {
@@ -430,15 +429,14 @@ namespace QueryPad
                     }
                 }
                 var line = string.Format(format, data).Replace("'null'", "null").Replace("\"null\"", "\"\"");
-                dt.Rows.Add(line);
+                text.AppendLine(line);
             }
 
-            // Initialize grid
-            Grid.DataSource = dt;
+            // Display data
+            Output.Text = text.ToString();
+            Output.Visible = true;
+            Grid.Visible = false;
             result.RowCount = 0; // avoid Rotate
-
-            // Resize value column width
-            Grid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
         }
 
         private void Format_Text(string mode, DataTableResult result)
