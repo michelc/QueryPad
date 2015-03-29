@@ -492,7 +492,12 @@ namespace QueryPad
             {
                 for (var i = 0; i < count; i++)
                 {
-                    data[i] = row.Cells[i].FormattedValue.ToString();
+                    data[i] = row.Cells[i].FormattedValue
+                                          .ToString()
+                                          .Replace(Environment.NewLine, " ")
+                                          .Replace('\r', ' ')
+                                          .Replace('\n', ' ')
+                                          .Replace('\t', ' ');
                     if (data[i].Length > 100) data[i] = data[i].Substring(0, 99) + "…";
                 }
                 var line = string.Format(format, data).TrimEnd();
