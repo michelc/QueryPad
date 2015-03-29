@@ -1096,5 +1096,16 @@ namespace QueryPad
                 RunTime.Enabled = true;
             }
         }
+
+        private void Output_KeyUp(object sender, KeyEventArgs e)
+        {
+            // Ctrl+A on FORMAT output
+            // => select all text
+
+            if ((e.Control) && (e.KeyCode == Keys.A))
+            {
+                Output.SelectAll();
+            }
+        }
     }
 }

@@ -324,6 +324,7 @@
             this.Output.TabIndex = 1;
             this.Output.Visible = false;
             this.Output.WordWrap = false;
+            this.Output.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Output_KeyUp);
             // 
             // Grid
             // 
