@@ -21,7 +21,7 @@ Quick & dirty query tool with just what I need (maybe less).
 Connections are defined in the file "App.Connections.secret". It's a JSON file
 with the following informations:
 
-```
+```JSON
 [
   {
     "CnxString": "Data Source=.\\SQLEXPRESS;Integrated Security=SSPI;AttachDBFilename=C:\\DB\\Department_Express.mdf;User Instance=true;Database=Department_Express"
@@ -98,7 +98,10 @@ Row detail (after a rotation)
 
 ## Format command
 
-After a SELECT, FORMAT is a pseudo-command to rearrange data from the query.
+After a SELECT, FORMAT is a pseudo-command to rearrange informations from the
+data grid.
+
+Syntax: `FORMAT { LIST | GRID | TEXT | specific format }`
 
 SELECT query
 ```
@@ -109,24 +112,6 @@ Id  Caption      Description                          Created     Total
 1   Confections  Desserts, candies, and sweet breads  04/08/2014  10
 2   Produce      Dried fruit and bean curd            04/17/2014  12
 3   Seafood      Seaweed and fish                     05/23/2014  5
-```
-
-FORMAT example 1
-```
-FORMAT {0};"{Caption}";{created:yyyy-MM-dd};{total}
-=>
-1;"Confections";2014-04-08;10
-2;"Produce";2014-04-17;12
-3;"Seafood";2014-05-23;5
-```
-
-FORMAT example 2
-```
-FORMAT UPDATE Reports SET Caption = '{1}', Total = {4} WHERE (Id = {ID});
-=>
-UPDATE Reports SET Caption = 'Confections', Total = 10 WHERE (Id = 1);
-UPDATE Reports SET Caption = 'Produce', Total = 12 WHERE (Id = 2);
-UPDATE Reports SET Caption = 'Seafood', Total = 5 WHERE (Id = 3);
 ```
 
 LIST syntax
@@ -149,6 +134,33 @@ FORMAT GRID
 |  1 | Confections | Desserts, candies, and sweet breads | 04/08/2014 |    10 |
 |  2 | Produce     | Dried fruit and bean curd           | 04/17/2014 |    12 |
 |  3 | Seafood     | Seaweed and fish                    | 05/23/2014 |     5 |
+```
+
+TEXT syntax
+```
+FORMAT TEXT
+=>
+1→"Confections"→"Desserts, candies, and sweet breads"→04/08/2014→10
+2→"Produce"→"Dried fruit and bean curd"→04/17/2014→12
+3→"Seafood"→"Seaweed and fish"→05/23/2014→5
+```
+
+FORMAT example 1
+```
+FORMAT {0};"{Caption}";{created:yyyy-MM-dd};{total}
+=>
+1;"Confections";2014-04-08;10
+2;"Produce";2014-04-17;12
+3;"Seafood";2014-05-23;5
+```
+
+FORMAT example 2
+```
+FORMAT UPDATE Reports SET Caption = '{1}', Total = {4} WHERE (Id = {ID});
+=>
+UPDATE Reports SET Caption = 'Confections', Total = 10 WHERE (Id = 1);
+UPDATE Reports SET Caption = 'Produce', Total = 12 WHERE (Id = 2);
+UPDATE Reports SET Caption = 'Seafood', Total = 5 WHERE (Id = 3);
 ```
 
 
