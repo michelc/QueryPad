@@ -351,7 +351,14 @@ namespace QueryPad
             {
                 if (type == SqlType.Query)
                 {
+                    // Expand last column to the right border
+                    var width = Grid.Columns[Grid.ColumnCount - 1].Width;
                     Grid.Columns[Grid.ColumnCount - 1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                    if (Grid.Columns[Grid.ColumnCount - 1].Width < width)
+                    {
+                        Grid.Columns[Grid.ColumnCount - 1].AutoSizeMode = DataGridViewAutoSizeColumnMode.NotSet;
+                        Grid.Columns[Grid.ColumnCount - 1].Width = width;
+                    }
                 }
                 Grid.Select();
             }
