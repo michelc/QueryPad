@@ -60,6 +60,7 @@
             this.List.RowTemplate.Height = 44;
             this.List.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.List.Size = new System.Drawing.Size(284, 262);
+            this.List.StandardTab = true;
             this.List.TabIndex = 0;
             this.List.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.List_CellDoubleClick);
             this.List.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.List_CellFormatting);
