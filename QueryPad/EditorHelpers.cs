@@ -138,7 +138,8 @@ namespace QueryPad
                         break;
                     case '\'':
                         // Start or end a literal string
-                        in_string = !in_string;
+                        // (except when quote happens inside a comment)
+                        if (!in_multi && !in_mono) in_string = !in_string;
                         break;
                     case '\n':
                     case '\r':
