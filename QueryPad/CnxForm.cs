@@ -38,6 +38,7 @@ namespace QueryPad
             List.Columns[0].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
             Cursor = Cursors.Default;
+            List.CurrentCell = List.Rows[0].Cells[1];
             List.Select();
 
             base.OnEnter(e);
