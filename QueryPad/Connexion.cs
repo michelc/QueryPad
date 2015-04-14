@@ -255,7 +255,7 @@ namespace QueryPad
             try
             {
                 // Read and load data asynchronously
-                dc.CommandText = sql;
+                dc.CommandText = sql.Trim(";".ToCharArray());
                 try { dc.CommandTimeout = 90; } catch { }
                 if (transaction != null) dc.Transaction = transaction;
                 da.SelectCommand = dc;
