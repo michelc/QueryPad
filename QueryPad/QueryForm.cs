@@ -726,6 +726,9 @@ namespace QueryPad
         {
             // Guess foreign table name (from foreign column name)
             var column_name = foreign_col.ToUpper();
+            var tricks = QuickNavigationTrick(column_name);
+            if (tricks != null) return tricks;
+
             var table_name = "";
             if (column_name.EndsWith("_ID"))
             {
@@ -772,6 +775,36 @@ namespace QueryPad
 
             // Return table name and pk name
             return new[] { table_name, column_name };
+        }
+
+        private string[] QuickNavigationTrick(string foreign_col)
+        {
+            switch (foreign_col)
+            {
+                case "CODE_AGN": return new[] { "Agences", "Code_Agn" };
+                case "ID_CLIENT": return new[] { "Cy", "IdCompany" };
+                case "CLIENT_ID": return new[] { "Cy", "IdCompany" };
+                case "CLIENTID": return new[] { "Cy", "IdCompany" };
+                case "IDCOMPANY": return new[] { "Cy", "IdCompany" };
+                case "ID_COMPANY": return new[] { "Cy", "IdCompany" };
+                case "INTERIM_ID": return new[] { "Interimaires", "Interim_ID" };
+                case "QUALIF_ID": return new[] { "Qualif_Replik", "Qualif_Replik_ID" };
+                case "ACCORD_ID": return new[] { "Accord_Edi", "ID" };
+                case "ACCORD_NATIONAL_ID": return new[] { "Accord_Edi_National", "ID" };
+                case "ETABLISSEMENT_ID": return new[] { "Etablissement_Edi", "ID" };
+                case "CC_EDI_ID": return new[] { "Centre_Cout_Edi", "ID" };
+                case "POSTE_EDI_ID": return new[] { "Poste_Edi", "ID" };
+                case "CHANTIER_EDI_ID": return new[] { "Chantier_Edi", "ID" };
+                case "TYPE_EDI": return new[] { "Type_Edi", "ID" };
+                case "PLATEFORME_Edi": return new[] { "Plateforme_Edi", "ID" };
+                case "PLATEFORME_ID": return new[] { "Plateforme_Edi", "ID" };
+                case "CODEQUALIF": return new[] { "Qualification_Edi", "ID" };
+                case "QUALIF_CS_ID": return new[] { "Qualification_Edi", "ID" };
+                case "QUALIFICATION_ID": return new[] { "Qualification_Edi", "ID" };
+                case "ID_AVENANT": return new[] { "Ex_Avenant", "Id_Avenant" };
+            }
+
+            return null;
         }
 
         private void Grid_CellClick(object sender, DataGridViewCellEventArgs e)
