@@ -753,31 +753,14 @@ namespace QueryPad
             }
 
             // Check if foreign table exists
-            for (var i = 0; i < Tables.Items.Count; i++)
-            {
-                if (string.Compare(Tables.Items[i].ToString(), table_name, true) == 0)
-                {
-                    table_name = Tables.Items[i].ToString();
-                    break;
-                }
-                else if (string.Compare(Tables.Items[i].ToString(), table_name + "s", true) == 0)
-                {
-                    table_name = Tables.Items[i].ToString();
-                    break;
-                }
-                else if (string.Compare(Tables.Items[i].ToString() + "s", table_name, true) == 0)
-                {
-                    table_name = Tables.Items[i].ToString();
-                    break;
-                }
-                else if (string.Compare(Tables.Items[i].ToString(), "dir_" + table_name + "s", true) == 0)
-                {
-                    // PI.MDB very specific
-                    table_name = Tables.Items[i].ToString();
-                    break;
-                }
-            }
-            if (table_name == "") return null;
+            var tables = Cnx.GetTables(true);
+            table_name = (from t in Cnx.GetTables(true)
+                          where t.ToLowerInvariant() == table_name.ToLowerInvariant()
+                             || t.ToLowerInvariant() == table_name.ToLowerInvariant() + "s"
+                             || t.ToLowerInvariant() + "s" == table_name.ToLowerInvariant()
+                             || t.ToLowerInvariant() == "dir_" + table_name.ToLowerInvariant() + "s"
+                          select t).FirstOrDefault();
+            if (table_name == null) return null;
 
             // Get table first column name (should be the primary key)
             try
