@@ -663,6 +663,7 @@ namespace QueryPad
 
             // [Stop] button is disabled when toolbar is enabled
             Stop.Enable(!onoff);
+            Stop.Text = Stop.Text.Replace("Pending", "Sto&p");
 
             // [Rotate] button is enabled when toolbar is enabled and result is not empty
             Rotate.Enable(onoff && (QueryResult.RowCount > 0));
@@ -1012,6 +1013,7 @@ namespace QueryPad
             // => cancel current query
 
             Cancellation.Cancel();
+            Stop.Text = Stop.Text.Replace("Sto&p", "Pending");
             Stop.Enable(false);
         }
 
