@@ -46,7 +46,7 @@ namespace QueryPad
         public void Close()
         {
             // Close current connexion
-            if (transaction != null) transaction.Commit();
+            if (transaction != null) try { transaction.Commit(); } catch { }
             try { db.Close(); } catch { }
         }
 
