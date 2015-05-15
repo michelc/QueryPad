@@ -40,7 +40,7 @@ namespace QueryPad
             db.Open();
             da = factory.CreateDataAdapter();
             dc = db.CreateCommand();
-            transaction = CnxParameter.NoTransaction ? null : db.BeginTransaction();
+            transaction = null;
         }
 
         public void Close()
@@ -85,7 +85,7 @@ namespace QueryPad
             if (cache_columns.ContainsKey(table.ToLower())) return cache_columns[table.ToLower()];
             var columns = new List<Column>();
 
-            // Need a specific connexion
+            // Need a specific connexion (outside a transaction)
             var db = factory.CreateConnection();
             db.ConnectionString = CnxParameter.CnxString;
             db.Open();
@@ -327,7 +327,7 @@ namespace QueryPad
                 if (transaction != null)
                 {
                     transaction.Commit();
-                    transaction = db.BeginTransaction();
+                    transaction = null;
                 }
                 this.UseTransaction = false;
                 return -10001;
@@ -337,11 +337,12 @@ namespace QueryPad
                 if (transaction != null)
                 {
                     transaction.Rollback();
-                    transaction = db.BeginTransaction();
+                    transaction = null;
                 }
                 this.UseTransaction = false;
                 return -10002;
             }
+            if (transaction == null) transaction = CnxParameter.NoTransaction ? null : db.BeginTransaction();
             int count = -1;
             var command = db.CreateCommand();
             if (!sql.EndsWith("END;")) sql = sql.Trim(";".ToCharArray());
