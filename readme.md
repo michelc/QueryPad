@@ -82,6 +82,7 @@ Supported providers:
 Connection tab
 * double click => open selected connection
 * file drop => open file (if extension in "mdb", "sdf", "db", "db3", "sqlite")
+* delete key => remove connection from list
 
 Connection title
 * double click => refresh table list

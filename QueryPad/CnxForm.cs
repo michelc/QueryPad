@@ -39,7 +39,7 @@ namespace QueryPad
             List.Columns[0].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
             Cursor = Cursors.Default;
-            List.CurrentCell = List.Rows[0].Cells[1];
+            if (List.RowCount > 0) List.CurrentCell = List.Rows[0].Cells[1];
             List.Select();
 
             base.OnEnter(e);
@@ -83,13 +83,33 @@ namespace QueryPad
 
         private void List_KeyDown(object sender, KeyEventArgs e)
         {
-            // Return or Space over a connection
-            // => open this connection
+            // Return, Space or Delete over a connection
+            if (List.RowCount == 0) return;
 
             if ((e.KeyCode == Keys.Return) || (e.KeyCode == Keys.Space))
             {
+                // Open this connection
                 Cursor = Cursors.WaitCursor;
                 List_CellDoubleClick(sender, new DataGridViewCellEventArgs(0, List.CurrentRow.Index));
+            }
+            else if (e.KeyCode == Keys.Delete)
+            {
+                // Ask to remove the connection
+                if (MessageBox.Show("Ok to remove this connection (files will not be deleted)?"
+                                  , List.CurrentRow.Cells[1].Value.ToString()
+                                  , MessageBoxButtons.OKCancel) == DialogResult.Cancel) return;
+
+                // Remove the connection
+                var index = List.CurrentRow.Index;
+                var CnxParameter = CnxParameters[index];
+                CnxParameters.RemoveAt(index);
+                CnxParameter.Save(CnxParameters);
+                List.DataSource = new SortableBindingList<CnxParameter>(CnxParameters);
+
+                // Reselect current connection
+                if (List.RowCount == 0) return;
+                if (index == List.RowCount) index--;
+                List.CurrentCell = List.Rows[index].Cells[1];
             }
         }
 
@@ -97,6 +117,7 @@ namespace QueryPad
         {
             // Press a key
             // => select next connection starting with this key
+            if (List.RowCount == 0) return;
 
             var letter = e.KeyChar.ToString().ToUpper();
             if (letter.CompareTo("A") < 0) return;
