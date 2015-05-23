@@ -69,6 +69,7 @@
             // 
             // CnxForm
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
@@ -79,6 +80,8 @@
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.Text = "CnxForm";
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.CnxForm_DragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.CnxForm_DragEnter);
             ((System.ComponentModel.ISupportInitialize)(this.List)).EndInit();
             this.ResumeLayout(false);
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using Altrr;
 
@@ -122,6 +123,58 @@ namespace QueryPad
                     return;
                 }
             }
+        }
+
+        private void CnxForm_DragDrop(object sender, DragEventArgs e)
+        {
+            // Check if drop is valid
+            var file = GetDropFileName(e);
+            if (file == "") return;
+
+            // Just select corresponding connection if exist
+            foreach (DataGridViewRow r in List.Rows)
+            {
+                if (r.Cells[3].Value.ToString().ToLower().Contains(file.ToLower()))
+                {
+                    List.CurrentCell = r.Cells[1];
+                    return;
+                }
+            }
+
+            // Add a connection for this file
+            var CnxParameter = new CnxParameter(file);
+            if (string.IsNullOrEmpty(CnxParameter.Name)) return;
+            CnxParameters.Add(CnxParameter);
+            List.DataSource = new SortableBindingList<CnxParameter>(CnxParameters);
+
+            // Directly open this new connection
+            Cursor = Cursors.WaitCursor;
+            List_CellDoubleClick(sender, new DataGridViewCellEventArgs(0, List.RowCount - 1));
+        }
+
+        private void CnxForm_DragEnter(object sender, DragEventArgs e)
+        {
+            // Show if drop is valid
+            var file = GetDropFileName(e);
+            e.Effect = file == "" ? DragDropEffects.None : DragDropEffects.Copy;
+        }
+
+        private string GetDropFileName(DragEventArgs e)
+        {
+            // Accept drag & drop for files only
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return "";
+
+            // Accept only 1 file
+            string[] files = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (files.Length != 1) return "";
+
+            // Accept only known extensions
+            var file = files[0];
+            var extension = file.Substring(1 + file.LastIndexOf(".")).ToLower();
+            if (!CnxParameter.DropExtensions.Contains(extension)) return "";
+
+            // This file is dropable
+            return file;
         }
     }
 }

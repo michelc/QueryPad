@@ -12,6 +12,8 @@ namespace Altrr
     [DataContract]
     public class CnxParameter
     {
+        public static string[] DropExtensions = { "mdb", "sdf", "db", "db3", "sqlite" };
+
         [DataMember]
         public string Environment { get; set; }
 
@@ -28,6 +30,31 @@ namespace Altrr
         [Browsable(false)]
         [DataMember]
         public string LastUse { get; set; }
+
+        public CnxParameter(string file)
+        {
+            var extension = file.Substring(1 + file.LastIndexOf(".")).ToLower();
+            if (!CnxParameter.DropExtensions.Contains(extension)) return;
+
+            this.Name = file.Substring(1 + file.LastIndexOf("\\"));
+            this.Environment = "Release";
+
+            switch (extension)
+            {
+                case "mdb":
+                    this.CnxString = string.Format("Driver={{Microsoft Access Driver (*.mdb, *.accdb)}};DBQ={0};ExtendedAnsiSQL=1", file);
+                    this.Provider = "System.Data.Odbc";
+                    break;
+                case "sdf":
+                    this.CnxString = string.Format("Data Source={0}", file);
+                    this.Provider = "System.Data.SqlServerCe.4.0";
+                    break;
+                default:
+                    this.CnxString = string.Format("Data Source={0};Version=3", file);
+                    this.Provider = "System.Data.SQLite";
+                    break;
+            }
+        }
 
         public string ConnectionString
         {

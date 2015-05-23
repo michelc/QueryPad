@@ -79,6 +79,10 @@ Supported providers:
 
 ## Usage
 
+Connection tab
+* double click => open selected connection
+* file drop => open file (if extension in "mdb", "sdf", "db", "db3", "sqlite")
+
 Connection title
 * double click => refresh table list
 
