@@ -12,7 +12,7 @@ using Dapper;
 
 namespace QueryPad
 {
-    public class Connexion
+    public class Connection
     {
         public CnxParameter CnxParameter { get; set; }
         public bool UseTransaction { get; set; }
@@ -25,7 +25,7 @@ namespace QueryPad
         private string[] cache_tables;
         private Dictionary<string, List<Column>> cache_columns;
 
-        public Connexion(CnxParameter CnxParameter)
+        public Connection(CnxParameter CnxParameter)
         {
             this.CnxParameter = CnxParameter;
             this.UseTransaction = false;
@@ -33,7 +33,7 @@ namespace QueryPad
 
         public void Open()
         {
-            // Open the connexion
+            // Open the connection
             factory = DbProviderFactories.GetFactory(CnxParameter.Provider);
             db = factory.CreateConnection();
             db.ConnectionString = Regex.Replace(CnxParameter.CnxString, "transaction=no", "", RegexOptions.IgnoreCase);
@@ -86,7 +86,7 @@ namespace QueryPad
             if (cache_columns.ContainsKey(table.ToLower())) return cache_columns[table.ToLower()];
             var columns = new List<Column>();
 
-            // Need a specific connexion (outside a transaction)
+            // Need a specific connection (outside a transaction)
             var db = factory.CreateConnection();
             db.ConnectionString = CnxParameter.CnxString;
             db.Open();

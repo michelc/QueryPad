@@ -14,7 +14,7 @@ namespace QueryPad
 {
     public partial class QueryForm : Form
     {
-        private Connexion Cnx { get; set; }
+        private Connection Cnx { get; set; }
 
         private bool ControlKey = false;
         private DateTime? StartTime;
@@ -38,10 +38,10 @@ namespace QueryPad
                     break;
             }
 
-            ConnexionName.Text = CnxParameter.Name.ToUpper();
+            ConnectionName.Text = CnxParameter.Name.ToUpper();
             ShowInformations("");
 
-            Cnx = new Connexion(CnxParameter);
+            Cnx = new Connection(CnxParameter);
             try
             {
                 Cnx.Open();
@@ -573,7 +573,7 @@ namespace QueryPad
             }
             Grid.ColumnHeadersVisible = mode != DataGridViewAutoSizeColumnsMode.DisplayedCellsExceptHeader;
             Grid.AutoResizeColumns(mode);
-            
+
             // Check for big widths
             Grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             for (var i = 0; i < Grid.ColumnCount; i++)
@@ -657,7 +657,7 @@ namespace QueryPad
             // Table list is enabled when toolbar is
             Tables.Enabled = onoff;
             Filter.Enabled = onoff;
-            ConnexionName.Enabled = onoff;
+            ConnectionName.Enabled = onoff;
 
             // [Execute] button is enabled when toolbar is
             Execute.Enable(onoff);
@@ -1069,9 +1069,9 @@ namespace QueryPad
             Execute_Click(null, null);
         }
 
-        private void ConnexionName_DoubleClick(object sender, EventArgs e)
+        private void ConnectionName_DoubleClick(object sender, EventArgs e)
         {
-            // Connexion name was double clicked
+            // Connection name was double clicked
             // => reload table list
 
             Tables.DataSource = Cnx.GetTables(false);

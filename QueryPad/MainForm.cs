@@ -72,7 +72,7 @@ namespace QueryPad
             var query = new QueryForm(CnxParameter);
             AddFormToTab(query, tab);
 
-            // Remove the tab when connexion failed
+            // Remove the tab when connection failed
             if (query.Text == "")
             {
                 Tabs.TabPages.Remove(tab);
