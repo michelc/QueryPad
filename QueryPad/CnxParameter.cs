@@ -12,7 +12,7 @@ namespace Altrr
     [DataContract]
     public class CnxParameter
     {
-        public static string[] DropExtensions = { "mdb", "sdf", "db", "db3", "sqlite" };
+        public static string[] DropExtensions = { "mdb", "mdf", "sdf", "db", "db3", "sqlite" };
 
         [DataMember]
         public string Environment { get; set; }
@@ -37,6 +37,7 @@ namespace Altrr
             if (!CnxParameter.DropExtensions.Contains(extension)) return;
 
             this.Name = file.Substring(1 + file.LastIndexOf("\\"));
+            var dbname = this.Name.Substring(0, this.Name.LastIndexOf("."));
             this.Environment = "Release";
 
             switch (extension)
@@ -44,6 +45,10 @@ namespace Altrr
                 case "mdb":
                     this.CnxString = string.Format("Driver={{Microsoft Access Driver (*.mdb, *.accdb)}};DBQ={0};ExtendedAnsiSQL=1", file);
                     this.Provider = "System.Data.Odbc";
+                    break;
+                case "mdf":
+                    this.CnxString = string.Format("Data Source=.\\SQLEXPRESS;Integrated Security=SSPI;User Instance=true;AttachDBFilename={0};Database={1}", file, dbname);
+                    this.Provider = "System.Data.SqlClient";
                     break;
                 case "sdf":
                     this.CnxString = string.Format("Data Source={0}", file);
