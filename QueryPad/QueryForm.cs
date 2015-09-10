@@ -219,6 +219,8 @@ namespace QueryPad
                 // Read informations from schema
                 Grid.DataSource = new SortableBindingList<Column>(Cnx.GetColumns(sql));
                 Grid.AutoResizeColumns();
+                Grid.Visible = true;
+                Output.Visible = false;
                 if (Grid.RowCount > 0)
                 {
                     informations = Grid.RowCount.ToString() + " columns";
