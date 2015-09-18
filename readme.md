@@ -42,7 +42,7 @@ with the following informations:
   , "Provider": "System.Data.SqlServerCe.4.0"
   },
   {
-    "CnxString": "Server=xxxxx.amazonaws.com;Database=yyyyy;User Id=zzzzz;Password=xyz;Port=5432;Ssl=true"
+    "CnxString": "Host=xxxxx.amazonaws.com;Database=yyyyy;Username=zzzzz;Password=xyz;Port=5432;SSL Mode=Require;Trust Server Certificate=true"
   , "Environment": "Release"
   , "Name": "Department.Heroku"
   , "Provider": "Npgsql"
