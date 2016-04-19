@@ -282,6 +282,12 @@ namespace QueryPad
                     result.Titles[i] = result.DataTable.Columns[i].Caption;
                     if (oracle) result.Titles[i] = ti.ToTitleCase(result.Titles[i].ToLower());
                 }
+
+                // Avoid sort error with comma in columns name
+                for (int i = 0; i < count; i++)
+                {
+                    result.DataTable.Columns[i].ColumnName = result.DataTable.Columns[i].ColumnName.Replace(",", "_");
+                }
             }
             catch { throw; }
 
