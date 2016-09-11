@@ -162,9 +162,29 @@ namespace QueryPad
                 }
             }
 
-            // Add a connection for this file
+            // Get connection infos for this file
             var CnxParameter = new CnxParameter(file);
             if (string.IsNullOrEmpty(CnxParameter.Name)) return;
+
+            // Check for name duplicate
+            var name = CnxParameter.Name;
+            var index = 0;
+            var duplicate = true;
+            while (duplicate)
+            {
+                duplicate = false;
+                foreach (DataGridViewRow r in List.Rows)
+                {
+                    if (r.Cells[1].Value.ToString().ToLower() == CnxParameter.Name.ToLower())
+                    {
+                        duplicate = true;
+                        CnxParameter.Name = string.Format("{0} ({1})", name, ++index);
+                        break;
+                    }
+                }
+            }
+
+            // Add a connection for this file
             CnxParameters.Add(CnxParameter);
             List.DataSource = new SortableBindingList<CnxParameter>(CnxParameters);
 
