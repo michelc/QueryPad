@@ -730,8 +730,14 @@ namespace QueryPad
         {
             // Guess foreign table name (from foreign column name)
             var column_name = foreign_col.ToUpper();
-            var tricks = QuickNavigationTrick(column_name);
-            if (tricks != null) return tricks;
+            if (Cnx.CnxParameter.IsOracle)
+            {
+                if (Cnx.CnxParameter.ConnectionString.ToLower().Contains("=extra"))
+                {
+                    var tricks = QuickNavigationTricks(column_name);
+                    if (tricks != null) return tricks;
+                }
+            }
 
             var table_name = "";
             if (column_name.EndsWith("_ID"))
@@ -781,7 +787,7 @@ namespace QueryPad
             return new[] { table_name, column_name };
         }
 
-        private string[] QuickNavigationTrick(string foreign_col)
+        private string[] QuickNavigationTricks(string foreign_col)
         {
             switch (foreign_col)
             {
