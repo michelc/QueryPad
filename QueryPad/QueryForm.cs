@@ -128,6 +128,7 @@ namespace QueryPad
             {
                 case SqlType.Query:
                     // Read data from DB
+                    Grid.Select();
                     Execute_QueryAsync(sql);
                     break;
                 case SqlType.Desc:
@@ -362,7 +363,6 @@ namespace QueryPad
                         Grid.Columns[Grid.ColumnCount - 1].Width = width;
                     }
                 }
-                Grid.Select();
             }
             else
             {
