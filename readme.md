@@ -64,6 +64,19 @@ with the following informations:
   , "Environment": "Debug"
   , "Name": "Department.MDB"
   , "Provider": "System.Data.Odbc"
+  },
+  {
+    "CnxString": "Driver={Client Access ODBC Driver (32-bit)};System=11.111.1.111;DBQ=xxxxx;QueryTimeout=0;Uid=zzzzz;Pwd=xyz;Transaction=no"
+  , "Environment": "Debug"
+  , "Name": "Department.DB2"
+  , "Provider": "System.Data.Odbc"
+  },
+  {
+    "CnxString": "Driver={MySQL ODBC 5.3 ANSI Driver};Server=localhost;Database=Department;
+User=zzzzz;Password=xyz;Option=3"
+  , "Environment": "Debug"
+  , "Name": "Department.MySQL"
+  , "Provider": "System.Data.Odbc"
   }
 ]
 ```
