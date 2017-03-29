@@ -153,6 +153,7 @@ namespace QueryPad
                     case "Oracle.DataAccess.Client":
                     case "System.Data.OracleClient":
                         columns[i].Name = ti.ToTitleCase(columns[i].Name.ToLower());
+                        if (columns[i].Name.EndsWith("_Id")) columns[i].Name = columns[i].Name.Substring(0, columns[i].Name.Length - 1) + "D";
                         columns[i].Type = row["DataType"].ToString().ToLower();
                         switch (columns[i].Type)
                         {
@@ -280,7 +281,11 @@ namespace QueryPad
                 for (int i = 0; i < count; i++)
                 {
                     result.Titles[i] = result.DataTable.Columns[i].Caption;
-                    if (oracle) result.Titles[i] = ti.ToTitleCase(result.Titles[i].ToLower());
+                    if (oracle)
+                    {
+                        result.Titles[i] = ti.ToTitleCase(result.Titles[i].ToLower());
+                        if (result.Titles[i].EndsWith("_Id")) result.Titles[i] = result.Titles[i].Substring(0, result.Titles[i].Length - 1) + "D";
+                    }
                 }
 
                 // Avoid sort error with comma in columns name
