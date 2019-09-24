@@ -151,6 +151,7 @@ namespace QueryPad
                         if (columns[i].Type == "integer") columns[i].Type = "int identity(1,1)";
                         break;
                     case "Oracle.DataAccess.Client":
+                    case "Oracle.ManagedDataAccess.Client":
                     case "System.Data.OracleClient":
                         columns[i].Name = ti.ToTitleCase(columns[i].Name.ToLower());
                         if (columns[i].Name.EndsWith("_Id")) columns[i].Name = columns[i].Name.Substring(0, columns[i].Name.Length - 1) + "D";
@@ -232,6 +233,7 @@ namespace QueryPad
                             ORDER BY CASE WHEN Table_Schema = 'dbo' THEN '' ELSE Table_Schema + '.' END, Table_Name";
                     break;
                 case "Oracle.DataAccess.Client":
+                case "Oracle.ManagedDataAccess.Client":
                 case "System.Data.OracleClient":
                     sql = @"SELECT INITCAP(Table_Name)
                             FROM   User_Tables

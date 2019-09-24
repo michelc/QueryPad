@@ -86,6 +86,7 @@ Supported providers:
 * System.Data.SqlServerCe.4.0
 * Npgsql
 * System.Data.SQLite
+* Oracle.ManagedDataAccess.Client
 * Oracle.DataAccess.Client (and System.Data.OracleClient)
 * System.Data.Odbc
 
