@@ -69,7 +69,8 @@ namespace QueryPad
             {
                 cache_tables = db.Query<string>(sql, transaction: transaction).ToArray();
             }
-            cache_tables = cache_tables.Where(t => t.ToLower() != "__migrationhistory")
+            cache_tables = cache_tables.Where(t => t.ToLower() != "__migrationhistory"
+                                                && t.ToLower() != "__efmigrationshistory")
                                        .OrderBy(t => t)
                                        .ToArray();
 
