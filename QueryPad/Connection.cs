@@ -135,7 +135,13 @@ namespace QueryPad
                 // Get default value
                 try
                 {
-                    columns[i].Default = Convert.ToString(row["Column_Default"]).Trim() + "::";
+                    try
+                    {
+                        columns[i].Default = Convert.ToString(row["Column_Default"]).Trim() + "::";
+                    } catch
+                    {
+                        columns[i].Default = Convert.ToString(row["Column_Def"]).Trim() + "::";
+                    }
                     columns[i].Default = columns[i].Default.Substring(0, columns[i].Default.IndexOf("::"));
                     while ((columns[i].Default.StartsWith("(")) && (columns[i].Default.EndsWith(")")))
                     {
