@@ -149,7 +149,6 @@ namespace QueryPad
                     case "System.Data.SQLite":
                         // SQLite => GetDataTypeName = data type + size
                         if (Convert.ToString(row["Data_Type"]).ToLower() == "int identity") columns[i].Type = "int identity(1,1)";
-                        if (columns[i].Type == "integer") columns[i].Type = "int identity(1,1)";
                         break;
                     case "Oracle.DataAccess.Client":
                     case "Oracle.ManagedDataAccess.Client":
