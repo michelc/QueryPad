@@ -126,21 +126,22 @@ namespace QueryPad
             dt = db.GetSchema("Columns", restrictions);
             var ordinal = -1;
             if (CnxParameter.Provider == "System.Data.SQLite") ordinal = 0;
+            var column_pos = (CnxParameter.IsOracle) ? "ID" : "Ordinal_Position";
+            var column_def = "Column_Default";
             for (var x = 0; x < count; x++)
             {
                 var row = dt.Rows[x];
-                var i = (CnxParameter.IsOracle)
-                        ? Convert.ToInt32(row["ID"]) - 1
-                        : Convert.ToInt32(row["Ordinal_Position"]) + ordinal;
+                var i = Convert.ToInt32(row[column_pos]) + ordinal;
                 // Get default value
                 try
                 {
                     try
                     {
-                        columns[i].Default = Convert.ToString(row["Column_Default"]).Trim() + "::";
+                        columns[i].Default = Convert.ToString(row[column_def]).Trim() + "::";
                     } catch
                     {
-                        columns[i].Default = Convert.ToString(row["Column_Def"]).Trim() + "::";
+                        column_def = "Column_Def";
+                        columns[i].Default = Convert.ToString(row[column_def]).Trim() + "::";
                     }
                     columns[i].Default = columns[i].Default.Substring(0, columns[i].Default.IndexOf("::"));
                     while ((columns[i].Default.StartsWith("(")) && (columns[i].Default.EndsWith(")")))
